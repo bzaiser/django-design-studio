@@ -309,7 +309,8 @@ body[data-menu-style="gradient"] .app-navbar {
 }
 body[data-menu-style="gradient"] .app-navbar .navbar-brand,
 body[data-menu-style="gradient"] .app-navbar .nav-link,
-body[data-menu-style="gradient"] .app-navbar .sidebar-toggle-btn {
+body[data-menu-style="gradient"] .app-navbar .sidebar-toggle-btn,
+body[data-menu-style="gradient"] .app-navbar .menu-layout-toggle-btn {
     color: rgba(255, 255, 255, 0.92) !important;
 }
 body[data-menu-style="gradient"] .app-navbar .nav-link.active {
@@ -345,9 +346,11 @@ body[data-menu-style="brutal"] .app-navbar .nav-link { border-radius: 8px; }
 body[data-menu-style="glass"] .app-navbar .navbar-brand,
 body[data-menu-style="glass"] .app-navbar .nav-link,
 body[data-menu-style="glass"] .app-navbar .sidebar-toggle-btn,
+body[data-menu-style="glass"] .app-navbar .menu-layout-toggle-btn,
 body[data-menu-style="brutal"] .app-navbar .navbar-brand,
 body[data-menu-style="brutal"] .app-navbar .nav-link,
-body[data-menu-style="brutal"] .app-navbar .sidebar-toggle-btn {
+body[data-menu-style="brutal"] .app-navbar .sidebar-toggle-btn,
+body[data-menu-style="brutal"] .app-navbar .menu-layout-toggle-btn {
     color: var(--app-card-color, #1e293b) !important;
 }
 body[data-menu-style="glass"] .app-navbar .nav-link.active,
@@ -426,8 +429,16 @@ body[data-menu-layout="sidebar"] .nav-sliding-pill { border-radius: 12px; }
 }
 
 /* Sidebar Panel Mode on Desktop (>= 992px) */
-.sidebar-toggle-btn { display: none; }
+.sidebar-toggle-btn,
+.menu-layout-toggle-btn { display: none; }
 @media (min-width: 992px) {
+    .menu-layout-toggle-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        border: none; background: transparent; padding: 0.25rem 0.4rem; border-radius: 8px;
+        opacity: 0.75; cursor: pointer; text-decoration: none; margin-right: 0.25rem;
+    }
+    .menu-layout-toggle-btn:hover { opacity: 1; background: rgba(128,128,128,0.14); }
+    body[data-menu-layout="sidebar"].sidebar-collapsed .menu-layout-toggle-btn { display: none; }
     body[data-menu-layout="sidebar"] { padding-left: 248px; transition: padding-left 0.22s ease; }
     body[data-menu-layout="sidebar"].sidebar-collapsed { padding-left: 74px; }
     body[data-menu-layout="sidebar"] .app-navbar {

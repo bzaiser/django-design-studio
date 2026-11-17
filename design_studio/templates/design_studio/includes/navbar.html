@@ -8,12 +8,19 @@
                 {% endif %}
                 <span class="brand-text">{{ design_studio_app_name|default:"App" }}</span>
             </a>
-            <button type="button" id="sidebarCollapseBtn" class="sidebar-toggle-btn" title="{% trans 'Seitenpanel ein-/ausklappen' %}" aria-label="Toggle Sidebar">
-                <i class="bi bi-layout-sidebar-inset"></i>
-            </button>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <div class="d-flex align-items-center gap-1">
+                <a href="{% url 'design_studio:toggle_menu_layout' %}" class="menu-layout-toggle-btn"
+                   title="{% if theme_studio.menu_layout == 'sidebar' %}{% trans 'Menü nach oben legen' %}{% else %}{% trans 'Menü als Seitenpanel links andocken' %}{% endif %}"
+                   aria-label="Toggle Menu Layout">
+                    <i class="bi {% if theme_studio.menu_layout == 'sidebar' %}bi-layout-text-window{% else %}bi-layout-sidebar{% endif %}"></i>
+                </a>
+                <button type="button" id="sidebarCollapseBtn" class="sidebar-toggle-btn" title="{% trans 'Seitenpanel ein-/ausklappen' %}" aria-label="Toggle Sidebar">
+                    <i class="bi bi-layout-sidebar-inset"></i>
+                </button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
         </div>
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 nav-pill-track" id="navMainList">

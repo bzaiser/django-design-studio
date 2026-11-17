@@ -242,6 +242,19 @@ class DesignStudioPackageTests(TestCase):
         self.assertIn("bi-hdd-network", html)
         self.assertIn("bi-rocket-takeoff", html)
 
+    def test_toggle_menu_layout_switches_between_top_and_sidebar(self):
+        from design_studio.storage import get_storage_adapter
+
+        resp1 = self.client.get("/design-studio/toggle-menu-layout/")
+        self.assertEqual(resp1.status_code, 302)
+        self.assertEqual(get_storage_adapter().get_settings(self.user)["menu_layout"], "sidebar")
+        self.assertIn('data-menu-layout="sidebar"', self.client.get("/design-studio/").content.decode("utf-8"))
+
+        resp2 = self.client.get("/design-studio/toggle-menu-layout/")
+        self.assertEqual(resp2.status_code, 302)
+        self.assertEqual(get_storage_adapter().get_settings(self.user)["menu_layout"], "top")
+        self.assertIn('data-menu-layout="top"', self.client.get("/design-studio/").content.decode("utf-8"))
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner

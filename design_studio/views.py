@@ -196,6 +196,23 @@ def toggle_night_mode_view(request):
 
 
 @login_required
+def toggle_menu_layout_view(request):
+    adapter = get_storage_adapter()
+    ts = adapter.get_settings(request.user)
+    ts["menu_layout"] = "top" if ts.get("menu_layout") == "sidebar" else "sidebar"
+    palette = compute_theme_palette(
+        c1=ts["c1"],
+        c2=ts["c2"],
+        mood_key=ts["mood"],
+        bg_mode=ts["bg_mode"],
+        bg_custom=ts["bg_custom"],
+        state_overrides=ts.get("state_overrides"),
+    )
+    adapter.save_settings(request.user, ts, palette=palette, manual_precision=False)
+    return redirect(request.META.get("HTTP_REFERER") or "/")
+
+
+@login_required
 def export_theme_json_view(request):
     adapter = get_storage_adapter()
     ts = adapter.get_settings(request.user)
