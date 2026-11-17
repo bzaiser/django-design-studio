@@ -167,7 +167,7 @@ body[data-card-surface="solid"] .card:not(.metric-card) .table tbody {
 }
 @media (max-width: 575.98px) {
     .kpi-bento-grid { gap: 0.65rem; }
-    .kpi-bento-grid > .kpi-size-sm { grid-column: span 6; }
+    .kpi-bento-grid > .kpi-size-sm,
     .kpi-bento-grid > .kpi-size-md,
     .kpi-bento-grid > .kpi-size-lg { grid-column: span 12; }
 }
