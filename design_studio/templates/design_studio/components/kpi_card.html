@@ -1,0 +1,46 @@
+<div class="kpi-size-{{ size|default:'sm' }}">
+    <div class="card metric-card h-100 p-3"
+         {% if target_url %}data-target-url="{{ target_url }}" onclick="if (document.body.dataset.kpiClick !== 'false' && !event.target.closest('a, button')) window.location.href='{{ target_url|escapejs }}';" style="--card-accent: {{ accent|default:'var(--app-primary, #0d6efd)' }}; background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), {{ accent|default:'var(--app-primary, #0d6efd)' }}; color: {{ text_color|default:'#ffffff' }}; cursor: pointer;"{% else %}style="--card-accent: {{ accent|default:'var(--app-primary, #0d6efd)' }}; background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), {{ accent|default:'var(--app-primary, #0d6efd)' }}; color: {{ text_color|default:'#ffffff' }};"{% endif %}>
+        <div class="kpi-decor-clip">
+            <div class="kpi-spotlight"></div>
+            {% if icon %}<i class="bi {{ icon }} kpi-watermark-icon"></i>{% endif %}
+            {% if sparkline_line %}
+            <svg class="kpi-sparkline-svg" viewBox="0 0 200 42" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="spGrad-{{ card_id|default:'kpi' }}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="currentColor" stop-opacity="0.28"/>
+                        <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+                    </linearGradient>
+                </defs>
+                {% if sparkline_area %}<path d="{{ sparkline_area }}" fill="url(#spGrad-{{ card_id|default:'kpi' }})"/>{% endif %}
+                <path d="{{ sparkline_line }}" fill="none" stroke="currentColor" stroke-width="1.8" opacity="0.65"/>
+            </svg>
+            {% endif %}
+        </div>
+        <div class="card-body p-0 d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-uppercase fw-bold opacity-85" style="font-size: 0.68rem; letter-spacing: 0.05em;">{{ title }}</span>
+                {% if icon %}<i class="bi {{ icon }} fs-5 ms-2"></i>{% endif %}
+            </div>
+            <div class="metric-value">
+                <h3 class="mb-0 fw-bold font-monospace">
+                    {{ value }}{% if unit %} <span class="fs-6 fw-normal opacity-75">{{ unit }}</span>{% endif %}
+                </h3>
+                {% if subtitle %}
+                <div class="mt-2 small opacity-75" style="font-size: 0.74rem;">{{ subtitle }}</div>
+                {% endif %}
+                {% if progress_segments %}
+                <div class="kpi-segmented-wrap">
+                    <div class="segmented-progress">
+                        {% for seg_active in progress_segments %}
+                        <div class="seg-bar {% if seg_active %}active{% endif %}"></div>
+                        {% endfor %}
+                        {% if progress_marker_pct %}<div class="target-marker" style="left: {{ progress_marker_pct }}%;"></div>{% endif %}
+                    </div>
+                    {% if progress_label %}<div class="small opacity-85 fw-semibold" style="font-size: 0.68rem;">{{ progress_label }}</div>{% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

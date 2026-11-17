@@ -55,3 +55,25 @@ path("design-studio/", include("design_studio.urls")),
 ```
 
 *(Hinweis: Keine lokalen Kopien unter `templates/design_studio/` anlegen, sonst werden Paket-Updates überschrieben.)*
+
+## Starter-Layouts für neue Apps (kein Überschreibungsrisiko)
+
+Neue Apps können direkt von den mitgelieferten Paket-Layouts erben (bestehende Apps mit eigener `base.html` bleiben unberührt):
+
+- `design_studio/layouts/base.html` (Komplettes Grundgerüst mit Bootstrap 5, SVG-Layer, Navbar/Sidebar & Messages)
+- `design_studio/layouts/dashboard.html` (Bento-KPI-Grid + Chart-/Tabellen-Blöcke)
+- `design_studio/layouts/list_page.html` (Seitentitel, Action-Buttons, Filter & responsive Tabelle)
+- `design_studio/components/kpi_card.html` (KPI-2.0-Karte mit Sparkline, Fortschrittsbalken, Watermark & Spotlight)
+
+```django
+{% extends "design_studio/layouts/dashboard.html" %}
+{% block kpi_cards %}
+    {% include "design_studio/components/kpi_card.html" with title="Umsatz" value="12.450" unit="€" icon="bi-cash-stack" size="md" %}
+{% endblock %}
+```
+
+Optionales Erzeugen lokaler Starter-Dateien (überspringt bestehende Dateien automatisch):
+```bash
+python manage.py design_studio_scaffold
+```
+

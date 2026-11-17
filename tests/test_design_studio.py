@@ -92,6 +92,34 @@ class DesignStudioPackageTests(TestCase):
         self.assertIn("Abbrechen", studio_html)
         self.assertIn("dsMenuTableBody", studio_html)
 
+    def test_starter_layouts_render_and_scaffold_protects_existing_files(self):
+        import tempfile
+        from pathlib import Path
+        from django.template.loader import render_to_string
+        from django.test import RequestFactory, override_settings
+
+        rf = RequestFactory()
+        req = rf.get("/")
+        req.user = self.user
+        for tpl in (
+            "design_studio/layouts/base.html",
+            "design_studio/layouts/dashboard.html",
+            "design_studio/layouts/list_page.html",
+            "design_studio/components/kpi_card.html",
+        ):
+            html = render_to_string(tpl, {"title": "Test KPI", "value": "99", "unit": "€", "icon": "bi-star"}, request=req)
+            self.assertTrue(len(html) > 20)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tpl_dir = Path(tmp) / "templates"
+            tpl_dir.mkdir(parents=True, exist_ok=True)
+            existing = tpl_dir / "base.html"
+            existing.write_text("CUSTOM_KEEP", encoding="utf-8")
+            with override_settings(BASE_DIR=tmp):
+                call_command("design_studio_scaffold")
+            self.assertEqual(existing.read_text(encoding="utf-8"), "CUSTOM_KEEP")
+            self.assertTrue((tpl_dir / "dashboard.html").exists())
+
         # Save preset
         resp = self.client.post("/design-studio/save/", {"app_preset": "neon_dark"})
         self.assertEqual(resp.status_code, 302)

@@ -1,0 +1,26 @@
+{% extends "design_studio/layouts/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+        <h2 class="fw-bold mb-1">{% block page_title %}{% trans "Dashboard" %}{% endblock %}</h2>
+        <p class="text-muted small mb-0">{% block page_subtitle %}{% endblock %}</p>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        {% block page_actions %}{% endblock %}
+    </div>
+</div>
+
+<div class="kpi-bento-grid mb-4">
+    {% block kpi_cards %}{% endblock %}
+</div>
+
+<div class="row g-4 mb-4">
+    {% block dashboard_charts %}{% endblock %}
+</div>
+
+<div class="row g-4">
+    {% block dashboard_tables %}{% endblock %}
+</div>
+{% endblock %}
