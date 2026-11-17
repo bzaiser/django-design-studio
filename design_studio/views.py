@@ -34,7 +34,12 @@ def studio_view(request):
         state_overrides=ts.get("state_overrides"),
     )
     referer = request.META.get("HTTP_REFERER", "")
-    back_url = request.GET.get("next") or (referer if referer and request.path not in referer else "/")
+    next_param = request.GET.get("next", "").strip()
+    if next_param:
+        request.session["ds_return_url"] = next_param
+    elif referer and "/design-studio" not in referer:
+        request.session["ds_return_url"] = referer
+    back_url = next_param or request.session.get("ds_return_url") or "/"
     return render(request, "design_studio/studio_page.html", {
         "theme_studio": ts,
         "theme_palette": palette,
