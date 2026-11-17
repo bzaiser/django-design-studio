@@ -201,7 +201,7 @@ def normalize_settings(raw):
     data["resolved_card_surface"] = m.get("surface", "tinted") if data["card_surface"] == "auto" else data["card_surface"]
     data["resolved_bg_svg"] = m.get("svg", "topography") if data["bg_svg_mode"] == "auto" else data["bg_svg_mode"]
     data["resolved_menu_style"] = (
-        ("glass" if data["resolved_card_surface"] in ("glass", "tinted") else ("brutal" if data["resolved_card_surface"] == "brutal" else "gradient"))
+        ("brutal" if data["resolved_card_surface"] == "brutal" else "gradient")
         if data["menu_style"] == "auto"
         else data["menu_style"]
     )

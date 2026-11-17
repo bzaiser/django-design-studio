@@ -1,17 +1,10 @@
+{% extends "design_studio/layouts/base.html" %}
 {% load i18n %}
-<!DOCTYPE html>
-<html lang="de" data-bs-theme="{% if theme_palette.is_dark %}dark{% else %}light{% endif %}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans "Design Studio" %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    {% include "design_studio/includes/head.html" %}
-</head>
-<body {% include "design_studio/includes/body_attrs.html" %}>
-    {% include "design_studio/includes/bg_layer.html" %}
-    <div class="container py-4">
+
+{% block title %}{% trans "Design Studio" %}{% endblock %}
+
+{% block content %}
+    <div class="py-1">
         <div class="card shadow-sm p-4">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <h3 class="fw-bold mb-0"><i class="bi bi-magic me-2 text-primary"></i>{% trans "Design Studio" %}</h3>
@@ -247,14 +240,14 @@
                                         <div class="row g-2 mb-3">
                                             <div class="col-12 col-sm-6">
                                                 <label class="form-label small fw-bold">{% trans "Menü-Position" %}</label>
-                                                <select name="theme_menu_layout" class="form-select form-select-sm">
+                                                <select id="dsMenuLayout" name="theme_menu_layout" class="form-select form-select-sm">
                                                     <option value="top" {% if theme_studio.menu_layout == 'top' or not theme_studio.menu_layout %}selected{% endif %}>{% trans "Top-Navigationsleiste (Oben)" %}</option>
                                                     <option value="sidebar" {% if theme_studio.menu_layout == 'sidebar' %}selected{% endif %}>{% trans "Seitenpanel (Links am Desktop, einklappbar)" %}</option>
                                                 </select>
                                             </div>
                                             <div class="col-12 col-sm-6">
                                                 <label class="form-label small fw-bold">{% trans "Menü-Design" %}</label>
-                                                <select name="theme_menu_style" class="form-select form-select-sm">
+                                                <select id="dsMenuStyle" name="theme_menu_style" class="form-select form-select-sm">
                                                     <option value="auto" {% if theme_studio.menu_style == 'auto' or not theme_studio.menu_style %}selected{% endif %}>{% trans "Auto (passend zum Karten-Stil)" %}</option>
                                                     <option value="glass" {% if theme_studio.menu_style == 'glass' %}selected{% endif %}>{% trans "Edles Milchglas (Translucent)" %}</option>
                                                     <option value="gradient" {% if theme_studio.menu_style == 'gradient' %}selected{% endif %}>{% trans "Markanter Farbverlauf (Gradient)" %}</option>
@@ -350,7 +343,9 @@
             </form>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
+{% block extra_js %}
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <script>
     (function () {
@@ -529,8 +524,16 @@
             }
             var badge = document.getElementById('dsLiveBadge');
             if (badge) badge.textContent = surf + ' · ' + svgKey;
+
+            var mlEl = document.getElementById('dsMenuLayout'), msEl = document.getElementById('dsMenuStyle');
+            if (mlEl) document.body.setAttribute('data-menu-layout', mlEl.value || 'top');
+            if (msEl) {
+                var rawMs = msEl.value || 'auto';
+                var resMs = rawMs === 'auto' ? (surf === 'brutal' ? 'brutal' : 'gradient') : rawMs;
+                document.body.setAttribute('data-menu-style', resMs);
+            }
         }
-        ['dsC1','dsC2','dsMood','dsBgMode','dsBgCustom','dsCardSurface','dsBgSvg','dsSpark','dsProg','dsWater','dsSpot','dsClick'].forEach(function (id) {
+        ['dsC1','dsC2','dsMood','dsBgMode','dsBgCustom','dsCardSurface','dsBgSvg','dsSpark','dsProg','dsWater','dsSpot','dsClick','dsMenuLayout','dsMenuStyle'].forEach(function (id) {
             var el = document.getElementById(id);
             if (el) {
                 el.addEventListener('input', applyDsLivePreview);
@@ -540,6 +543,4 @@
         applyDsLivePreview();
     })();
     </script>
-    {% include "design_studio/includes/scripts.html" %}
-</body>
-</html>
+{% endblock %}

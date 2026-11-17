@@ -14,8 +14,13 @@
 
 {% block page_kpi_strip %}{% endblock %}
 
-<div class="card shadow-sm overflow-hidden">
-    {% block card_header %}{% endblock %}
+<div class="card shadow-sm rounded-4 overflow-hidden">
+    {% block card_header %}
+    <div class="card-header border-0 d-flex justify-content-between align-items-center py-2 px-3">
+        <span class="fw-bold">{% block table_title %}{% trans "Einträge" %}{% endblock %}</span>
+        {% block table_header_extra %}{% endblock %}
+    </div>
+    {% endblock %}
     {% block table_filters %}{% endblock %}
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
