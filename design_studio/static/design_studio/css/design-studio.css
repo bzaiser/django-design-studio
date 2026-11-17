@@ -1,0 +1,246 @@
+/* django-design-studio: Global Card Surfaces, Tables, Bento KPI 2.0 & SVG Background Layer */
+.app-bg-svg-layer {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    contain: strict;
+}
+body[data-bg-svg="none"] .app-bg-svg-layer {
+    display: none !important;
+}
+body > nav,
+body > main,
+body > footer,
+body > .container,
+body > .container-fluid {
+    position: relative;
+    z-index: 1;
+}
+
+/* Non-KPI Cards */
+.card:not(.metric-card) {
+    background-color: var(--app-card-bg);
+    color: var(--app-card-color);
+    border-color: var(--app-table-border-color, rgba(125,125,125,0.18));
+    border-radius: 16px;
+}
+body[data-card-surface="glass"] .card:not(.metric-card) {
+    background: color-mix(in srgb, var(--app-card-bg, #ffffff) 78%, transparent) !important;
+    backdrop-filter: blur(14px) saturate(135%);
+    -webkit-backdrop-filter: blur(14px) saturate(135%);
+    border: 1px solid color-mix(in srgb, var(--app-card-color, #888888) 12%, transparent) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+}
+body[data-card-surface="tinted"] .card:not(.metric-card) {
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--app-primary, #0d6efd) 6%, color-mix(in srgb, var(--app-card-bg, #ffffff) 82%, transparent)),
+        color-mix(in srgb, var(--app-card-bg, #ffffff) 80%, transparent)
+    ) !important;
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid color-mix(in srgb, var(--app-primary, #0d6efd) 22%, var(--app-table-border-color, rgba(125,125,125,0.18))) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+}
+body[data-card-surface="brutal"] .card:not(.metric-card) {
+    background: var(--app-card-bg, #111317) !important;
+    border: 2px solid var(--app-primary, #0d6efd) !important;
+    border-radius: 10px !important;
+    box-shadow: 4px 4px 0 var(--app-primary, #0d6efd) !important;
+}
+.card:not(.metric-card) > .card-header.bg-white,
+.card:not(.metric-card) > .card-header.bg-light {
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 8%, transparent) !important;
+    color: var(--app-card-color) !important;
+    border-bottom: 1px solid var(--app-table-border-color) !important;
+}
+.card:not(.metric-card) > .card-footer,
+.modal-footer.bg-light {
+    background-color: color-mix(in srgb, var(--app-primary, #0d6efd) 4%, transparent) !important;
+    color: var(--app-card-color) !important;
+    border-color: var(--app-table-border-color) !important;
+}
+
+/* Global Tables */
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--app-table-body-text);
+    --bs-table-border-color: var(--app-table-border-color);
+    --bs-table-hover-bg: var(--app-table-row-hover-bg);
+    --bs-table-hover-color: var(--app-table-body-text);
+    color: var(--app-table-body-text);
+    border-color: var(--app-table-border-color);
+}
+.table thead,
+.table thead th,
+.table thead.bg-light th,
+.table thead.bg-body-tertiary th {
+    --bs-table-bg: var(--app-table-header-bg) !important;
+    --bs-table-color: var(--app-table-header-text) !important;
+    background-color: var(--app-table-header-bg) !important;
+    color: var(--app-table-header-text) !important;
+    border-color: color-mix(in srgb, var(--app-table-header-text) 15%, transparent) !important;
+}
+.table tbody {
+    --bs-table-bg: transparent !important;
+    --bs-table-color: var(--app-table-body-text) !important;
+}
+body[data-card-surface="solid"] .card:not(.metric-card) .table tbody {
+    --bs-table-bg: var(--app-table-body-bg) !important;
+}
+.table tfoot,
+.table tfoot td,
+.table tfoot th,
+.table tfoot.bg-light td,
+.table tfoot.bg-white td {
+    --bs-table-bg: var(--app-table-filter-bg, color-mix(in srgb, var(--app-primary) 6%, transparent)) !important;
+    background-color: var(--app-table-filter-bg, color-mix(in srgb, var(--app-primary) 6%, transparent)) !important;
+    color: var(--app-table-body-text) !important;
+    border-color: var(--app-table-border-color) !important;
+}
+.table-hover tbody tr:hover,
+.table-hover tbody tr:hover > td,
+.table-hover tbody tr:hover > th {
+    --bs-table-hover-bg: var(--app-table-row-hover-bg, color-mix(in srgb, var(--app-primary) 10%, transparent)) !important;
+    background-color: var(--app-table-row-hover-bg, color-mix(in srgb, var(--app-primary) 10%, transparent)) !important;
+}
+
+/* KPI 2.0 Metric Cards & Bento Grid */
+.kpi-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-flow: dense;
+    gap: 1rem;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.kpi-bento-grid > .kpi-size-sm { grid-column: span 3; }
+.kpi-bento-grid > .kpi-size-md { grid-column: span 6; }
+.kpi-bento-grid > .kpi-size-lg { grid-column: span 12; }
+@media (max-width: 1199.98px) {
+    .kpi-bento-grid > .kpi-size-sm,
+    .kpi-bento-grid > .kpi-size-md { grid-column: span 6; }
+    .kpi-bento-grid > .kpi-size-lg { grid-column: span 12; }
+}
+@media (max-width: 575.98px) {
+    .kpi-bento-grid { gap: 0.65rem; }
+    .kpi-bento-grid > .kpi-size-sm { grid-column: span 6; }
+    .kpi-bento-grid > .kpi-size-md,
+    .kpi-bento-grid > .kpi-size-lg { grid-column: span 12; }
+}
+
+.metric-card {
+    border: none !important;
+    border-radius: 18px !important;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+.kpi-decor-clip {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+.metric-card > .card-body,
+.metric-card > .d-flex {
+    position: relative;
+    z-index: 2;
+}
+.kpi-spotlight {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(300px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), rgba(255,255,255,0.22), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+body:not([data-card-surface="solid"]) .kpi-spotlight {
+    background: radial-gradient(300px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), color-mix(in srgb, var(--card-accent, var(--app-primary)) 22%, rgba(255,255,255,0.45)), transparent 70%);
+}
+.metric-card:hover .kpi-spotlight { opacity: 1; }
+body[data-kpi-spotlight="false"] .kpi-spotlight { display: none !important; }
+
+.kpi-watermark-icon {
+    position: absolute;
+    right: -10px;
+    bottom: -14px;
+    font-size: 4.8rem;
+    line-height: 1;
+    opacity: 0.08;
+    transform: rotate(-10deg);
+    color: currentColor;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+}
+body:not([data-card-surface="solid"]) .kpi-watermark-icon {
+    color: var(--card-accent, var(--app-primary));
+    opacity: 0.09;
+}
+.metric-card:hover .kpi-watermark-icon { transform: rotate(-5deg) scale(1.06); }
+body[data-kpi-watermarks="false"] .kpi-watermark-icon { display: none !important; }
+
+.kpi-sparkline-svg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 42px;
+    pointer-events: none;
+    color: currentColor;
+}
+body:not([data-card-surface="solid"]) .kpi-sparkline-svg { color: var(--card-accent, var(--app-primary)); }
+body[data-kpi-sparklines="false"] .kpi-sparkline-svg { display: none !important; }
+
+.segmented-progress {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 3px;
+    height: 7px;
+    margin: 0.25rem 0;
+}
+.seg-bar { background: rgba(255, 255, 255, 0.26); border-radius: 2px; }
+.seg-bar.active { background: #ffffff; }
+body:not([data-card-surface="solid"]) .seg-bar { background: rgba(128, 128, 128, 0.22); }
+body:not([data-card-surface="solid"]) .seg-bar.active { background: var(--card-accent, var(--app-primary)); }
+.target-marker {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: #f59e0b;
+    border-radius: 2px;
+}
+body[data-kpi-progress="false"] .kpi-segmented-wrap { display: none !important; }
+
+body[data-card-surface="glass"] .metric-card {
+    background: color-mix(in srgb, var(--app-card-bg, #ffffff) 78%, transparent) !important;
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    color: var(--app-card-color, #1e293b) !important;
+    border: 1px solid rgba(128, 128, 128, 0.16) !important;
+}
+body[data-card-surface="tinted"] .metric-card {
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--card-accent, var(--app-primary)) 22%, color-mix(in srgb, var(--app-card-bg, #ffffff) 82%, transparent)),
+        color-mix(in srgb, var(--card-accent, var(--app-primary)) 8%, color-mix(in srgb, var(--app-card-bg, #ffffff) 82%, transparent))
+    ) !important;
+    backdrop-filter: blur(16px) saturate(145%);
+    -webkit-backdrop-filter: blur(16px) saturate(145%);
+    color: var(--app-card-color, #1e293b) !important;
+    border: 1px solid color-mix(in srgb, var(--card-accent, var(--app-primary)) 34%, rgba(128, 128, 128, 0.18)) !important;
+}
+body[data-card-surface="brutal"] .metric-card {
+    background: var(--app-card-bg, #111317) !important;
+    color: var(--app-card-color, #f8fafc) !important;
+    border: 2px solid var(--card-accent, var(--app-primary)) !important;
+    border-radius: 10px !important;
+    box-shadow: 4px 4px 0px var(--card-accent, var(--app-primary)) !important;
+}

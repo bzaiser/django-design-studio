@@ -1,0 +1,32 @@
+{% load static %}
+<style>
+    :root {
+        --bs-primary: {{ theme_palette.primary_color|default:"#0d6efd" }};
+        --bs-body-bg: {{ theme_palette.background_color|default:"#ffffff" }};
+        --bs-body-color: {{ theme_palette.text_color|default:"#212529" }};
+        --app-primary: var(--bs-primary);
+        --app-card-bg: var(--bs-body-bg);
+        --app-card-color: var(--bs-body-color);
+        --app-sidebar-bg: {{ theme_palette.sidebar_bg_color|default:"#f8f9fa" }};
+        --app-gradient: linear-gradient(135deg, {{ theme_palette.c1|default:"#6610f2" }} 0%, {{ theme_palette.c2|default:"#0d6efd" }} 100%);
+        --app-preview-gradient: var(--app-gradient);
+        --app-table-header-bg: {{ theme_palette.table_header_bg_color|default:"#0d6efd" }};
+        --app-table-header-text: {{ theme_palette.table_header_text_color|default:"#ffffff" }};
+        --app-table-filter-bg: color-mix(in srgb, var(--app-primary, #0d6efd) 6%, transparent);
+        --app-table-body-bg: {{ theme_palette.table_body_bg_color|default:"var(--app-card-bg)" }};
+        --app-table-body-text: {{ theme_palette.table_body_text_color|default:"var(--app-card-color)" }};
+        --app-table-border-color: {{ theme_palette.table_border_color|default:"rgba(0,0,0,0.1)" }};
+        --app-table-row-hover-bg: color-mix(in srgb, var(--app-primary, #0d6efd) 8%, transparent);
+        {% if theme_palette and theme_palette.states %}
+        {% for st in theme_palette.states %}
+        --theme-state-{{ st.index }}: {{ st.hex }};
+        --theme-state-{{ st.index }}-bg: {{ st.bg }};
+        --theme-state-{{ st.index }}-txt: {{ st.txt }};
+        {% endfor %}
+        {% endif %}
+    }
+</style>
+<link rel="stylesheet" href="{% static 'design_studio/css/design-studio.css' %}">
+{% if theme_palette_json %}
+<script>window.APP_THEME_PALETTE = {{ theme_palette_json|safe }};</script>
+{% endif %}

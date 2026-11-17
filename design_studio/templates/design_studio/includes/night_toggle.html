@@ -1,0 +1,15 @@
+{% load i18n %}
+<li class="nav-item">
+    <a href="{% url 'design_studio:toggle_night' %}"
+       class="nav-link d-flex align-items-center px-2 py-2 py-lg-1"
+       title="{% if theme_palette and theme_palette.is_dark %}{% trans 'Tagmodus aktivieren' %}{% else %}{% trans 'Nachtmodus aktivieren' %}{% endif %}"
+       aria-label="{% trans 'Toggle Night Mode' %}">
+        {% if theme_palette and theme_palette.is_dark %}
+            <i class="bi bi-sun-fill text-warning fs-5"></i>
+            <span class="d-lg-none ms-2">{% trans "Tagmodus" %}</span>
+        {% else %}
+            <i class="bi bi-moon-stars fs-5"></i>
+            <span class="d-lg-none ms-2">{% trans "Nachtmodus" %}</span>
+        {% endif %}
+    </a>
+</li>
