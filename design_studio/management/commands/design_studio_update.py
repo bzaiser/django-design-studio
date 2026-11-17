@@ -58,7 +58,7 @@ class Command(BaseCommand):
             "-m",
             "pip",
             "install",
-            "--upgrade",
+            "--force-reinstall",
             "--no-deps",
             "--no-cache-dir",
         ]
