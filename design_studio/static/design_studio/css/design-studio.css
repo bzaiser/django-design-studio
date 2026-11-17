@@ -1,4 +1,8 @@
-/* django-design-studio: Global Card Surfaces, Tables, Bento KPI 2.0 & SVG Background Layer */
+/* django-design-studio: Global Card Surfaces, Tables, Navbar, Modals, Bento KPI 2.0 & SVG Background Layer */
+body {
+    background-color: var(--bs-body-bg, #ffffff);
+    color: var(--bs-body-color, #212529);
+}
 .app-bg-svg-layer {
     position: fixed;
     inset: 0;
@@ -10,6 +14,50 @@
 }
 body[data-bg-svg="none"] .app-bg-svg-layer {
     display: none !important;
+}
+
+/* Navbar & Submenu / Dropdown Z-Index & Theme Contrast (prevents backdrop-filter stacking overlap) */
+nav,
+.navbar,
+.app-navbar {
+    position: relative;
+    z-index: 1035;
+}
+.dropdown-menu,
+.navbar .dropdown-menu {
+    z-index: 1055 !important;
+    background-color: var(--app-card-bg, #ffffff) !important;
+    color: var(--app-card-color, #212529) !important;
+    border: 1px solid var(--app-table-border-color, rgba(128, 128, 128, 0.22)) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22) !important;
+}
+.dropdown-item {
+    color: var(--app-card-color, #212529) !important;
+}
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: color-mix(in srgb, var(--app-primary, #0d6efd) 14%, transparent) !important;
+    color: var(--app-card-color, #212529) !important;
+}
+[data-bs-theme="dark"] .dropdown-item:hover,
+[data-bs-theme="dark"] .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+}
+
+/* Modals */
+.modal-content {
+    background-color: var(--app-card-bg, var(--bs-modal-bg, #ffffff)) !important;
+    color: var(--app-card-color, var(--bs-modal-color, #212529)) !important;
+    border: 1px solid var(--app-table-border-color, rgba(128, 128, 128, 0.2)) !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25) !important;
+}
+.modal-content .btn-primary {
+    background: var(--app-gradient) !important;
+    border: none !important;
+    color: #ffffff !important;
+    border-radius: 999px;
 }
 
 /* Non-KPI Cards */

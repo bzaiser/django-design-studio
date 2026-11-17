@@ -33,11 +33,14 @@ def studio_view(request):
         bg_custom=ts["bg_custom"],
         state_overrides=ts.get("state_overrides"),
     )
+    referer = request.META.get("HTTP_REFERER", "")
+    back_url = request.GET.get("next") or (referer if referer and request.path not in referer else "/")
     return render(request, "design_studio/studio_page.html", {
         "theme_studio": ts,
         "theme_palette": palette,
         "theme_state_overrides_json": json.dumps(ts.get("state_overrides", {})),
         "design_studio_presets": [{"key": k, **v} for k, v in APP_PRESETS.items()],
+        "back_url": back_url,
     })
 
 

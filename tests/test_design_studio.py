@@ -67,6 +67,22 @@ class DesignStudioPackageTests(TestCase):
         resp = self.client.get("/design-studio/")
         self.assertEqual(resp.status_code, 200)
 
+        # Save via Studio form
+        resp = self.client.post("/design-studio/save/", {
+            "kpi_ext_present": "1",
+            "gradient_start": "#1e3a8a",
+            "gradient_end": "#0f766e",
+            "theme_mood": "serioes",
+            "theme_bg_mode": "light",
+            "theme_card_surface": "glass",
+            "theme_bg_svg_mode": "grid",
+            "theme_sync_cards": "on",
+            "kpi_sparklines": "on",
+            "next": "/",
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/")
+
         # Save preset
         resp = self.client.post("/design-studio/save/", {"app_preset": "neon_dark"})
         self.assertEqual(resp.status_code, 302)
