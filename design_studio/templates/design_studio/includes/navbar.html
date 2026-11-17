@@ -1,0 +1,66 @@
+{% load i18n %}
+<nav class="navbar navbar-expand-lg app-navbar mb-4">
+    <div class="container-fluid">
+        <div class="d-flex align-items-center justify-content-between w-100 w-lg-auto">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                <i class="bi bi-speedometer2"></i>
+                <span class="brand-text">{{ design_studio_app_name|default:"App" }}</span>
+            </a>
+            <button type="button" id="sidebarCollapseBtn" class="sidebar-toggle-btn" title="{% trans 'Seitenpanel ein-/ausklappen' %}" aria-label="Toggle Sidebar">
+                <i class="bi bi-layout-sidebar-inset"></i>
+            </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 nav-pill-track" id="navMainList">
+                <li class="nav-sliding-pill" aria-hidden="true"></li>
+                {% for item in nav_main_items %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name in item.match_urls or request.path == item.url %}active{% endif %} {% if item.display == 'icon_only' %}app-nav-icon-only{% endif %}"
+                       href="{{ item.url }}"
+                       title="{% if item.id == 'night_mode' %}{% if theme_palette and theme_palette.is_dark %}{% trans 'Tagmodus aktivieren' %}{% else %}{% trans 'Nachtmodus aktivieren' %}{% endif %}{% else %}{{ item.label }}{% endif %}">
+                        {% if item.display != 'text_only' or theme_studio.menu_layout == 'sidebar' %}
+                            {% if item.id == 'night_mode' %}
+                                {% if theme_palette and theme_palette.is_dark %}<i class="bi bi-sun"></i>{% else %}<i class="bi {{ item.icon }}"></i>{% endif %}
+                            {% else %}
+                                <i class="bi {{ item.icon }}"></i>
+                            {% endif %}
+                        {% endif %}
+                        {% if item.display == 'icon_only' %}
+                            <span class="d-lg-none nav-label">{{ item.label }}</span>
+                        {% else %}
+                            <span class="nav-label">{{ item.label }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center flex-column flex-lg-row gap-lg-1 gap-1 pt-2 pt-lg-0 nav-pill-track" id="navUtilityList">
+                <li class="nav-sliding-pill" aria-hidden="true"></li>
+                {% for item in nav_utility_items %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name in item.match_urls or request.path == item.url %}active{% endif %} {% if item.display == 'icon_only' %}app-nav-icon-only{% endif %}"
+                       href="{{ item.url }}"
+                       title="{% if item.id == 'night_mode' %}{% if theme_palette and theme_palette.is_dark %}{% trans 'Tagmodus aktivieren' %}{% else %}{% trans 'Nachtmodus aktivieren' %}{% endif %}{% else %}{{ item.label }}{% endif %}"
+                       aria-label="{{ item.label }}">
+                        {% if item.display != 'text_only' or theme_studio.menu_layout == 'sidebar' %}
+                            {% if item.id == 'night_mode' %}
+                                {% if theme_palette and theme_palette.is_dark %}<i class="bi bi-sun fs-5"></i>{% else %}<i class="bi {{ item.icon }} fs-5"></i>{% endif %}
+                            {% else %}
+                                <i class="bi {{ item.icon }} fs-5"></i>
+                            {% endif %}
+                        {% endif %}
+                        {% if item.display == 'icon_only' %}
+                            <span class="d-lg-none nav-label">{{ item.label }}</span>
+                        {% else %}
+                            <span class="nav-label">{{ item.label }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</nav>

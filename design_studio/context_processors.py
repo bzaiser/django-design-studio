@@ -1,6 +1,9 @@
 import json
 
+from django.conf import settings as django_settings
+
 from .engine import APP_PRESETS, DEFAULT_SETTINGS, compute_theme_palette, normalize_settings
+from .menu import resolve_user_menu
 from .storage import get_storage_adapter
 
 
@@ -20,6 +23,7 @@ def theme_context(request):
         bg_custom=ts["bg_custom"],
         state_overrides=ts.get("state_overrides"),
     )
+    user_menu = resolve_user_menu(user, saved_menu_config=ts.get("menu_config"))
 
     return {
         "theme_studio": ts,
@@ -35,4 +39,9 @@ def theme_context(request):
         "design_studio_presets": [
             {"key": k, **v} for k, v in APP_PRESETS.items()
         ],
+        "nav_main_items": user_menu["main_items"],
+        "nav_utility_items": user_menu["utility_items"],
+        "menu_studio_items": user_menu["all_items"],
+        "menu_icon_choices": user_menu["icon_choices"],
+        "design_studio_app_name": getattr(django_settings, "DESIGN_STUDIO_APP_NAME", "App"),
     }

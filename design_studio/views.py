@@ -98,7 +98,40 @@ def save_studio_view(request):
             "kpi_watermarks": (request.POST.get("kpi_watermarks") == "on") if has_kpi else prev.get("kpi_watermarks", True),
             "kpi_spotlight": (request.POST.get("kpi_spotlight") == "on") if has_kpi else prev.get("kpi_spotlight", True),
             "kpi_click_navigation": (request.POST.get("kpi_click_navigation") == "on") if has_kpi else prev.get("kpi_click_navigation", True),
+            "menu_layout": request.POST.get("theme_menu_layout", prev.get("menu_layout", "top")),
+            "menu_style": request.POST.get("theme_menu_style", prev.get("menu_style", "auto")),
+            "menu_config": prev.get("menu_config", []),
         }
+        if "menu_config_json" in request.POST:
+            raw_menu = request.POST.get("menu_config_json", "").strip()
+            if raw_menu == "RESET":
+                merged["menu_config"] = []
+            elif raw_menu:
+                try:
+                    parsed_menu = json.loads(raw_menu)
+                    if isinstance(parsed_menu, list):
+                        clean_menu = []
+                        for idx, m_item in enumerate(parsed_menu):
+                            if not isinstance(m_item, dict) or not m_item.get("id"):
+                                continue
+                            mid = str(m_item["id"]).strip()
+                            ic = str(m_item.get("icon") or "").strip()
+                            if not ic.startswith("bi-"):
+                                ic = ""
+                            disp = m_item.get("display") if m_item.get("display") in ("icon_text", "icon_only", "text_only") else "icon_text"
+                            zn = m_item.get("zone") if m_item.get("zone") in ("main", "utility") else "main"
+                            clean_menu.append({
+                                "id": mid,
+                                "label": str(m_item.get("label") or "").strip()[:40],
+                                "icon": ic,
+                                "display": disp,
+                                "zone": zn,
+                                "visible": bool(m_item.get("visible", True)),
+                                "order": int(m_item.get("order", idx + 1)),
+                            })
+                        merged["menu_config"] = clean_menu
+                except Exception:
+                    pass
 
     norm = normalize_settings(merged)
     palette = compute_theme_palette(

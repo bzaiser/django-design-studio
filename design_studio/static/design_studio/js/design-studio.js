@@ -42,3 +42,53 @@
         card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
     }, { passive: true });
 })();
+
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        try {
+            if (localStorage.getItem('ds_sidebar_collapsed') === '1') {
+                document.body.classList.add('sidebar-collapsed');
+            }
+        } catch (err) {}
+        var sbBtn = document.getElementById('sidebarCollapseBtn');
+        if (sbBtn) {
+            sbBtn.addEventListener('click', function () {
+                document.body.classList.toggle('sidebar-collapsed');
+                try {
+                    localStorage.setItem('ds_sidebar_collapsed', document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+                } catch (err) {}
+            });
+        }
+
+        document.querySelectorAll('.nav-pill-track').forEach(function (track) {
+            var pill = track.querySelector('.nav-sliding-pill');
+            if (!pill) return;
+            var currentTarget = null;
+            function movePillTo(el) {
+                if (!el || window.innerWidth < 992) {
+                    pill.style.opacity = '0';
+                    return;
+                }
+                var tRect = track.getBoundingClientRect();
+                var elRect = el.getBoundingClientRect();
+                pill.style.width = elRect.width + 'px';
+                pill.style.height = elRect.height + 'px';
+                pill.style.transform = 'translate3d(' + (elRect.left - tRect.left) + 'px, ' + (elRect.top - tRect.top) + 'px, 0)';
+                pill.style.opacity = '1';
+            }
+            track.querySelectorAll('.nav-link').forEach(function (link) {
+                link.addEventListener('pointerenter', function () {
+                    currentTarget = link;
+                    movePillTo(link);
+                });
+            });
+            track.addEventListener('pointerleave', function () {
+                currentTarget = null;
+                pill.style.opacity = '0';
+            });
+            window.addEventListener('resize', function () {
+                if (currentTarget) movePillTo(currentTarget);
+            }, { passive: true });
+        });
+    });
+})();

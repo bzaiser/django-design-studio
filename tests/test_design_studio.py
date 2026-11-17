@@ -78,10 +78,19 @@ class DesignStudioPackageTests(TestCase):
             "theme_bg_svg_mode": "grid",
             "theme_sync_cards": "on",
             "kpi_sparklines": "on",
+            "theme_menu_layout": "sidebar",
+            "theme_menu_style": "glass",
+            "menu_config_json": json.dumps([
+                {"id": "design_studio", "label": "Studio", "icon": "bi-palette", "display": "icon_text", "zone": "utility", "visible": True, "order": 1}
+            ]),
             "next": "/",
         })
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], "/")
+
+        studio_html = self.client.get("/design-studio/").content.decode("utf-8")
+        self.assertIn("Abbrechen", studio_html)
+        self.assertIn("dsMenuTableBody", studio_html)
 
         # Save preset
         resp = self.client.post("/design-studio/save/", {"app_preset": "neon_dark"})

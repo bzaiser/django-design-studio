@@ -32,6 +32,8 @@ MOODS = {
 
 CARD_SURFACES = ("auto", "solid", "glass", "tinted", "brutal")
 BG_SVG_MODES = ("auto", "topography", "grid", "curves", "aura", "brutal_grid", "none")
+MENU_LAYOUTS = ("top", "sidebar")
+MENU_STYLES = ("auto", "glass", "gradient")
 
 APP_PRESETS = {
     "finanz_serioes": {
@@ -97,6 +99,9 @@ DEFAULT_SETTINGS = {
     "kpi_watermarks": True,
     "kpi_spotlight": True,
     "kpi_click_navigation": True,
+    "menu_layout": "top",
+    "menu_style": "auto",
+    "menu_config": [],
 }
 
 
@@ -183,12 +188,23 @@ def normalize_settings(raw):
         data["card_surface"] = "auto"
     if data["bg_svg_mode"] not in BG_SVG_MODES:
         data["bg_svg_mode"] = "auto"
+    if data["menu_layout"] not in MENU_LAYOUTS:
+        data["menu_layout"] = "top"
+    if data["menu_style"] not in MENU_STYLES:
+        data["menu_style"] = "auto"
+    if not isinstance(data["menu_config"], list):
+        data["menu_config"] = []
     if not isinstance(data["state_overrides"], dict):
         data["state_overrides"] = {}
 
     m = MOODS[data["mood"]]
     data["resolved_card_surface"] = m.get("surface", "tinted") if data["card_surface"] == "auto" else data["card_surface"]
     data["resolved_bg_svg"] = m.get("svg", "topography") if data["bg_svg_mode"] == "auto" else data["bg_svg_mode"]
+    data["resolved_menu_style"] = (
+        ("glass" if data["resolved_card_surface"] in ("glass", "tinted") else ("brutal" if data["resolved_card_surface"] == "brutal" else "gradient"))
+        if data["menu_style"] == "auto"
+        else data["menu_style"]
+    )
     for bkey in ("sync_cards_and_charts", "kpi_sparklines", "kpi_progress_bars", "kpi_watermarks", "kpi_spotlight", "kpi_click_navigation"):
         data[bkey] = bool(data[bkey])
     return data
