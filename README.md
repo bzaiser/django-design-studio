@@ -79,24 +79,40 @@ python manage.py design_studio_scaffold
 
 ## Updates bestehender Apps & Container ohne Rebuild
 
-1. **Integration & lokale Overrides prüfen** (besonders bei nachträglich eingebauten Apps):
+### 1. Einmalig prüfen (Typ A: nachträglich eingebaut vs. Typ B: mit Studio gebaut)
+Lokale Kopien unter `templates/design_studio/` oder `static/design_studio/` überschatten Paket-Updates und müssen entfernt werden:
 ```bash
-python manage.py design_studio_doctor
-python manage.py design_studio_doctor --clean-overrides   # sichert lokale templates/static/design_studio als .bak
+docker compose exec web python manage.py design_studio_doctor
+docker compose exec web python manage.py design_studio_doctor --clean-overrides   # sichert lokale Overrides als .bak
 ```
 
-2. **Container-Update ohne `docker build`** (Volume + `PYTHONPATH` + Gunicorn/WhiteNoise):
+### 2. Sofort-Update im laufenden Container (ohne `docker build`)
+Da App-Container meist als Non-Root-User laufen, Update als `root` (`-u root`) ausführen:
+```bash
+docker compose exec -u root web python manage.py design_studio_update --reload-gunicorn
+```
+*(Falls `design_studio_update` im alten Container noch fehlt, einmalig vorab:)*
+```bash
+docker compose exec -u root web pip install --force-reinstall --no-deps --no-cache-dir \
+  git+https://github.com/bzaiser/django-design-studio.git@main
+```
+
+### 3. Dauerhaft automatisch (übersteht Container-Neustarts ohne Rebuild)
+Volume + `PYTHONPATH` in `docker-compose.yml` einhängen:
 ```yaml
-# docker-compose.yml
 services:
   web:
     environment:
       - PYTHONPATH=/opt/ds-pkg
     volumes:
       - ds_pkg:/opt/ds-pkg
+
+volumes:
+  ds_pkg:
 ```
+Dann reicht im `entrypoint.sh` (vor `gunicorn`) oder per `exec`:
 ```bash
-# Im laufenden Container (oder per entrypoint.sh vor Gunicorn):
 python manage.py design_studio_update --target /opt/ds-pkg --reload-gunicorn
 ```
+*(Ohne `--reload-gunicorn`, wenn der Befehl direkt im `entrypoint.sh` vor dem Start von Gunicorn läuft.)*
 
