@@ -5,7 +5,7 @@
        title="{% if theme_palette and theme_palette.is_dark %}{% trans 'Tagmodus aktivieren' %}{% else %}{% trans 'Nachtmodus aktivieren' %}{% endif %}"
        aria-label="{% trans 'Toggle Night Mode' %}">
         {% if theme_palette and theme_palette.is_dark %}
-            <i class="bi bi-sun-fill text-warning fs-5"></i>
+            <i class="bi bi-sun fs-5"></i>
             <span class="d-lg-none ms-2">{% trans "Tagmodus" %}</span>
         {% else %}
             <i class="bi bi-moon-stars fs-5"></i>
