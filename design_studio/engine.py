@@ -102,6 +102,8 @@ DEFAULT_SETTINGS = {
     "menu_layout": "top",
     "menu_style": "auto",
     "menu_config": [],
+    "brand_title": "",
+    "brand_icon": "",
 }
 
 
@@ -194,6 +196,14 @@ def normalize_settings(raw):
         data["menu_style"] = "auto"
     if not isinstance(data["menu_config"], list):
         data["menu_config"] = []
+    data["brand_title"] = str(data.get("brand_title") or "").strip()[:60]
+    raw_brand_icon = str(data.get("brand_icon") or "").strip()
+    if raw_brand_icon == "none":
+        data["brand_icon"] = "none"
+    elif raw_brand_icon.startswith("bi-"):
+        data["brand_icon"] = raw_brand_icon[:60]
+    else:
+        data["brand_icon"] = ""
     if not isinstance(data["state_overrides"], dict):
         data["state_overrides"] = {}
 

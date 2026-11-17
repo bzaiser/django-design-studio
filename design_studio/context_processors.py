@@ -43,5 +43,6 @@ def theme_context(request):
         "nav_utility_items": user_menu["utility_items"],
         "menu_studio_items": user_menu["all_items"],
         "menu_icon_choices": user_menu["icon_choices"],
-        "design_studio_app_name": getattr(django_settings, "DESIGN_STUDIO_APP_NAME", "App"),
+        "design_studio_app_name": ts.get("brand_title") or getattr(django_settings, "DESIGN_STUDIO_APP_NAME", "App"),
+        "design_studio_app_icon": ts.get("brand_icon") or getattr(django_settings, "DESIGN_STUDIO_APP_ICON", "bi-speedometer2"),
     }

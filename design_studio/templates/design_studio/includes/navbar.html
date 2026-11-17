@@ -3,7 +3,9 @@
     <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between w-100 w-lg-auto">
             <a class="navbar-brand d-flex align-items-center gap-2" href="/">
-                <i class="bi bi-speedometer2"></i>
+                {% if design_studio_app_icon != "none" %}
+                <i class="bi {{ design_studio_app_icon|default:'bi-speedometer2' }}"></i>
+                {% endif %}
                 <span class="brand-text">{{ design_studio_app_name|default:"App" }}</span>
             </a>
             <button type="button" id="sidebarCollapseBtn" class="sidebar-toggle-btn" title="{% trans 'Seitenpanel ein-/ausklappen' %}" aria-label="Toggle Sidebar">

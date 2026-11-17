@@ -1,5 +1,5 @@
 {% extends "design_studio/layouts/base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% trans "Design Studio" %}{% endblock %}
 
@@ -262,6 +262,27 @@
                                                 <i class="bi bi-arrow-counterclockwise me-1"></i>{% trans "Standard" %}
                                             </button>
                                         </div>
+                                        <div class="border rounded-3 p-2 mb-2 bg-body-tertiary bg-opacity-50">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-auto">
+                                                    <span class="small fw-semibold text-muted">{% trans "App-Titel" %}:</span>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <input type="hidden" name="brand_icon" id="dsBrandIconInput" value="{{ theme_studio.brand_icon|default:'' }}">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 ds-open-icon-picker"
+                                                            data-target-input="#dsBrandIconInput" data-target-preview="#dsBrandIconPreview" data-allow-none="1"
+                                                            title="{% trans 'App-Icon wählen' %}">
+                                                        <i id="dsBrandIconPreview" class="bi {{ design_studio_app_icon|default:'bi-speedometer2' }} text-primary{% if design_studio_app_icon == 'none' %} d-none{% endif %}"></i>
+                                                        <span class="small">{% trans "Icon" %}</span>
+                                                    </button>
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" name="brand_title" class="form-control form-control-sm"
+                                                           value="{{ theme_studio.brand_title|default:'' }}"
+                                                           placeholder="{{ design_studio_app_name|default:'App' }}" maxlength="60">
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="table-responsive border rounded-3">
                                             <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.78rem;">
                                                 <thead>
@@ -280,12 +301,12 @@
                                                         <td class="text-center"><i class="bi bi-grip-vertical ds-menu-drag text-muted" style="cursor: grab;"></i></td>
                                                         <td>
                                                             <div class="d-flex align-items-center gap-1">
-                                                                <i class="bi {{ mitem.icon }} ds-menu-icon-preview fs-6 text-primary"></i>
-                                                                <select class="form-select form-select-sm ds-menu-icon py-0 px-1" style="font-size: 0.72rem;">
-                                                                    {% for ic_val, ic_lbl in menu_icon_choices %}
-                                                                    <option value="{{ ic_val }}" {% if mitem.icon == ic_val %}selected{% endif %}>{{ ic_lbl }}</option>
-                                                                    {% endfor %}
-                                                                </select>
+                                                                <input type="hidden" class="ds-menu-icon" value="{{ mitem.icon }}">
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 w-100 text-start py-0 px-2 ds-open-icon-picker"
+                                                                        style="font-size: 0.72rem; height: 26px;">
+                                                                    <i class="bi {{ mitem.icon }} ds-menu-icon-preview fs-6 text-primary"></i>
+                                                                    <span class="text-truncate ds-menu-icon-label">{{ mitem.icon }}</span>
+                                                                </button>
                                                             </div>
                                                         </td>
                                                         <td>
@@ -343,10 +364,46 @@
             </form>
         </div>
     </div>
+    <!-- Icon Picker Modal -->
+    <div class="modal fade" id="dsIconPickerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-grid-3x3-gap me-1"></i>{% trans "Icon auswählen oder manuell eingeben" %}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2 mb-3 align-items-center">
+                        <div class="col-md-6">
+                            <input type="search" id="dsIconSearch" class="form-control form-control-sm" placeholder="{% trans 'Icons durchsuchen (z. B. server, bank, chart)...' %}">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i id="dsManualIconPreview" class="bi bi-star"></i></span>
+                                <input type="text" id="dsManualIconInput" class="form-control" placeholder="bi-rocket-takeoff">
+                                <button type="button" id="dsApplyManualIcon" class="btn btn-primary">{% trans "Übernehmen" %}</button>
+                                <button type="button" id="dsClearBrandIcon" class="btn btn-outline-secondary d-none">{% trans "Kein Icon" %}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dsIconGrid" class="row row-cols-3 row-cols-sm-4 row-cols-md-6 g-2">
+                        {% for ic_val, ic_lbl in menu_icon_choices %}
+                        <div class="col ds-icon-choice" data-icon="{{ ic_val }}" data-label="{{ ic_lbl|lower }} {{ ic_val }}">
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center py-2 px-1" title="{{ ic_lbl }} ({{ ic_val }})">
+                                <i class="bi {{ ic_val }} fs-5 mb-1"></i>
+                                <span class="text-truncate w-100" style="font-size: 0.65rem;">{{ ic_lbl }}</span>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_js %}
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script src="{% static 'design_studio/vendor/sortable/Sortable.min.js' %}"></script>
     <script>
     (function () {
         var tbody = document.getElementById('dsMenuTableBody');
@@ -393,6 +450,106 @@
                 input.value = 'RESET';
                 var form = resetBtn.closest('form');
                 if (form) form.submit();
+            });
+        }
+
+        // Icon Picker Modal (Suche + Manuelle Eingabe + Brand-Icon)
+        var modalEl = document.getElementById('dsIconPickerModal');
+        var searchEl = document.getElementById('dsIconSearch');
+        var manualEl = document.getElementById('dsManualIconInput');
+        var manualPrevEl = document.getElementById('dsManualIconPreview');
+        var applyManualBtn = document.getElementById('dsApplyManualIcon');
+        var clearBrandBtn = document.getElementById('dsClearBrandIcon');
+        var gridEl = document.getElementById('dsIconGrid');
+        var activeIconInput = null;
+        var activeIconPreview = null;
+        var activeIconLabel = null;
+
+        function normalizeBiIcon(val) {
+            var s = (val || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+            if (!s) return '';
+            return s.indexOf('bi-') === 0 ? s : 'bi-' + s;
+        }
+
+        function setPickedIcon(iconVal) {
+            if (!activeIconInput) return;
+            activeIconInput.value = iconVal;
+            if (activeIconPreview) {
+                if (iconVal === 'none') {
+                    activeIconPreview.classList.add('d-none');
+                } else {
+                    activeIconPreview.classList.remove('d-none');
+                    activeIconPreview.className = 'bi ' + (iconVal || 'bi-speedometer2') + ' text-primary' +
+                        (activeIconPreview.classList.contains('ds-menu-icon-preview') ? ' ds-menu-icon-preview fs-6' : '');
+                }
+            }
+            if (activeIconLabel) activeIconLabel.textContent = iconVal || 'bi-circle';
+            if (input) input.dataset.reset = '0';
+            serializeMenu();
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                var inst = bootstrap.Modal.getInstance(modalEl);
+                if (inst) inst.hide();
+            }
+        }
+
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('.ds-open-icon-picker');
+            if (!btn || !modalEl) return;
+            if (btn.dataset.targetInput) {
+                activeIconInput = document.querySelector(btn.dataset.targetInput);
+                activeIconPreview = document.querySelector(btn.dataset.targetPreview);
+                activeIconLabel = null;
+            } else {
+                var td = btn.closest('td');
+                activeIconInput = td ? td.querySelector('.ds-menu-icon') : null;
+                activeIconPreview = td ? td.querySelector('.ds-menu-icon-preview') : null;
+                activeIconLabel = td ? td.querySelector('.ds-menu-icon-label') : null;
+            }
+            if (clearBrandBtn) {
+                clearBrandBtn.classList.toggle('d-none', btn.dataset.allowNone !== '1');
+            }
+            var cur = activeIconInput ? activeIconInput.value : '';
+            if (manualEl) manualEl.value = (cur && cur !== 'none') ? cur : '';
+            if (manualPrevEl) manualPrevEl.className = 'bi ' + ((cur && cur !== 'none') ? cur : 'bi-star');
+            if (searchEl) {
+                searchEl.value = '';
+                gridEl && gridEl.querySelectorAll('.ds-icon-choice').forEach(function (c) { c.classList.remove('d-none'); });
+            }
+            if (typeof bootstrap !== 'undefined') {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }
+        });
+
+        if (searchEl && gridEl) {
+            searchEl.addEventListener('input', function () {
+                var q = searchEl.value.trim().toLowerCase();
+                gridEl.querySelectorAll('.ds-icon-choice').forEach(function (col) {
+                    var hay = col.dataset.label || '';
+                    col.classList.toggle('d-none', q && hay.indexOf(q) === -1);
+                });
+            });
+        }
+        if (gridEl) {
+            gridEl.addEventListener('click', function (e) {
+                var col = e.target.closest('.ds-icon-choice');
+                if (col && col.dataset.icon) setPickedIcon(col.dataset.icon);
+            });
+        }
+        if (manualEl && manualPrevEl) {
+            manualEl.addEventListener('input', function () {
+                var norm = normalizeBiIcon(manualEl.value);
+                manualPrevEl.className = 'bi ' + (norm || 'bi-star');
+            });
+        }
+        if (applyManualBtn && manualEl) {
+            applyManualBtn.addEventListener('click', function () {
+                var norm = normalizeBiIcon(manualEl.value);
+                if (norm) setPickedIcon(norm);
+            });
+        }
+        if (clearBrandBtn) {
+            clearBrandBtn.addEventListener('click', function () {
+                setPickedIcon('none');
             });
         }
 

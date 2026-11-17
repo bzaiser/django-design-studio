@@ -16,6 +16,7 @@ from .engine import (
     parse_import_payload,
     serialize_export_payload,
 )
+from .menu import is_valid_bi_icon
 from .storage import get_storage_adapter
 
 
@@ -101,11 +102,15 @@ def save_studio_view(request):
             "menu_layout": request.POST.get("theme_menu_layout", prev.get("menu_layout", "top")),
             "menu_style": request.POST.get("theme_menu_style", prev.get("menu_style", "auto")),
             "menu_config": prev.get("menu_config", []),
+            "brand_title": request.POST.get("brand_title", prev.get("brand_title", "")),
+            "brand_icon": request.POST.get("brand_icon", prev.get("brand_icon", "")),
         }
         if "menu_config_json" in request.POST:
             raw_menu = request.POST.get("menu_config_json", "").strip()
             if raw_menu == "RESET":
                 merged["menu_config"] = []
+                merged["brand_title"] = ""
+                merged["brand_icon"] = ""
             elif raw_menu:
                 try:
                     parsed_menu = json.loads(raw_menu)
@@ -116,7 +121,7 @@ def save_studio_view(request):
                                 continue
                             mid = str(m_item["id"]).strip()
                             ic = str(m_item.get("icon") or "").strip()
-                            if not ic.startswith("bi-"):
+                            if not is_valid_bi_icon(ic):
                                 ic = ""
                             disp = m_item.get("display") if m_item.get("display") in ("icon_text", "icon_only", "text_only") else "icon_text"
                             zn = m_item.get("zone") if m_item.get("zone") in ("main", "utility") else "main"

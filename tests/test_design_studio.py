@@ -193,6 +193,55 @@ class DesignStudioPackageTests(TestCase):
             self.assertIn("git+https://example.com/repo.git@main", args)
             self.assertIn("collectstatic übersprungen", out.getvalue())
 
+    def test_offline_vendor_assets_and_cdn_free_templates(self):
+        from pathlib import Path
+        pkg_dir = Path(__file__).resolve().parent.parent / "design_studio"
+        vendor = pkg_dir / "static" / "design_studio" / "vendor"
+        for rel in (
+            "bootstrap/bootstrap.min.css",
+            "bootstrap/bootstrap.bundle.min.js",
+            "bootstrap-icons/bootstrap-icons.min.css",
+            "bootstrap-icons/fonts/bootstrap-icons.woff2",
+            "sortable/Sortable.min.js",
+        ):
+            self.assertTrue((vendor / rel).exists(), f"Missing vendor asset: {rel}")
+
+        for tpl in (
+            pkg_dir / "templates" / "design_studio" / "layouts" / "base.html",
+            pkg_dir / "templates" / "design_studio" / "studio_page.html",
+        ):
+            content = tpl.read_text(encoding="utf-8")
+            self.assertNotIn("cdn.jsdelivr.net", content)
+
+    def test_expanded_icons_manual_icon_and_brand_title_config(self):
+        from design_studio.menu import MENU_ICON_CHOICES
+
+        self.assertGreater(len(MENU_ICON_CHOICES), 100)
+        resp = self.client.post(
+            "/design-studio/save/",
+            {
+                "brand_title": "Mein NAS Studio",
+                "brand_icon": "bi-hdd-network",
+                "menu_config_json": json.dumps([
+                    {
+                        "id": "design_studio",
+                        "icon": "bi-rocket-takeoff",
+                        "label": "Start",
+                        "display": "icon_text",
+                        "zone": "utility",
+                        "visible": True,
+                        "order": 1,
+                    }
+                ]),
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        studio_page = self.client.get("/design-studio/")
+        html = studio_page.content.decode("utf-8")
+        self.assertIn("Mein NAS Studio", html)
+        self.assertIn("bi-hdd-network", html)
+        self.assertIn("bi-rocket-takeoff", html)
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner
