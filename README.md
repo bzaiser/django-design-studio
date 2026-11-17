@@ -77,3 +77,26 @@ Optionales Erzeugen lokaler Starter-Dateien (überspringt bestehende Dateien aut
 python manage.py design_studio_scaffold
 ```
 
+## Updates bestehender Apps & Container ohne Rebuild
+
+1. **Integration & lokale Overrides prüfen** (besonders bei nachträglich eingebauten Apps):
+```bash
+python manage.py design_studio_doctor
+python manage.py design_studio_doctor --clean-overrides   # sichert lokale templates/static/design_studio als .bak
+```
+
+2. **Container-Update ohne `docker build`** (Volume + `PYTHONPATH` + Gunicorn/WhiteNoise):
+```yaml
+# docker-compose.yml
+services:
+  web:
+    environment:
+      - PYTHONPATH=/opt/ds-pkg
+    volumes:
+      - ds_pkg:/opt/ds-pkg
+```
+```bash
+# Im laufenden Container (oder per entrypoint.sh vor Gunicorn):
+python manage.py design_studio_update --target /opt/ds-pkg --reload-gunicorn
+```
+

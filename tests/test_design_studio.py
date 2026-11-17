@@ -147,6 +147,52 @@ class DesignStudioPackageTests(TestCase):
         self.assertEqual(imp.status_code, 200)
         self.assertEqual(imp.json()["theme_studio"]["mood"], "serioes")
 
+    def test_doctor_detects_and_cleans_overrides_and_checks_base_html(self):
+        import io
+        import tempfile
+        from pathlib import Path
+        from django.core.management.base import CommandError
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            override_dir = tmp_path / "templates" / "design_studio" / "includes"
+            override_dir.mkdir(parents=True)
+            (override_dir / "navbar.html").write_text("OLD", encoding="utf-8")
+
+            base_html = tmp_path / "templates" / "base.html"
+            base_html.write_text('{% extends "design_studio/layouts/base.html" %}', encoding="utf-8")
+
+            with self.settings(BASE_DIR=tmp_path):
+                out = io.StringIO()
+                with self.assertRaises(CommandError):
+                    call_command("design_studio_doctor", strict=True, stdout=out)
+                self.assertIn("Lokaler Override", out.getvalue())
+
+                out_clean = io.StringIO()
+                call_command("design_studio_doctor", clean_overrides=True, strict=True, stdout=out_clean)
+                self.assertFalse((tmp_path / "templates" / "design_studio").exists())
+                self.assertTrue((tmp_path / "templates" / "design_studio.bak").exists())
+                self.assertIn("Alles OK", out_clean.getvalue())
+
+    def test_update_command_runs_pip_with_target_and_skips_missing_static_root(self):
+        import io
+        from unittest.mock import patch
+
+        with patch("design_studio.management.commands.design_studio_update.subprocess.run") as mock_run:
+            out = io.StringIO()
+            call_command(
+                "design_studio_update",
+                target="/opt/ds-pkg",
+                repo="git+https://example.com/repo.git@main",
+                stdout=out,
+            )
+            mock_run.assert_called_once()
+            args = mock_run.call_args[0][0]
+            self.assertIn("--target", args)
+            self.assertIn("/opt/ds-pkg", args)
+            self.assertIn("git+https://example.com/repo.git@main", args)
+            self.assertIn("collectstatic übersprungen", out.getvalue())
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner
