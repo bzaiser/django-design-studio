@@ -741,20 +741,20 @@
                 root.style.setProperty('--theme-state-' + st.index + '-txt', txtTint);
 
                 swatchHtml += '<div class="col">' +
-                    '<div class="card h-100 border shadow-sm overflow-hidden" style="border-radius: 12px;">' +
-                    '<div class="px-2 py-2 d-flex justify-content-between align-items-center position-relative" style="background:' + hex + '; color:' + hdrTxt + '; cursor:pointer;" title="Klick zum Ändern">' +
-                    '<input type="color" class="ds-state-picker position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor:pointer;" data-state="' + stKey + '" value="' + hex + '">' +
-                    '<span class="font-monospace fw-bold" style="font-size:0.75rem; pointer-events:none;">' + hex + '</span>' +
+                    '<div class="card h-100 border shadow-sm overflow-hidden ds-state-card" data-state="' + stKey + '" style="border-radius: 12px;">' +
+                    '<div class="px-2 py-2 d-flex justify-content-between align-items-center position-relative ds-state-hdr" style="background:' + hex + '; color:' + hdrTxt + '; cursor:pointer;" title="Klick zum Ändern">' +
+                    '<input type="color" class="ds-state-picker position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor:pointer; z-index:1;" data-state="' + stKey + '" value="' + hex + '">' +
+                    '<span class="font-monospace fw-bold ds-state-hex" style="font-size:0.75rem; pointer-events:none;">' + hex + '</span>' +
                     '<span class="d-flex gap-1 position-relative" style="z-index:2;">' +
                     (isOverridden ? '<button type="button" class="btn btn-sm p-0 border-0 ds-state-reset" data-state="' + stKey + '" style="color:' + hdrTxt + ';" title="Zurücksetzen"><i class="bi bi-arrow-counterclockwise"></i></button>' : '') +
                     '<button type="button" class="btn btn-sm p-0 border-0 ds-state-copy" data-hex="' + hex + '" style="color:' + hdrTxt + ';" title="HEX kopieren"><i class="bi bi-copy"></i></button>' +
                     '</span></div>' +
                     '<div class="p-2 small">' +
                     '<div class="fw-bold text-truncate" style="font-size:0.72rem;">' + st.n + '</div>' +
-                    '<span class="badge mt-1" style="background:' + bgTint + '; color:' + txtTint + '; font-size:0.68rem;">' + st.t + '</span>' +
+                    '<span class="badge mt-1 ds-state-badge" style="background:' + bgTint + '; color:' + txtTint + '; font-size:0.68rem;">' + st.t + '</span>' +
                     '</div></div></div>';
             });
-            if (swatchGrid) swatchGrid.innerHTML = swatchHtml;
+            if (swatchGrid && !window._dsActivePickerState) swatchGrid.innerHTML = swatchHtml;
 
             var surf = (surfEl && surfEl.value !== 'auto') ? surfEl.value : (m.surface || 'tinted');
             var svgKey = (svgEl && svgEl.value !== 'auto') ? svgEl.value : (m.svg || 'topography');
@@ -825,12 +825,30 @@
         });
         document.addEventListener('input', function (e) {
             if (!e.target.classList.contains('ds-state-picker')) return;
+            var stKey = e.target.dataset.state;
+            var hex = e.target.value.toUpperCase();
             var ovInput = document.getElementById('studioStateOverrides');
             if (!ovInput) return;
             var ov = {};
             try { ov = JSON.parse(ovInput.value || '{}') || {}; } catch (err) { ov = {}; }
-            ov[e.target.dataset.state] = e.target.value.toUpperCase();
+            ov[stKey] = hex;
             ovInput.value = JSON.stringify(ov);
+            window._dsActivePickerState = stKey;
+            var card = e.target.closest('.ds-state-card');
+            if (card) {
+                var hdr = card.querySelector('.ds-state-hdr');
+                var hexSpan = card.querySelector('.ds-state-hex');
+                var copyBtn = card.querySelector('.ds-state-copy');
+                var txt = contrastTxt(hex);
+                if (hdr) { hdr.style.background = hex; hdr.style.color = txt; }
+                if (hexSpan) hexSpan.textContent = hex;
+                if (copyBtn) { copyBtn.dataset.hex = hex; copyBtn.style.color = txt; }
+            }
+            applyDsLivePreview();
+        });
+        document.addEventListener('change', function (e) {
+            if (!e.target.classList.contains('ds-state-picker')) return;
+            window._dsActivePickerState = null;
             applyDsLivePreview();
         });
         document.addEventListener('click', function (e) {
