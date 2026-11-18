@@ -9,6 +9,17 @@ from django.core.management.base import BaseCommand, CommandError
 
 DEFAULT_REPO = "https://github.com/bzaiser/django-design-studio/archive/refs/heads/main.zip"
 
+KIT_REPOS = {
+    "design_studio": DEFAULT_REPO,
+    "domain_kit": "https://github.com/bzaiser/domain-django-kit/archive/refs/heads/main.zip",
+    "auth_kit": "https://github.com/bzaiser/auth-django-kit/archive/refs/heads/main.zip",
+    "notify_kit": "https://github.com/bzaiser/notify-django-kit/archive/refs/heads/main.zip",
+    "cal_kit": "https://github.com/bzaiser/cal-django-kit/archive/refs/heads/main.zip",
+    "grid_kit": "https://github.com/bzaiser/grid-django-kit/archive/refs/heads/main.zip",
+    "seed_kit": "https://github.com/bzaiser/seed-django-kit/archive/refs/heads/main.zip",
+    "ops_kit": "https://github.com/bzaiser/ops-django-kit/archive/refs/heads/main.zip",
+}
+
 
 class Command(BaseCommand):
     help = (
@@ -21,6 +32,11 @@ class Command(BaseCommand):
             "--repo",
             default=getattr(settings, "DESIGN_STUDIO_REPO_URL", DEFAULT_REPO),
             help="Git- oder Paket-Quelle für pip install.",
+        )
+        parser.add_argument(
+            "--all-kits",
+            action="store_true",
+            help="Erkennt und aktualisiert automatisch alle in INSTALLED_APPS aktiven Baukasten-Pakete.",
         )
         parser.add_argument(
             "--target",
@@ -64,7 +80,14 @@ class Command(BaseCommand):
         ]
         if target:
             cmd.extend(["--target", target])
-        cmd.append(repo)
+        if options.get("all_kits"):
+            installed = set(getattr(settings, "INSTALLED_APPS", []))
+            packages = [url for app, url in KIT_REPOS.items() if app in installed]
+            if not packages:
+                packages = [repo]
+            cmd.extend(packages)
+        else:
+            cmd.append(repo)
 
         self.stdout.write(f"Starte Update: {' '.join(cmd)}")
         try:
@@ -73,7 +96,10 @@ class Command(BaseCommand):
             raise CommandError(f"pip install fehlgeschlagen (Exit {exc.returncode}).") from exc
 
         if not options.get("skip_migrate"):
-            call_command("migrate", "design_studio", interactive=False, stdout=self.stdout)
+            if options.get("all_kits"):
+                call_command("migrate", interactive=False, stdout=self.stdout)
+            else:
+                call_command("migrate", "design_studio", interactive=False, stdout=self.stdout)
 
         if not options.get("skip_collectstatic"):
             if getattr(settings, "STATIC_ROOT", None):

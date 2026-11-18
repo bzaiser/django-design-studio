@@ -193,6 +193,13 @@ class DesignStudioPackageTests(TestCase):
             self.assertIn("git+https://example.com/repo.git@main", args)
             self.assertIn("collectstatic übersprungen", out.getvalue())
 
+            mock_run.reset_mock()
+            with patch.object(settings, "INSTALLED_APPS", ["design_studio", "django.contrib.auth"]):
+                call_command("design_studio_update", all_kits=True, skip_migrate=True, target="/opt/ds-pkg", stdout=io.StringIO())
+                args_all = mock_run.call_args[0][0]
+                self.assertTrue(any("django-design-studio" in a for a in args_all))
+                self.assertFalse(any("domain-django-kit" in a for a in args_all))
+
     def test_offline_vendor_assets_and_cdn_free_templates(self):
         from pathlib import Path
         pkg_dir = Path(__file__).resolve().parent.parent / "design_studio"
