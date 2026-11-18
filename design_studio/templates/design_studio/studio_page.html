@@ -266,6 +266,16 @@
                         </div>
                     </div>
 
+                    <!-- Semantische Farbharmonie (8 Zustände) -->
+                    <div class="col-12 mt-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+                            <span class="small fw-bold"><i class="bi bi-palette2 me-1 text-primary"></i>{% trans "Semantische Farbharmonie (8 Zustände für Karten, Kategorien & Charts)" %}</span>
+                            <small class="text-muted">{% trans "Klick auf Farbfeld ändert Farbe · Copy-Icon kopiert HEX" %}</small>
+                        </div>
+                        <input type="hidden" name="theme_state_overrides" id="studioStateOverrides" value='{{ theme_state_overrides_json|default:"{}" }}'>
+                        <div class="row row-cols-2 row-cols-sm-4 g-2" id="studioSwatchGrid"></div>
+                    </div>
+
                     <!-- Menü-Studio -->
                     <div class="col-12 mt-3">
                         <div class="accordion accordion-flush rounded-4 overflow-hidden border border-secondary border-opacity-25" id="dsMenuAccordion">
@@ -662,8 +672,22 @@
             var thBg = hslToHex(base1.h, m.s, moodKey === 'grayscale' ? 30 : (isDark ? 28 : Math.max(32, Math.min(52, m.l))));
             var thTxt = contrastTxt(thBg);
             var borderCol = isDark ? '#334155' : '#dee2e6';
-            var st1 = hslToHex(m.dual ? base1.h : Math.round(142 + (base1.h - 142) * m.shift), m.s, m.l);
-            var st8 = hslToHex(m.dual ? hexToHsl(c2).h : Math.round(272 + (base1.h - 272) * m.shift), m.s, m.l);
+            var STATES_DEF = [
+                { index: 1, n: '1. OK / Ampel Grün', h: 142, t: '✓ Stabil', side: 1 },
+                { index: 2, n: '2. Positiv / Info', h: 185, t: 'ℹ Info', side: 1 },
+                { index: 3, n: '3. Mittel / Achtung', h: 43, t: '⚠ Achtung', side: 2 },
+                { index: 4, n: '4. Warnung', h: 26, t: '⚡ Warnung', side: 2 },
+                { index: 5, n: '5. Schlecht / Negativ', h: 4, t: '✕ Fehler', side: 2 },
+                { index: 6, n: '6. Gefahr / Kritisch', h: 338, t: '🛑 Gefahr', side: 2 },
+                { index: 7, n: '7. Neutral / Inaktiv', h: null, t: '• Inaktiv', side: 0 },
+                { index: 8, n: '8. Fokus / Highlight', h: 272, t: '★ Fokus', side: 1 }
+            ];
+            var ovInput = document.getElementById('studioStateOverrides');
+            var stateOverrides = {};
+            try {
+                var parsedOv = JSON.parse(ovInput ? (ovInput.value || '{}') : '{}');
+                if (parsedOv && typeof parsedOv === 'object' && !Array.isArray(parsedOv)) stateOverrides = parsedOv;
+            } catch (e) { stateOverrides = {}; }
 
             var root = document.documentElement;
             if (isDark) root.setAttribute('data-bs-theme', 'dark'); else root.setAttribute('data-bs-theme', 'light');
@@ -682,8 +706,55 @@
             root.style.setProperty('--app-input-bg', pageBg);
             root.style.setProperty('--app-input-color', txtCol);
             root.style.setProperty('--app-input-border', borderCol);
-            root.style.setProperty('--theme-state-1', st1);
-            root.style.setProperty('--theme-state-8', st8);
+
+            var swatchGrid = document.getElementById('studioSwatchGrid');
+            var swatchHtml = '';
+            STATES_DEF.forEach(function (st, idx) {
+                var hue = st.h === null ? base1.h : Math.round(st.h + (base1.h - st.h) * m.shift);
+                var s = st.h === null ? (m.s === 0 ? 0 : 12) : m.s;
+                var l = m.l;
+                if (m.dual) {
+                    if (st.side === 1) { hue = base1.h; l = idx === 0 ? 46 : (idx === 1 ? 56 : 38); }
+                    else if (st.side === 2) { hue = hexToHsl(c2).h; l = 38 + (idx - 2) * 7; }
+                    else { hue = Math.round((base1.h + hexToHsl(c2).h) / 2); s = 14; l = 50; }
+                }
+                if (m.warm && st.h !== null) hue = Math.round(hue * 0.85 + 35 * 0.15);
+                if (m.earth) { hue = st.h === null ? 32 : Math.round(hue * 0.35 + 28 * 0.65); l = 35 + (idx * 4); }
+                if (m.eco && st.h !== null) { if (st.h === 142 || st.h === 185) { s = 48; l = 44; } else { s = 98; l = 56; } }
+                if (moodKey === 'monochrom' || moodKey === 'grayscale') { l = 24 + (idx * 7); }
+                else if (!m.dual && st.h !== null && st.h >= 35 && st.h <= 55 && !isDark && moodKey !== 'wellness') { l = Math.max(48, l); }
+
+                var hex = hslToHex(hue, s, l);
+                var stKey = String(st.index);
+                var isOverridden = false;
+                if (typeof stateOverrides[stKey] === 'string' && /^#[0-9A-Fa-f]{6}$/.test(stateOverrides[stKey].trim())) {
+                    hex = stateOverrides[stKey].trim().toUpperCase();
+                    isOverridden = true;
+                }
+                var hsl = hexToHsl(hex);
+                var bgTint = 'hsla(' + hsl.h + ', ' + hsl.s + '%, ' + hsl.l + '%, ' + (isDark ? '0.24' : '0.15') + ')';
+                var txtTint = hslToHex(hsl.h, hsl.s, isDark ? Math.min(86, hsl.l + 24) : Math.max(22, hsl.l - 26));
+                var hdrTxt = contrastTxt(hex);
+
+                root.style.setProperty('--theme-state-' + st.index, hex);
+                root.style.setProperty('--theme-state-' + st.index + '-bg', bgTint);
+                root.style.setProperty('--theme-state-' + st.index + '-txt', txtTint);
+
+                swatchHtml += '<div class="col">' +
+                    '<div class="card h-100 border shadow-sm overflow-hidden" style="border-radius: 12px;">' +
+                    '<div class="px-2 py-2 d-flex justify-content-between align-items-center position-relative" style="background:' + hex + '; color:' + hdrTxt + '; cursor:pointer;" title="Klick zum Ändern">' +
+                    '<input type="color" class="ds-state-picker position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor:pointer;" data-state="' + stKey + '" value="' + hex + '">' +
+                    '<span class="font-monospace fw-bold" style="font-size:0.75rem; pointer-events:none;">' + hex + '</span>' +
+                    '<span class="d-flex gap-1 position-relative" style="z-index:2;">' +
+                    (isOverridden ? '<button type="button" class="btn btn-sm p-0 border-0 ds-state-reset" data-state="' + stKey + '" style="color:' + hdrTxt + ';" title="Zurücksetzen"><i class="bi bi-arrow-counterclockwise"></i></button>' : '') +
+                    '<button type="button" class="btn btn-sm p-0 border-0 ds-state-copy" data-hex="' + hex + '" style="color:' + hdrTxt + ';" title="HEX kopieren"><i class="bi bi-copy"></i></button>' +
+                    '</span></div>' +
+                    '<div class="p-2 small">' +
+                    '<div class="fw-bold text-truncate" style="font-size:0.72rem;">' + st.n + '</div>' +
+                    '<span class="badge mt-1" style="background:' + bgTint + '; color:' + txtTint + '; font-size:0.68rem;">' + st.t + '</span>' +
+                    '</div></div></div>';
+            });
+            if (swatchGrid) swatchGrid.innerHTML = swatchHtml;
 
             var surf = (surfEl && surfEl.value !== 'auto') ? surfEl.value : (m.surface || 'tinted');
             var svgKey = (svgEl && svgEl.value !== 'auto') ? svgEl.value : (m.svg || 'topography');

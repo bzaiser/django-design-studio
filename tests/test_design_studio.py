@@ -287,6 +287,19 @@ class DesignStudioPackageTests(TestCase):
         self.assertIn("--header-bg:", css_text)
         self.assertIn("#header", css_text)
 
+    def test_studio_page_renders_8_state_harmony_grid_and_saves_overrides(self):
+        html = self.client.get("/design-studio/").content.decode("utf-8")
+        self.assertIn('id="studioStateOverrides"', html)
+        self.assertIn('id="studioSwatchGrid"', html)
+        resp = self.client.post(
+            "/design-studio/save/",
+            {"theme_state_overrides": json.dumps({"1": "#26D96B", "8": "#7126D9"})},
+        )
+        self.assertEqual(resp.status_code, 302)
+        exp = json.loads(self.client.get("/design-studio/export/").content.decode("utf-8"))
+        self.assertEqual(exp["state_overrides"]["1"], "#26D96B")
+        self.assertEqual(exp["state_overrides"]["8"], "#7126D9")
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner
