@@ -300,6 +300,13 @@ class DesignStudioPackageTests(TestCase):
         self.assertEqual(exp["state_overrides"]["1"], "#26D96B")
         self.assertEqual(exp["state_overrides"]["8"], "#7126D9")
 
+    def test_design_studio_css_includes_ds_tabs_and_panel_styles(self):
+        from pathlib import Path
+        css_path = Path(__file__).resolve().parent.parent / "design_studio" / "static" / "design_studio" / "css" / "design-studio.css"
+        css = css_path.read_text(encoding="utf-8")
+        self.assertIn(".nav-tabs.ds-tabs", css)
+        self.assertIn(".ds-tab-panel", css)
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner

@@ -143,9 +143,69 @@ small,
     border-color: var(--app-primary, #0d6efd) !important;
     box-shadow: 0 0 0 0.22rem color-mix(in srgb, var(--app-primary, #0d6efd) 25%, transparent) !important;
 }
+.nav,
+.nav-tabs,
+.nav-pills {
+    --bs-nav-link-color: var(--app-card-color, #1e293b);
+    --bs-nav-link-hover-color: var(--app-primary, #0d6efd);
+}
+.nav-pills .nav-link {
+    color: var(--app-card-color, #1e293b);
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 6%, transparent);
+    border: 1px solid var(--app-table-border-color, rgba(128,128,128,0.18));
+}
+.nav-pills .nav-link:hover {
+    color: var(--app-primary, #0d6efd);
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 12%, transparent);
+}
 .nav-pills .nav-link.active {
     background: var(--app-gradient) !important;
+    border-color: transparent !important;
     color: #ffffff !important;
+}
+.nav-tabs.ds-tabs {
+    border-bottom: 1px solid var(--app-table-border-color, rgba(128,128,128,0.22));
+    gap: 0.35rem;
+    padding: 0 0.5rem;
+    margin-bottom: 0 !important;
+}
+.nav-tabs.ds-tabs .nav-link {
+    color: var(--app-card-color, #1e293b);
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 6%, var(--app-card-bg, #ffffff));
+    border: 1px solid var(--app-table-border-color, rgba(128,128,128,0.22));
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    padding: 0.55rem 1.05rem;
+    font-weight: 600;
+    opacity: 0.82;
+    transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.nav-tabs.ds-tabs .nav-link:hover {
+    opacity: 1;
+    color: var(--app-primary, #0d6efd);
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 11%, var(--app-card-bg, #ffffff));
+}
+.nav-tabs.ds-tabs .nav-link.active {
+    opacity: 1;
+    color: var(--app-primary, #0d6efd) !important;
+    background: var(--app-card-bg, #ffffff) !important;
+    border-color: var(--app-table-border-color, rgba(128,128,128,0.22)) !important;
+    border-top: 3px solid var(--app-primary, #0d6efd) !important;
+    border-bottom: 1px solid var(--app-card-bg, #ffffff) !important;
+    margin-bottom: -1px;
+    font-weight: 700;
+}
+.ds-tab-panel {
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 3%, var(--app-card-bg, #ffffff));
+    border: 1px solid var(--app-table-border-color, rgba(128,128,128,0.22));
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+    padding: 1.25rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+body[data-card-surface="brutal"] .nav-tabs.ds-tabs .nav-link,
+body[data-card-surface="brutal"] .ds-tab-panel {
+    border-radius: 0 !important;
 }
 .form-control,
 .form-select {
