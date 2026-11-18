@@ -101,6 +101,8 @@ def save_studio_view(request):
             "kpi_click_navigation": (request.POST.get("kpi_click_navigation") == "on") if has_kpi else prev.get("kpi_click_navigation", True),
             "menu_layout": request.POST.get("theme_menu_layout", prev.get("menu_layout", "top")),
             "menu_style": request.POST.get("theme_menu_style", prev.get("menu_style", "auto")),
+            "font_family": request.POST.get("theme_font_family", prev.get("font_family", "auto")),
+            "font_scale": request.POST.get("theme_font_scale", prev.get("font_scale", "normal")),
             "menu_config": prev.get("menu_config", []),
             "brand_title": request.POST.get("brand_title", prev.get("brand_title", "")),
             "brand_icon": request.POST.get("brand_icon", prev.get("brand_icon", "")),

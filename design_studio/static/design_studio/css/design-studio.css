@@ -1,7 +1,88 @@
 /* django-design-studio: Global Card Surfaces, Tables, Navbar, Modals, Bento KPI 2.0 & SVG Background Layer */
+:root,
+body[data-font-scale="normal"] {
+    --app-fs-xs: 0.75rem;
+    --app-fs-sm: 0.85rem;
+    --app-fs-base: 0.95rem;
+    --app-fs-lg: 1.2rem;
+    --app-fs-xl: 1.45rem;
+}
+body[data-font-scale="compact"] {
+    --app-fs-xs: 0.71rem;
+    --app-fs-sm: 0.8rem;
+    --app-fs-base: 0.89rem;
+    --app-fs-lg: 1.12rem;
+    --app-fs-xl: 1.35rem;
+}
+body[data-font-scale="comfortable"] {
+    --app-fs-xs: 0.8rem;
+    --app-fs-sm: 0.9rem;
+    --app-fs-base: 1.0rem;
+    --app-fs-lg: 1.28rem;
+    --app-fs-xl: 1.55rem;
+}
+
+:root,
+body[data-font-family="sans"] {
+    --app-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --app-font-heading: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+body[data-font-family="rounded"] {
+    --app-font-body: 'Plus Jakarta Sans', 'Avenir Next', 'Nunito', 'Segoe UI', system-ui, sans-serif;
+    --app-font-heading: 'Plus Jakarta Sans', 'Avenir Next', 'Nunito', 'Segoe UI', system-ui, sans-serif;
+}
+body[data-font-family="serif"] {
+    --app-font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --app-font-heading: Georgia, 'Playfair Display', 'Times New Roman', serif;
+}
+body[data-font-family="tech"] {
+    --app-font-body: 'Space Grotesk', 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+    --app-font-heading: 'Space Grotesk', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+}
+body[data-font-family="mono"] {
+    --app-font-body: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, 'Courier New', monospace;
+    --app-font-heading: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, 'Courier New', monospace;
+}
+
 body {
     background-color: var(--bs-body-bg, #ffffff);
     color: var(--bs-body-color, #212529);
+    font-family: var(--app-font-body);
+    font-size: var(--app-fs-base);
+}
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.display-3, .display-4, .display-5, .display-6,
+.card-header, .modal-title, .navbar-brand {
+    font-family: var(--app-font-heading);
+}
+h2, .h2, .display-5 {
+    font-size: var(--app-fs-xl);
+}
+h4, .h4, h5, .h5 {
+    font-size: var(--app-fs-lg);
+}
+h6, .h6, .card-header {
+    font-size: var(--app-fs-base);
+}
+.form-label,
+.form-text,
+.small,
+small,
+.badge {
+    font-size: var(--app-fs-xs);
+}
+.table,
+.form-control,
+.form-select,
+.btn:not(.btn-lg),
+.dropdown-menu {
+    font-size: var(--app-fs-sm);
+}
+.metric-card .metric-value h3,
+.metric-card .metric-value h4 {
+    font-family: 'SFMono-Regular', Consolas, 'JetBrains Mono', monospace;
+    font-size: var(--app-fs-xl);
 }
 .app-bg-svg-layer {
     position: fixed;
@@ -58,6 +139,48 @@ nav,
     border: none !important;
     color: #ffffff !important;
     border-radius: 999px;
+}
+@media (max-width: 767.98px) {
+    .modal-dialog {
+        margin: 0.2rem auto !important;
+        max-width: calc(100vw - 0.4rem) !important;
+    }
+    .modal-header {
+        padding: 0.65rem 0.65rem !important;
+    }
+    .modal-body:not(.p-0) {
+        padding: 0.65rem 0.65rem !important;
+        max-height: 78vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .modal-footer {
+        padding: 0.55rem 0.65rem !important;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+    }
+    .modal-body .p-3,
+    .modal-body .p-4,
+    .modal-body .card.p-3 {
+        padding: 0.55rem 0.5rem !important;
+    }
+    .accordion-body:not(.p-0) {
+        padding: 0.65rem 0.65rem !important;
+    }
+}
+.theme-callout-danger {
+    background-color: var(--theme-state-6-bg, rgba(220, 53, 69, 0.1));
+    border: 1px solid color-mix(in srgb, var(--theme-state-6, #dc3545) 38%, transparent);
+    color: var(--app-card-color);
+}
+.theme-callout-danger strong,
+.theme-callout-danger i {
+    color: var(--theme-state-6, #dc3545) !important;
+}
+.theme-callout-primary {
+    background-color: color-mix(in srgb, var(--app-primary, #0d6efd) 10%, transparent);
+    border: 1px dashed color-mix(in srgb, var(--app-primary, #0d6efd) 42%, transparent);
+    color: var(--app-card-color);
 }
 
 /* Non-KPI Cards */
