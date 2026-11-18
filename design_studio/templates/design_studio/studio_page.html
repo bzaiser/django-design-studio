@@ -786,6 +786,8 @@
             }
             if (globalSvg) globalSvg.innerHTML = SVG_MAP[svgKey] || '';
 
+            var st1 = root.style.getPropertyValue('--theme-state-1') || '#26D96B';
+            var st8 = root.style.getPropertyValue('--theme-state-8') || '#7126D9';
             var c1Card = document.getElementById('dsDemoCard1'), c2Card = document.getElementById('dsDemoCard2');
             if (c1Card) {
                 c1Card.style.setProperty('--card-accent', st1);
@@ -819,6 +821,34 @@
             if (el) {
                 el.addEventListener('input', applyDsLivePreview);
                 el.addEventListener('change', applyDsLivePreview);
+            }
+        });
+        document.addEventListener('input', function (e) {
+            if (!e.target.classList.contains('ds-state-picker')) return;
+            var ovInput = document.getElementById('studioStateOverrides');
+            if (!ovInput) return;
+            var ov = {};
+            try { ov = JSON.parse(ovInput.value || '{}') || {}; } catch (err) { ov = {}; }
+            ov[e.target.dataset.state] = e.target.value.toUpperCase();
+            ovInput.value = JSON.stringify(ov);
+            applyDsLivePreview();
+        });
+        document.addEventListener('click', function (e) {
+            var resetBtn = e.target.closest('.ds-state-reset');
+            if (resetBtn) {
+                var ovInput = document.getElementById('studioStateOverrides');
+                if (ovInput) {
+                    var ov = {};
+                    try { ov = JSON.parse(ovInput.value || '{}') || {}; } catch (err) { ov = {}; }
+                    delete ov[resetBtn.dataset.state];
+                    ovInput.value = JSON.stringify(ov);
+                    applyDsLivePreview();
+                }
+                return;
+            }
+            var copyBtn = e.target.closest('.ds-state-copy');
+            if (copyBtn && navigator.clipboard) {
+                navigator.clipboard.writeText(copyBtn.dataset.hex || '').catch(function () {});
             }
         });
         applyDsLivePreview();
