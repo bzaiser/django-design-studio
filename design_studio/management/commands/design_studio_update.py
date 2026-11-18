@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 
-DEFAULT_REPO = "git+https://github.com/bzaiser/django-design-studio.git@main"
+DEFAULT_REPO = "https://github.com/bzaiser/django-design-studio/archive/refs/heads/main.zip"
 
 
 class Command(BaseCommand):
