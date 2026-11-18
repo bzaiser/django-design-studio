@@ -313,7 +313,7 @@ body[data-kpi-click="false"] .kpi-details-nav-link {
         max-height: 320px !important;
         opacity: 1 !important;
         overflow-y: auto !important;
-        padding: 0.6rem 0.75rem 0.75rem 0.75rem !important;
+        padding: 0.55rem 0 0.25rem 0 !important;
         pointer-events: auto !important;
     }
 }
