@@ -163,28 +163,32 @@ small,
     border-color: transparent !important;
     color: #ffffff !important;
 }
+.nav-tabs,
 .nav-tabs.ds-tabs {
-    border-bottom: 1px solid var(--app-table-border-color, rgba(128,128,128,0.22));
+    border-bottom: 1px solid var(--app-table-border-color, rgba(128,128,128,0.22)) !important;
     gap: 0.35rem;
     padding: 0 0.5rem;
     margin-bottom: 0 !important;
 }
+.nav-tabs .nav-link,
 .nav-tabs.ds-tabs .nav-link {
-    color: var(--app-card-color, #1e293b);
-    background: color-mix(in srgb, var(--app-primary, #0d6efd) 6%, var(--app-card-bg, #ffffff));
-    border: 1px solid var(--app-table-border-color, rgba(128,128,128,0.22));
-    border-bottom: none;
-    border-radius: 12px 12px 0 0;
+    color: var(--app-card-color, #1e293b) !important;
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 6%, var(--app-card-bg, #ffffff)) !important;
+    border: 1px solid var(--app-table-border-color, rgba(128,128,128,0.22)) !important;
+    border-bottom: none !important;
+    border-radius: 12px 12px 0 0 !important;
     padding: 0.55rem 1.05rem;
     font-weight: 600;
     opacity: 0.82;
     transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
+.nav-tabs .nav-link:hover,
 .nav-tabs.ds-tabs .nav-link:hover {
     opacity: 1;
-    color: var(--app-primary, #0d6efd);
-    background: color-mix(in srgb, var(--app-primary, #0d6efd) 11%, var(--app-card-bg, #ffffff));
+    color: var(--app-primary, #0d6efd) !important;
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 11%, var(--app-card-bg, #ffffff)) !important;
 }
+.nav-tabs .nav-link.active,
 .nav-tabs.ds-tabs .nav-link.active {
     opacity: 1;
     color: var(--app-primary, #0d6efd) !important;
@@ -203,6 +207,7 @@ small,
     padding: 1.25rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
 }
+body[data-card-surface="brutal"] .nav-tabs .nav-link,
 body[data-card-surface="brutal"] .nav-tabs.ds-tabs .nav-link,
 body[data-card-surface="brutal"] .ds-tab-panel {
     border-radius: 0 !important;
