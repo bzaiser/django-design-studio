@@ -1,6 +1,9 @@
 <div class="kpi-size-{{ size|default:'sm' }}">
     <div class="card metric-card {% if hover_rows %}widget-expand-card {% endif %}h-100 p-3"
-         {% if target_url %}data-target-url="{{ target_url }}" onclick="navigateDesignStudioKpiCard(event, '{{ target_url|escapejs }}');" style="--card-accent: {{ accent|default:'var(--app-primary, #0d6efd)' }}; background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), {{ accent|default:'var(--app-primary, #0d6efd)' }}; color: {{ text_color|default:'#ffffff' }}; cursor: pointer;"{% else %}style="--card-accent: {{ accent|default:'var(--app-primary, #0d6efd)' }}; background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), {{ accent|default:'var(--app-primary, #0d6efd)' }}; color: {{ text_color|default:'#ffffff' }};"{% endif %}>
+         {% if target_url %}data-target-url="{{ target_url }}"{% endif %}
+         {% if target_tab %}data-target-tab="{{ target_tab }}"{% endif %}
+         {% if target_url %}onclick="navigateDesignStudioKpiCard(event, '{{ target_url|escapejs }}');"{% endif %}
+         style="--card-accent: {{ accent|default:'var(--app-primary, #0d6efd)' }}; background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), {{ accent|default:'var(--app-primary, #0d6efd)' }}; color: {{ text_color|default:'#ffffff' }};{% if target_url or target_tab %} cursor: pointer;{% endif %}">
         <div class="kpi-decor-clip">
             <div class="kpi-spotlight"></div>
             {% if icon %}<i class="bi {{ icon }} kpi-watermark-icon"></i>{% endif %}

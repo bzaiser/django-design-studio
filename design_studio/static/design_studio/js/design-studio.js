@@ -18,8 +18,34 @@
         return true;
     }
 
+    function activateKpiTarget(card, targetUrl, targetTab) {
+        if (!document.body || document.body.dataset.kpiClick === 'false') return;
+        if (targetTab) {
+            var alpineRoot = card ? card.closest('[x-data]') : null;
+            if (alpineRoot && alpineRoot._x_dataStack && alpineRoot._x_dataStack[0]) {
+                var data = alpineRoot._x_dataStack[0];
+                if (typeof data.setTab === 'function') {
+                    data.setTab(targetTab);
+                } else if ('activeTab' in data) {
+                    data.activeTab = targetTab;
+                }
+            }
+            var scrollAnchor = document.querySelector('.folder-tabs-bar') ||
+                               (card && card.closest('.row, .kpi-bento-grid') ? card.closest('.row, .kpi-bento-grid').nextElementSibling : null);
+            if (scrollAnchor && typeof scrollAnchor.scrollIntoView === 'function') {
+                setTimeout(function () {
+                    scrollAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 60);
+            }
+            return;
+        }
+        if (targetUrl) {
+            window.location.href = targetUrl;
+        }
+    }
+
     window.navigateDesignStudioKpiCard = function (evt, targetUrl) {
-        if (evt && evt.target && evt.target.closest('a, button, input, select, .bi-info-circle')) return;
+        if (evt && evt.target && evt.target.closest('a, button, input, select, .bi-info-circle, .kpi-nav-pill, .kpi-details-nav-link')) return;
         var card = evt && evt.currentTarget ? evt.currentTarget : (evt && evt.target && evt.target.closest ? evt.target.closest('.metric-card') : null);
         if (isTouchPrimary() && card && card.querySelector('.widget-hover-details')) {
             if (evt && evt.target && evt.target.closest('.widget-hover-details')) return;
@@ -59,27 +85,51 @@
                 card.insertBefore(clip, card.firstChild);
             }
             var targetUrl = card.getAttribute('data-target-url');
+            var targetTab = card.getAttribute('data-target-tab');
+            if (!targetTab) {
+                var alpineClick = card.getAttribute('@click') || card.getAttribute('x-on:click') || '';
+                var mTab = alpineClick.match(/setTab\(\s*['"]([^'"]+)['"]\s*\)/);
+                if (mTab) {
+                    targetTab = mTab[1];
+                    card.setAttribute('data-target-tab', targetTab);
+                }
+            }
             var detailsEl = card.querySelector('.widget-hover-details');
-            if (targetUrl && !card.querySelector('.kpi-nav-pill')) {
+            if (detailsEl && detailsEl.parentElement && detailsEl.parentElement !== card && detailsEl.parentElement.classList.contains('card-body')) {
+                card.appendChild(detailsEl);
+            }
+            if ((targetUrl || targetTab) && !card.querySelector('.kpi-nav-pill')) {
                 var headerRow = card.querySelector('.card-body > .d-flex.justify-content-between') || card.querySelector('.d-flex.justify-content-between');
                 if (headerRow) {
                     var pill = document.createElement('a');
-                    pill.href = targetUrl;
+                    pill.href = targetUrl || 'javascript:void(0)';
                     pill.className = 'kpi-nav-pill ms-2';
-                    pill.title = 'Zur Detailseite';
-                    pill.setAttribute('aria-label', 'Zur Detailseite');
+                    pill.title = targetTab ? 'Zum Bereich springen' : 'Zur Detailseite';
+                    pill.setAttribute('aria-label', pill.title);
                     pill.innerHTML = '<i class="bi bi-arrow-up-right"></i>';
-                    pill.addEventListener('click', function (ev) { ev.stopPropagation(); });
+                    pill.addEventListener('click', function (ev) {
+                        ev.stopPropagation();
+                        if (targetTab) {
+                            ev.preventDefault();
+                            activateKpiTarget(card, null, targetTab);
+                        }
+                    });
                     headerRow.appendChild(pill);
                 }
             }
             if (detailsEl) {
-                if (targetUrl && !detailsEl.querySelector('.kpi-details-nav-link')) {
+                if ((targetUrl || targetTab) && !detailsEl.querySelector('.kpi-details-nav-link')) {
                     var footerLink = document.createElement('a');
-                    footerLink.href = targetUrl;
+                    footerLink.href = targetUrl || 'javascript:void(0)';
                     footerLink.className = 'kpi-details-nav-link';
-                    footerLink.innerHTML = '<span>Zur Detailseite</span><i class="bi bi-arrow-right ms-1"></i>';
-                    footerLink.addEventListener('click', function (ev) { ev.stopPropagation(); });
+                    footerLink.innerHTML = '<span>' + (targetTab ? 'Zum Bereich' : 'Zur Detailseite') + '</span><i class="bi bi-arrow-right ms-1"></i>';
+                    footerLink.addEventListener('click', function (ev) {
+                        ev.stopPropagation();
+                        if (targetTab) {
+                            ev.preventDefault();
+                            activateKpiTarget(card, null, targetTab);
+                        }
+                    });
                     detailsEl.appendChild(footerLink);
                 }
                 if (!card.querySelector('.kpi-expand-hint')) {
@@ -88,18 +138,28 @@
                     hint.className = 'kpi-expand-hint';
                     hint.setAttribute('aria-hidden', 'true');
                     hint.innerHTML = '<i class="bi bi-chevron-down"></i>';
-                    metricVal.appendChild(hint);
-                }
-                if (!card.dataset.kpiTouchBound) {
-                    card.dataset.kpiTouchBound = '1';
-                    var onclickAttr = card.getAttribute('onclick') || '';
-                    if (onclickAttr.indexOf('navigateDesignStudioKpiCard') === -1) {
-                        card.addEventListener('click', function (ev) {
-                            if (!isTouchPrimary()) return;
-                            if (ev.target && ev.target.closest('a, button, input, select, .bi-info-circle, .widget-hover-details')) return;
-                            toggleTouchKpiDetails(card);
-                        });
+                    if (metricVal === card && detailsEl.parentElement === card) {
+                        card.insertBefore(hint, detailsEl);
+                    } else {
+                        metricVal.appendChild(hint);
                     }
+                }
+            }
+            if (!card.dataset.kpiTouchBound) {
+                card.dataset.kpiTouchBound = '1';
+                var onclickAttr = card.getAttribute('onclick') || '';
+                if (onclickAttr.indexOf('navigateDesignStudioKpiCard') === -1) {
+                    card.addEventListener('click', function (ev) {
+                        if (ev.target && ev.target.closest('a, button, input, select, .bi-info-circle, .kpi-nav-pill, .kpi-details-nav-link, .widget-hover-details')) return;
+                        if (isTouchPrimary() && detailsEl) {
+                            ev.stopPropagation();
+                            toggleTouchKpiDetails(card);
+                            return;
+                        }
+                        if (targetTab && !(card.hasAttribute('@click') || card.hasAttribute('x-on:click'))) {
+                            activateKpiTarget(card, targetUrl, targetTab);
+                        }
+                    }, true);
                 }
             }
         });

@@ -13,6 +13,7 @@ DASHBOARD_HTML_STARTER = """{% extends "design_studio/layouts/dashboard.html" %}
 {% block page_subtitle %}Übersicht{% endblock %}
 
 {% block kpi_cards %}
+    {# Optionale Parameter: target_url="/pfad/", target_tab="tab_id", hover_rows=meine_liste #}
     {% include "design_studio/components/kpi_card.html" with title="Beispiel-KPI" value="42" unit="Stk." icon="bi-speedometer2" size="sm" %}
 {% endblock %}
 """

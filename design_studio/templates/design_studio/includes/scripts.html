@@ -1,2 +1,11 @@
 {% load static %}
 <script src="{% static 'design_studio/js/design-studio.js' %}"></script>
+{% if design_studio_pwa_enabled %}
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('{% url "design_studio:pwa_sw" %}', { scope: '/' }).catch(function () {});
+    });
+}
+</script>
+{% endif %}

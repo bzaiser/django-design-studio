@@ -45,4 +45,5 @@ def theme_context(request):
         "menu_icon_choices": user_menu["icon_choices"],
         "design_studio_app_name": ts.get("brand_title") or getattr(django_settings, "DESIGN_STUDIO_APP_NAME", "App"),
         "design_studio_app_icon": ts.get("brand_icon") or getattr(django_settings, "DESIGN_STUDIO_APP_ICON", "bi-speedometer2"),
+        "design_studio_pwa_enabled": bool(getattr(django_settings, "DESIGN_STUDIO_PWA_ENABLED", True)),
     }

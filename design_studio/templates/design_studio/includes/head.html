@@ -17,6 +17,14 @@
         --app-table-body-text: {{ theme_palette.table_body_text_color|default:"var(--app-card-color)" }};
         --app-table-border-color: {{ theme_palette.table_border_color|default:"rgba(0,0,0,0.1)" }};
         --app-table-row-hover-bg: color-mix(in srgb, var(--app-primary, #0d6efd) 8%, transparent);
+        --bs-modal-bg: var(--app-card-bg);
+        --bs-modal-color: var(--app-card-color);
+        --bs-tertiary-bg: var(--app-card-bg);
+        --bs-card-bg: var(--app-card-bg);
+        --bs-card-color: var(--app-card-color);
+        --app-input-bg: {{ theme_palette.table_body_bg_color|default:"var(--app-card-bg)" }};
+        --app-input-color: {{ theme_palette.table_body_text_color|default:"var(--app-card-color)" }};
+        --app-input-border: {{ theme_palette.table_border_color|default:"rgba(0,0,0,0.1)" }};
         {% if theme_palette and theme_palette.states %}
         {% for st in theme_palette.states %}
         --theme-state-{{ st.index }}: {{ st.hex }};
@@ -27,6 +35,13 @@
     }
 </style>
 <link rel="stylesheet" href="{% static 'design_studio/css/design-studio.css' %}">
+{% if design_studio_pwa_enabled %}
+<meta name="theme-color" content="{{ theme_palette.primary_color|default:'#0d6efd' }}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="{% url 'design_studio:pwa_manifest' %}">
+<link rel="icon" type="image/svg+xml" href="{% url 'design_studio:pwa_icon_svg' %}">
+{% endif %}
 {% if theme_palette_json %}
 <script>window.APP_THEME_PALETTE = {{ theme_palette_json|safe }};</script>
 {% endif %}

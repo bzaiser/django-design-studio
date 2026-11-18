@@ -1,14 +1,18 @@
 import json
 
+from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from .engine import (
     APP_PRESETS,
+    DEFAULT_SETTINGS,
     MOODS,
     compute_theme_palette,
     hex_to_hsl,
@@ -259,3 +263,113 @@ def import_theme_json_view(request):
         return JsonResponse({"status": "success", "theme_studio": imported})
     messages.success(request, _("Theme-Vorlage erfolgreich importiert."))
     return redirect(request.POST.get("next") or request.META.get("HTTP_REFERER") or "design_studio:studio")
+
+
+def _pwa_theme_context(request):
+    user = getattr(request, "user", None)
+    if user and getattr(user, "is_authenticated", False):
+        ts = get_storage_adapter().get_settings(user)
+    else:
+        ts = normalize_settings(DEFAULT_SETTINGS)
+    palette = compute_theme_palette(
+        c1=ts["c1"],
+        c2=ts["c2"],
+        mood_key=ts["mood"],
+        bg_mode=ts["bg_mode"],
+        bg_custom=ts["bg_custom"],
+        state_overrides=ts.get("state_overrides"),
+    )
+    app_name = ts.get("brand_title") or getattr(django_settings, "DESIGN_STUDIO_APP_NAME", "App")
+    return ts, palette, str(app_name)
+
+
+def pwa_manifest_view(request):
+    _, palette, app_name = _pwa_theme_context(request)
+    icons = getattr(django_settings, "DESIGN_STUDIO_PWA_ICONS", None) or [
+        {
+            "src": reverse("design_studio:pwa_icon_svg"),
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable",
+        }
+    ]
+    payload = {
+        "name": app_name,
+        "short_name": app_name[:12],
+        "start_url": getattr(django_settings, "DESIGN_STUDIO_PWA_START_URL", "/"),
+        "scope": "/",
+        "display": "standalone",
+        "theme_color": palette.get("primary_color", "#0d6efd"),
+        "background_color": palette.get("background_color", "#ffffff"),
+        "icons": icons,
+    }
+    return HttpResponse(
+        json.dumps(payload, ensure_ascii=False),
+        content_type="application/manifest+json; charset=utf-8",
+    )
+
+
+def pwa_icon_svg_view(request):
+    _, palette, app_name = _pwa_theme_context(request)
+    c1 = escape(palette.get("c1", "#6610f2"))
+    c2 = escape(palette.get("c2", "#0d6efd"))
+    letter = escape((getattr(django_settings, "DESIGN_STUDIO_PWA_ICON_TEXT", "") or app_name[:1] or "A").upper())
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">'
+        '<defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">'
+        f'<stop offset="0%" stop-color="{c1}"/><stop offset="100%" stop-color="{c2}"/>'
+        '</linearGradient></defs>'
+        '<rect width="512" height="512" rx="112" fill="url(#g)"/>'
+        f'<text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" '
+        'font-family="system-ui,-apple-system,sans-serif" font-weight="700" font-size="260" fill="#ffffff">'
+        f"{letter}</text></svg>"
+    )
+    return HttpResponse(svg, content_type="image/svg+xml; charset=utf-8")
+
+
+def pwa_sw_view(request):
+    static_url = getattr(django_settings, "STATIC_URL", "/static/").rstrip("/") + "/"
+    sw_js = f"""const CACHE_NAME = 'ds-pwa-v1';
+const STATIC_PREFIX = '{static_url}design_studio/';
+
+self.addEventListener('install', (event) => {{
+    self.skipWaiting();
+}});
+
+self.addEventListener('activate', (event) => {{
+    event.waitUntil(
+        caches.keys().then((keys) =>
+            Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+        ).then(() => self.clients.claim())
+    );
+}});
+
+self.addEventListener('fetch', (event) => {{
+    const req = event.request;
+    if (req.method !== 'GET') return;
+    const url = new URL(req.url);
+    if (url.origin !== self.location.origin) return;
+
+    if (url.pathname.startsWith(STATIC_PREFIX)) {{
+        event.respondWith(
+            caches.match(req).then((cached) => cached || fetch(req).then((res) => {{
+                if (res && res.status === 200) {{
+                    const copy = res.clone();
+                    caches.open(CACHE_NAME).then((c) => c.put(req, copy));
+                }}
+                return res;
+            }}))
+        );
+        return;
+    }}
+
+    if (req.mode === 'navigate') {{
+        event.respondWith(
+            fetch(req).catch(() => caches.match(req))
+        );
+    }}
+}});
+"""
+    resp = HttpResponse(sw_js, content_type="application/javascript; charset=utf-8")
+    resp["Service-Worker-Allowed"] = "/"
+    return resp

@@ -255,6 +255,28 @@ class DesignStudioPackageTests(TestCase):
         self.assertEqual(get_storage_adapter().get_settings(self.user)["menu_layout"], "top")
         self.assertIn('data-menu-layout="top"', self.client.get("/design-studio/").content.decode("utf-8"))
 
+    def test_pwa_manifest_icon_and_service_worker(self):
+        manifest = self.client.get("/design-studio/manifest.webmanifest")
+        self.assertEqual(manifest.status_code, 200)
+        self.assertIn("application/manifest+json", manifest["Content-Type"])
+        data = json.loads(manifest.content.decode("utf-8"))
+        self.assertEqual(data["display"], "standalone")
+        self.assertEqual(data["icons"][0]["src"], "/design-studio/pwa-icon.svg")
+
+        icon = self.client.get("/design-studio/pwa-icon.svg")
+        self.assertEqual(icon.status_code, 200)
+        self.assertIn("image/svg+xml", icon["Content-Type"])
+        self.assertIn("<svg", icon.content.decode("utf-8"))
+
+        sw = self.client.get("/design-studio/sw.js")
+        self.assertEqual(sw.status_code, 200)
+        self.assertEqual(sw["Service-Worker-Allowed"], "/")
+        self.assertIn("CACHE_NAME", sw.content.decode("utf-8"))
+
+        page_html = self.client.get("/design-studio/").content.decode("utf-8")
+        self.assertIn('rel="manifest"', page_html)
+        self.assertIn("serviceWorker.register", page_html)
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner

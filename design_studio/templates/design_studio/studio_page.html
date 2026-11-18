@@ -5,18 +5,19 @@
 
 {% block content %}
     <div class="py-1">
-        <div class="card shadow-sm p-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                <h3 class="fw-bold mb-0"><i class="bi bi-magic me-2 text-primary"></i>{% trans "Design Studio" %}</h3>
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span class="fw-bold"><i class="bi bi-magic me-2 opacity-75"></i>{% trans "Design Studio" %}</span>
                 <div class="d-flex gap-2">
-                    <a href="{% url 'design_studio:export' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                    <a href="{% url 'design_studio:export' %}" class="btn btn-sm bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3">
                         <i class="bi bi-download me-1"></i>{% trans "Theme exportieren (.json)" %}
                     </a>
-                    <a href="{% url 'design_studio:toggle_night' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                    <a href="{% url 'design_studio:toggle_night' %}" class="btn btn-sm bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3">
                         {% if theme_palette.is_dark %}<i class="bi bi-sun me-1"></i>{% trans "Tag" %}{% else %}<i class="bi bi-moon-stars me-1"></i>{% trans "Nacht" %}{% endif %}
                     </a>
                 </div>
             </div>
+            <div class="card-body">
 
             {% if messages %}
             <div class="mb-3">
@@ -175,7 +176,7 @@
                             <div id="dsLiveStageSvg" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 0;"></div>
                             <div class="row g-3 position-relative" style="z-index: 1;">
                                 <div class="col-12 col-md-4">
-                                    <div id="dsDemoCard1" class="card metric-card h-100 p-3" style="--card-accent: var(--theme-state-1, #198754); background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), var(--theme-state-1, #198754); color: #ffffff;">
+                                    <div id="dsDemoCard1" class="card metric-card widget-expand-card h-100 p-3" data-target-url="#dsLiveStage" style="--card-accent: var(--theme-state-1, #198754); background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), var(--theme-state-1, #198754); color: #ffffff;">
                                         <div class="kpi-decor-clip">
                                             <div class="kpi-spotlight"></div>
                                             <i class="bi bi-graph-up-arrow kpi-watermark-icon"></i>
@@ -197,11 +198,21 @@
                                                     <span class="ds-demo-click-pill badge rounded-pill" style="background: rgba(128,128,128,0.22); color: inherit;"><i class="bi bi-box-arrow-up-right me-1"></i>Details</span>
                                                 </div>
                                             </div>
+                                            <div class="widget-hover-details border-top border-white border-opacity-25 pt-2" style="background-color: var(--theme-state-1, #198754); color: inherit;">
+                                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-white border-opacity-10 small">
+                                                    <span>{% trans "Position A" %}</span>
+                                                    <span class="font-monospace fw-bold">+4.200 €</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center py-1 small">
+                                                    <span>{% trans "Position B" %}</span>
+                                                    <span class="font-monospace fw-bold">+630 €</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <div id="dsDemoCard2" class="card metric-card h-100 p-3" style="--card-accent: var(--theme-state-8, #6f42c1); background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), var(--theme-state-8, #6f42c1); color: #ffffff;">
+                                    <div id="dsDemoCard2" class="card metric-card widget-expand-card h-100 p-3" data-target-url="#dsLiveStage" style="--card-accent: var(--theme-state-8, #6f42c1); background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), var(--theme-state-8, #6f42c1); color: #ffffff;">
                                         <div class="kpi-decor-clip">
                                             <div class="kpi-spotlight"></div>
                                             <i class="bi bi-shield-check kpi-watermark-icon"></i>
@@ -220,6 +231,16 @@
                                                         <div class="target-marker" style="left: 80%;"></div>
                                                     </div>
                                                     <div class="small opacity-85 fw-semibold" style="font-size: var(--app-fs-xs);">Ziel-Marker: 80 %</div>
+                                                </div>
+                                            </div>
+                                            <div class="widget-hover-details border-top border-white border-opacity-25 pt-2" style="background-color: var(--theme-state-8, #6f42c1); color: inherit;">
+                                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-white border-opacity-10 small">
+                                                    <span>{% trans "Ist-Wert" %}</span>
+                                                    <span class="font-monospace fw-bold">2.380 €</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center py-1 small">
+                                                    <span>{% trans "Ziel-Wert" %}</span>
+                                                    <span class="font-monospace fw-bold">3.400 €</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -381,6 +402,7 @@
                     <i class="bi bi-upload me-1"></i>{% trans "Importieren" %}
                 </button>
             </form>
+            </div>
         </div>
     </div>
     <!-- Icon Picker Modal -->
@@ -657,6 +679,9 @@
             root.style.setProperty('--app-table-body-bg', pageBg);
             root.style.setProperty('--app-table-body-text', txtCol);
             root.style.setProperty('--app-table-border-color', borderCol);
+            root.style.setProperty('--app-input-bg', pageBg);
+            root.style.setProperty('--app-input-color', txtCol);
+            root.style.setProperty('--app-input-border', borderCol);
             root.style.setProperty('--theme-state-1', st1);
             root.style.setProperty('--theme-state-8', st8);
 
@@ -695,6 +720,8 @@
                 c1Card.style.setProperty('--card-accent', st1);
                 c1Card.style.background = 'linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), ' + st1;
                 c1Card.style.color = contrastTxt(st1);
+                var hd1 = c1Card.querySelector('.widget-hover-details');
+                if (hd1) { hd1.style.backgroundColor = st1; hd1.style.color = contrastTxt(st1); }
                 var pill = c1Card.querySelector('.ds-demo-click-pill');
                 if (pill && chkCl) pill.style.display = chkCl.checked ? 'inline-block' : 'none';
             }
@@ -702,6 +729,8 @@
                 c2Card.style.setProperty('--card-accent', st8);
                 c2Card.style.background = 'linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), ' + st8;
                 c2Card.style.color = contrastTxt(st8);
+                var hd2 = c2Card.querySelector('.widget-hover-details');
+                if (hd2) { hd2.style.backgroundColor = st8; hd2.style.color = contrastTxt(st8); }
             }
             var badge = document.getElementById('dsLiveBadge');
             if (badge) badge.textContent = surf + ' · ' + svgKey + ' · ' + fontKey;
