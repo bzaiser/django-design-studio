@@ -1,6 +1,6 @@
 <div class="kpi-size-{{ size|default:'sm' }}">
-    <div class="card metric-card h-100 p-3"
-         {% if target_url %}data-target-url="{{ target_url }}" onclick="if (document.body.dataset.kpiClick !== 'false' && !event.target.closest('a, button')) window.location.href='{{ target_url|escapejs }}';" style="--card-accent: {{ accent|default:'var(--app-primary, #0d6efd)' }}; background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), {{ accent|default:'var(--app-primary, #0d6efd)' }}; color: {{ text_color|default:'#ffffff' }}; cursor: pointer;"{% else %}style="--card-accent: {{ accent|default:'var(--app-primary, #0d6efd)' }}; background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), {{ accent|default:'var(--app-primary, #0d6efd)' }}; color: {{ text_color|default:'#ffffff' }};"{% endif %}>
+    <div class="card metric-card {% if hover_rows %}widget-expand-card {% endif %}h-100 p-3"
+         {% if target_url %}data-target-url="{{ target_url }}" onclick="navigateDesignStudioKpiCard(event, '{{ target_url|escapejs }}');" style="--card-accent: {{ accent|default:'var(--app-primary, #0d6efd)' }}; background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), {{ accent|default:'var(--app-primary, #0d6efd)' }}; color: {{ text_color|default:'#ffffff' }}; cursor: pointer;"{% else %}style="--card-accent: {{ accent|default:'var(--app-primary, #0d6efd)' }}; background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), {{ accent|default:'var(--app-primary, #0d6efd)' }}; color: {{ text_color|default:'#ffffff' }};"{% endif %}>
         <div class="kpi-decor-clip">
             <div class="kpi-spotlight"></div>
             {% if icon %}<i class="bi {{ icon }} kpi-watermark-icon"></i>{% endif %}
@@ -41,6 +41,17 @@
                 </div>
                 {% endif %}
             </div>
+            {% if hover_rows %}
+            <div class="widget-hover-details border-top border-white border-opacity-25 pt-2"
+                 style="background-color: {{ accent|default:'var(--app-card-color)' }}; color: {{ text_color|default:'inherit' }};">
+                {% for row in hover_rows %}
+                <div class="d-flex justify-content-between align-items-center py-1 {% if not forloop.last %}border-bottom border-white border-opacity-10{% endif %} gap-2" style="font-size: 0.73rem;">
+                    <span class="text-truncate flex-grow-1" style="min-width: 0;">{{ row.label }}</span>
+                    <span class="font-monospace fw-bold text-end text-nowrap flex-shrink-0 ms-auto">{{ row.value }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

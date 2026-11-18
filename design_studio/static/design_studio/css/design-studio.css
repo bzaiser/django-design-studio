@@ -166,10 +166,156 @@ body[data-card-surface="solid"] .card:not(.metric-card) .table tbody {
     .kpi-bento-grid > .kpi-size-lg { grid-column: span 12; }
 }
 @media (max-width: 575.98px) {
-    .kpi-bento-grid { gap: 0.65rem; }
+    .kpi-bento-grid {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap: 0.75rem !important;
+        padding-bottom: 0.35rem;
+        scrollbar-width: none;
+        align-items: stretch;
+    }
+    .kpi-bento-grid::-webkit-scrollbar {
+        display: none;
+    }
     .kpi-bento-grid > .kpi-size-sm,
     .kpi-bento-grid > .kpi-size-md,
-    .kpi-bento-grid > .kpi-size-lg { grid-column: span 12; }
+    .kpi-bento-grid > .kpi-size-lg {
+        flex: 0 0 85% !important;
+        width: 85% !important;
+        max-width: 85% !important;
+        scroll-snap-align: start;
+    }
+    .kpi-bento-grid:has(.is-touch-expanded) {
+        align-items: flex-start;
+    }
+}
+
+.widget-expand-card {
+    position: relative;
+    overflow: visible !important;
+}
+.widget-hover-details {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, opacity 0.3s ease;
+    z-index: 1020 !important;
+    background: inherit;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.4);
+    padding: 0 1rem;
+}
+.widget-expand-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.25) !important;
+    z-index: 1025 !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+.widget-expand-card:hover .widget-hover-details {
+    max-height: 280px;
+    opacity: 1;
+    overflow-y: auto;
+    padding: 0.75rem 1rem 1rem 1rem;
+}
+.kpi-nav-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    color: inherit !important;
+    text-decoration: none !important;
+    font-size: 0.78rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.kpi-nav-pill:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(1px, -1px);
+}
+body:not([data-card-surface="solid"]) .kpi-nav-pill {
+    background: color-mix(in srgb, var(--card-accent, var(--app-primary)) 14%, transparent);
+    border-color: color-mix(in srgb, var(--card-accent, var(--app-primary)) 30%, transparent);
+}
+.kpi-details-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.45rem;
+    padding-top: 0.45rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    color: inherit !important;
+    text-decoration: none !important;
+    font-size: 0.74rem;
+    font-weight: 700;
+    opacity: 0.92;
+}
+body[data-kpi-click="false"] .kpi-nav-pill,
+body[data-kpi-click="false"] .kpi-details-nav-link {
+    display: none !important;
+}
+.kpi-expand-hint {
+    display: none;
+}
+@media (hover: none), (pointer: coarse) {
+    .widget-expand-card:hover {
+        transform: none !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+        border-bottom-left-radius: 18px !important;
+        border-bottom-right-radius: 18px !important;
+    }
+    .widget-expand-card:hover:not(.is-touch-expanded) .widget-hover-details {
+        max-height: 0 !important;
+        opacity: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        pointer-events: none !important;
+    }
+    .kpi-expand-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        opacity: 0.55;
+        margin-top: 0.25rem;
+        line-height: 1;
+        transition: transform 0.25s ease;
+        pointer-events: none;
+    }
+    .widget-expand-card.is-touch-expanded .kpi-expand-hint {
+        transform: rotate(180deg);
+        opacity: 0.85;
+    }
+    .widget-expand-card.is-touch-expanded {
+        overflow: hidden !important;
+        z-index: 1025 !important;
+    }
+    .widget-expand-card.is-touch-expanded .widget-hover-details {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        box-shadow: none !important;
+        max-height: 320px !important;
+        opacity: 1 !important;
+        overflow-y: auto !important;
+        padding: 0.6rem 0.75rem 0.75rem 0.75rem !important;
+        pointer-events: auto !important;
+    }
 }
 
 .metric-card {
