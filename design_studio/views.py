@@ -432,6 +432,44 @@ html[data-theme="dark"] {{
     background: var(--app-gradient) !important;
     color: #ffffff !important;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+    padding: 10px 24px !important;
+}}
+
+.ds-admin-branding {{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}}
+
+.ds-admin-back-pill {{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: {btn_radius};
+    background: rgba(255, 255, 255, 0.22) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-decoration: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+    transition: transform 0.15s ease, background 0.15s ease;
+}}
+.ds-admin-back-pill:hover {{
+    background: rgba(255, 255, 255, 0.34) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}}
+
+#site-name a {{
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 700;
+    color: #ffffff !important;
+    text-decoration: none !important;
 }}
 
 div.breadcrumbs {{

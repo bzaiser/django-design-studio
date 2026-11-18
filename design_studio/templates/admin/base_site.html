@@ -1,22 +1,36 @@
 {% extends "admin/base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ design_studio_app_name|default:site_title|default:_('Django site admin') }}{% endblock %}
 
 {% block branding %}
-<div id="site-name"><a href="{% url 'admin:index' %}">{{ design_studio_app_name|default:site_header|default:_('Django administration') }}</a></div>
+<div class="ds-admin-branding">
+    <a href="/" class="ds-admin-back-pill" title="{% trans 'Zurück zur App' %}">
+        <i class="bi bi-arrow-left"></i>
+        {% if design_studio_app_icon != "none" %}
+        <i class="bi {{ design_studio_app_icon|default:'bi-speedometer2' }}"></i>
+        {% endif %}
+        <span>{% trans "Zurück zu" %} {{ design_studio_app_name|default:"App" }}</span>
+    </a>
+    <div id="site-name">
+        <a href="{% url 'admin:index' %}">
+            <i class="bi bi-shield-lock"></i>
+            <span>{{ design_studio_app_name|default:site_header|default:_('App') }} — Admin</span>
+        </a>
+    </div>
+</div>
 {% if user.is_anonymous %}
   {% include "admin/color_theme_toggle.html" %}
 {% endif %}
 {% endblock %}
 
 {% block userlinks %}
-    <a href="/">{% translate 'Zurück zur App' %}</a> /
-    <a href="{% url 'design_studio:studio' %}">Design Studio</a> /
+    <a href="{% url 'design_studio:studio' %}"><i class="bi bi-palette"></i> Design Studio</a> /
     {{ block.super }}
 {% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
+    <link rel="stylesheet" href="{% static 'design_studio/vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
     <link rel="stylesheet" href="{% url 'design_studio:admin_css' %}">
 {% endblock %}
