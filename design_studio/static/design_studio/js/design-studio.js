@@ -226,5 +226,16 @@
                 if (currentTarget) movePillTo(currentTarget);
             }, { passive: true });
         });
+
+        // Hoist modals to document.body so table-responsive/card/backdrop-filter stacking contexts never trap them behind backdrop
+        document.querySelectorAll('.modal').forEach(function (m) {
+            if (m.parentNode !== document.body) document.body.appendChild(m);
+        });
+    });
+
+    document.addEventListener('show.bs.modal', function (e) {
+        if (e.target && e.target.parentNode !== document.body) {
+            document.body.appendChild(e.target);
+        }
     });
 })();
