@@ -14,4 +14,5 @@ urlpatterns = [
     path("manifest.webmanifest", views.pwa_manifest_view, name="pwa_manifest"),
     path("pwa-icon.svg", views.pwa_icon_svg_view, name="pwa_icon_svg"),
     path("sw.js", views.pwa_sw_view, name="pwa_sw"),
+    path("admin.css", views.admin_theme_css_view, name="admin_css"),
 ]

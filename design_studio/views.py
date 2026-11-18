@@ -373,3 +373,118 @@ self.addEventListener('fetch', (event) => {{
     resp = HttpResponse(sw_js, content_type="application/javascript; charset=utf-8")
     resp["Service-Worker-Allowed"] = "/"
     return resp
+
+
+def admin_theme_css_view(request):
+    ts, palette, _ = _pwa_theme_context(request)
+    c1 = palette.get("c1", "#6610f2")
+    c2 = palette.get("c2", "#0d6efd")
+    primary = palette.get("primary_color", "#0d6efd")
+    bg = palette.get("background_color", "#ffffff")
+    fg = palette.get("text_color", "#212529")
+    sidebar_bg = palette.get("sidebar_bg_color", "#f8f9fa")
+    tbl_head_bg = palette.get("table_header_bg_color", primary)
+    tbl_head_fg = palette.get("table_header_text_color", "#ffffff")
+    border = palette.get("table_border_color", "rgba(128,128,128,0.22)")
+    is_dark = bool(palette.get("is_dark"))
+    brutal = bool(palette.get("brutal")) or ts.get("resolved_card_surface") == "brutal"
+    radius = "0px" if brutal else "14px"
+    btn_radius = "0px" if brutal else "999px"
+    quiet = "#94a3b8" if is_dark else "#64748b"
+
+    css = f"""/* Design Studio dynamic CSS variables for Django Admin */
+:root,
+html[data-theme="light"],
+html[data-theme="dark"] {{
+    --app-primary: {primary};
+    --app-gradient: linear-gradient(135deg, {c1} 0%, {c2} 100%);
+    --primary: {primary};
+    --secondary: {c1};
+    --accent: #ffffff;
+    --primary-fg: #ffffff;
+    --body-fg: {fg};
+    --body-bg: {bg};
+    --body-quiet-color: {quiet};
+    --body-loud-color: {fg};
+    --header-color: #ffffff;
+    --header-branding-color: #ffffff;
+    --header-bg: {c1};
+    --header-link-color: rgba(255, 255, 255, 0.92);
+    --breadcrumbs-fg: #ffffff;
+    --breadcrumbs-link-fg: rgba(255, 255, 255, 0.9);
+    --breadcrumbs-bg: color-mix(in srgb, {c1} 82%, #000000);
+    --link-fg: {primary};
+    --link-hover-color: {c1};
+    --link-selected-fg: {c2};
+    --hairline-color: {border};
+    --border-color: {border};
+    --darkened-bg: {sidebar_bg};
+    --selected-bg: color-mix(in srgb, {primary} 14%, {bg});
+    --selected-row: color-mix(in srgb, {primary} 12%, {bg});
+    --button-fg: #ffffff;
+    --button-bg: {primary};
+    --button-hover-bg: {c1};
+    --default-button-bg: {c1};
+    --default-button-hover-bg: {c2};
+}}
+
+#header {{
+    background: var(--app-gradient) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+}}
+
+div.breadcrumbs {{
+    background: color-mix(in srgb, {primary} 14%, {sidebar_bg}) !important;
+    color: {fg} !important;
+    border-bottom: 1px solid {border};
+}}
+div.breadcrumbs a {{
+    color: {primary} !important;
+    font-weight: 600;
+}}
+
+.module,
+#content-related,
+#changelist-filter,
+.inline-group {{
+    border-radius: {radius} !important;
+    overflow: hidden;
+    border: 1px solid {border} !important;
+    background: color-mix(in srgb, {primary} 4%, {bg}) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}}
+
+.module h2,
+.module caption,
+.inline-group h2,
+#changelist-filter h2 {{
+    background: var(--app-gradient) !important;
+    color: {tbl_head_fg} !important;
+    font-weight: 700;
+}}
+
+#result_list thead th {{
+    background: {tbl_head_bg} !important;
+    color: {tbl_head_fg} !important;
+}}
+#result_list thead th a {{
+    color: {tbl_head_fg} !important;
+}}
+
+.button,
+input[type=submit],
+input[type=button],
+.submit-row input,
+a.button,
+.object-tools a:link,
+.object-tools a:visited {{
+    background: var(--app-gradient) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: {btn_radius} !important;
+    font-weight: 600;
+    padding: 7px 16px;
+}}
+"""
+    return HttpResponse(css, content_type="text/css; charset=utf-8")

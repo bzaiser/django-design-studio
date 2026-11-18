@@ -277,6 +277,16 @@ class DesignStudioPackageTests(TestCase):
         self.assertIn('rel="manifest"', page_html)
         self.assertIn("serviceWorker.register", page_html)
 
+    def test_admin_theme_css_maps_palette_variables(self):
+        self.client.post("/design-studio/save/", {"app_preset": "neon_dark"})
+        css_resp = self.client.get("/design-studio/admin.css")
+        self.assertEqual(css_resp.status_code, 200)
+        self.assertIn("text/css", css_resp["Content-Type"])
+        css_text = css_resp.content.decode("utf-8")
+        self.assertIn("--app-gradient:", css_text)
+        self.assertIn("--header-bg:", css_text)
+        self.assertIn("#header", css_text)
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner
