@@ -235,7 +235,7 @@ def get_base_menu_items():
                     "match_urls": ["ops_kit:updates"],
                     "default_label": _("Auto-Updates"),
                     "icon": "bi-cloud-download",
-                    "zone": "utility",
+                    "zone": "system",
                     "display": "icon_only",
                     "visible": True,
                     "order": 4,
@@ -243,6 +243,41 @@ def get_base_menu_items():
                     "staff_only": True,
                 })
     return items
+
+
+SYSTEM_HUB_ITEM_IDS = {
+    "profile",
+    "design_studio",
+    "domain_settings",
+    "ops_updates",
+    "django_admin",
+    "admin",
+}
+
+
+def compute_system_hub_state(request, system_items):
+    """Mark active item in system_items and return (items_with_active, is_any_active, entry_url)."""
+    req_path = (getattr(request, "path", "") or "").rstrip("/") or "/"
+    resolver_match = getattr(request, "resolver_match", None)
+    req_url_name = getattr(resolver_match, "url_name", "") or ""
+    req_view_name = getattr(resolver_match, "view_name", "") or ""
+
+    enriched = []
+    any_active = False
+    for item in system_items:
+        item_url = (item.get("url") or "").rstrip("/") or "/"
+        match_urls = item.get("match_urls") or []
+        is_active = (
+            (item_url != "#" and req_path == item_url)
+            or (req_url_name and req_url_name in match_urls)
+            or (req_view_name and req_view_name in match_urls)
+        )
+        if is_active:
+            any_active = True
+        enriched.append({**item, "is_active": bool(is_active)})
+
+    entry_url = enriched[0]["url"] if enriched else ""
+    return enriched, any_active, entry_url
 
 
 def resolve_user_menu(user, saved_menu_config=None):
@@ -267,8 +302,8 @@ def resolve_user_menu(user, saved_menu_config=None):
         icon = (ov.get("icon") or "").strip()
         if not is_valid_bi_icon(icon):
             icon = item.get("icon", "bi-circle")
-        default_zone = item.get("zone", "main")
-        zone = ov.get("zone") if ov.get("zone") in ("main", "utility") else default_zone
+        default_zone = "system" if item_id in SYSTEM_HUB_ITEM_IDS else item.get("zone", "main")
+        zone = ov.get("zone") if ov.get("zone") in ("main", "utility", "system") else default_zone
         default_display = item.get("display", "icon_text" if zone == "main" else "icon_only")
         display = ov.get("display") if ov.get("display") in ("icon_text", "icon_only", "text_only") else default_display
         locked = bool(item.get("locked", False))
@@ -300,10 +335,12 @@ def resolve_user_menu(user, saved_menu_config=None):
             "locked": locked,
         })
 
-    resolved.sort(key=lambda x: (0 if x["zone"] == "main" else 1, x["order"]))
+    zone_rank = {"main": 0, "utility": 1, "system": 2}
+    resolved.sort(key=lambda x: (zone_rank.get(x["zone"], 1), x["order"]))
     return {
         "all_items": resolved,
         "main_items": [x for x in resolved if x["visible"] and x["zone"] == "main"],
         "utility_items": [x for x in resolved if x["visible"] and x["zone"] == "utility"],
+        "system_items": [x for x in resolved if x["visible"] and x["zone"] == "system"],
         "icon_choices": [(ic, str(lbl)) for ic, lbl in MENU_ICON_CHOICES],
     }
