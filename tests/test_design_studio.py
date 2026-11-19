@@ -186,8 +186,9 @@ class DesignStudioPackageTests(TestCase):
                 repo="git+https://example.com/repo.git@main",
                 stdout=out,
             )
-            mock_run.assert_called_once()
-            args = mock_run.call_args[0][0]
+            self.assertGreaterEqual(mock_run.call_count, 1)
+            args = mock_run.call_args_list[0][0][0]
+            self.assertIn("--upgrade", args)
             self.assertIn("--target", args)
             self.assertIn("/opt/ds-pkg", args)
             self.assertIn("git+https://example.com/repo.git@main", args)

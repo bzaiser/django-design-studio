@@ -3,6 +3,8 @@ import signal
 import subprocess
 import sys
 
+from pathlib import Path
+
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
@@ -68,12 +70,19 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         repo = options["repo"]
         target = (options.get("target") or "").strip()
+        if not target:
+            for p in os.environ.get("PYTHONPATH", "").split(os.pathsep):
+                p = p.strip()
+                if p and os.path.isdir(p) and os.access(p, os.W_OK):
+                    target = p
+                    break
 
         cmd = [
             sys.executable,
             "-m",
             "pip",
             "install",
+            "--upgrade",
             "--force-reinstall",
             "--no-deps",
             "--no-cache-dir",
@@ -95,15 +104,26 @@ class Command(BaseCommand):
         except subprocess.CalledProcessError as exc:
             raise CommandError(f"pip install fehlgeschlagen (Exit {exc.returncode}).") from exc
 
+        manage_py = Path(getattr(settings, "BASE_DIR", ".")) / "manage.py"
+        use_subproc = manage_py.exists()
+
         if not options.get("skip_migrate"):
-            if options.get("all_kits"):
+            if use_subproc:
+                mig_cmd = [sys.executable, str(manage_py), "migrate", "--noinput"]
+                if not options.get("all_kits"):
+                    mig_cmd.append("design_studio")
+                subprocess.run(mig_cmd, check=True)
+            elif options.get("all_kits"):
                 call_command("migrate", interactive=False, stdout=self.stdout)
             else:
                 call_command("migrate", "design_studio", interactive=False, stdout=self.stdout)
 
         if not options.get("skip_collectstatic"):
             if getattr(settings, "STATIC_ROOT", None):
-                call_command("collectstatic", interactive=False, stdout=self.stdout)
+                if use_subproc:
+                    subprocess.run([sys.executable, str(manage_py), "collectstatic", "--clear", "--noinput"], check=True)
+                else:
+                    call_command("collectstatic", clear=True, interactive=False, stdout=self.stdout)
             else:
                 self.stdout.write(self.style.WARNING("collectstatic übersprungen: STATIC_ROOT ist nicht gesetzt."))
 
