@@ -690,12 +690,22 @@ nav,
 }
 
 /* Modals */
+.modal {
+    z-index: 1055 !important;
+}
+.modal-backdrop {
+    z-index: 1050 !important;
+}
 .modal-content {
-    background-color: var(--app-card-bg, var(--bs-modal-bg, #ffffff)) !important;
+    background: var(--app-card-bg, var(--bs-body-bg, #ffffff)) !important;
+    background-color: var(--app-card-bg, var(--bs-body-bg, #ffffff)) !important;
     color: var(--app-card-color, var(--bs-modal-color, #212529)) !important;
+    opacity: 1 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     border: 1px solid var(--app-table-border-color, rgba(128, 128, 128, 0.2)) !important;
     border-radius: 1rem !important;
-    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25) !important;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.35) !important;
 }
 .modal-content .btn-primary {
     background: var(--app-gradient) !important;
