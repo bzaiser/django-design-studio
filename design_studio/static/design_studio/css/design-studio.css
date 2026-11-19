@@ -879,8 +879,8 @@ body[data-card-surface="liquid"] .metric-card::after {
     pointer-events: none;
     z-index: 5;
 }
-body[data-card-surface="liquid"] .card > :not(.kpi-decor-clip),
-body[data-card-surface="liquid"] .metric-card > :not(.kpi-decor-clip) {
+body[data-card-surface="liquid"] .card > :not(.kpi-decor-clip):not(.widget-hover-details),
+body[data-card-surface="liquid"] .metric-card > :not(.kpi-decor-clip):not(.widget-hover-details) {
     position: relative;
     z-index: 2;
 }
