@@ -317,4 +317,104 @@
     }, { passive: true });
     window.addEventListener('resize', updateLiquidGlassOptics, { passive: true });
     document.addEventListener('DOMContentLoaded', updateLiquidGlassOptics);
+
+    function updateSeamlessPlate(tabBar, panel) {
+        if (!tabBar || !panel) return;
+        if (document.body && document.body.getAttribute('data-card-surface') === 'brutal') {
+            tabBar.classList.remove('ds-tabs-seamless');
+            panel.classList.remove('ds-plate-ready');
+            panel.style.removeProperty('--ds-plate-clip');
+            return;
+        }
+        var activeLink = tabBar.querySelector('.nav-link.active');
+        var allLinks = tabBar.querySelectorAll('.nav-link');
+        if (!activeLink || !allLinks.length) return;
+        var firstTop = allLinks[0].getBoundingClientRect().top;
+        var isSingleRow = true;
+        allLinks.forEach(function (lnk) {
+            if (Math.abs(lnk.getBoundingClientRect().top - firstTop) > 10) isSingleRow = false;
+        });
+        if (!isSingleRow || window.innerWidth < 576) {
+            tabBar.classList.remove('ds-tabs-seamless');
+            panel.classList.remove('ds-plate-ready');
+            panel.style.removeProperty('--ds-plate-clip');
+            var oldSvg = panel.querySelector('.ds-tab-outline-svg');
+            if (oldSvg) oldSvg.style.display = 'none';
+            return;
+        }
+        var tabH = Math.round(activeLink.getBoundingClientRect().height) || 44;
+        tabBar.style.setProperty('--ds-tab-h', tabH + 'px');
+        panel.style.setProperty('--ds-tab-h', tabH + 'px');
+        tabBar.classList.add('ds-tabs-seamless');
+        panel.classList.add('ds-plate-ready');
+
+        var pRect = panel.getBoundingClientRect();
+        var aRect = activeLink.getBoundingClientRect();
+        var w = pRect.width;
+        var h = pRect.height;
+        if (w < 40 || h < tabH + 20) return;
+
+        var x1 = Math.max(0, aRect.left - pRect.left);
+        var x2 = Math.min(w, aRect.right - pRect.left);
+        var r = 22, tr = 14, flare = 12;
+        var d = '';
+        if (x1 <= 6) {
+            d = 'M 0,' + tr + ' Q 0,0 ' + tr + ',0 L ' + (x2 - tr) + ',0 Q ' + x2 + ',0 ' + x2 + ',' + tr +
+                ' L ' + x2 + ',' + (tabH - flare) + ' Q ' + x2 + ',' + tabH + ' ' + (x2 + flare) + ',' + tabH +
+                ' L ' + (w - r) + ',' + tabH + ' Q ' + w + ',' + tabH + ' ' + w + ',' + (tabH + r) +
+                ' L ' + w + ',' + (h - r) + ' Q ' + w + ',' + h + ' ' + (w - r) + ',' + h +
+                ' L ' + r + ',' + h + ' Q 0,' + h + ' 0,' + (h - r) + ' Z';
+        } else if (x2 >= w - 6) {
+            d = 'M 0,' + (tabH + r) + ' Q 0,' + tabH + ' ' + r + ',' + tabH +
+                ' L ' + (x1 - flare) + ',' + tabH + ' Q ' + x1 + ',' + tabH + ' ' + x1 + ',' + (tabH - flare) +
+                ' L ' + x1 + ',' + tr + ' Q ' + x1 + ',0 ' + (x1 + tr) + ',0' +
+                ' L ' + (w - tr) + ',0 Q ' + w + ',0 ' + w + ',' + tr +
+                ' L ' + w + ',' + (h - r) + ' Q ' + w + ',' + h + ' ' + (w - r) + ',' + h +
+                ' L ' + r + ',' + h + ' Q 0,' + h + ' 0,' + (h - r) + ' Z';
+        } else {
+            d = 'M 0,' + (tabH + r) + ' Q 0,' + tabH + ' ' + r + ',' + tabH +
+                ' L ' + (x1 - flare) + ',' + tabH + ' Q ' + x1 + ',' + tabH + ' ' + x1 + ',' + (tabH - flare) +
+                ' L ' + x1 + ',' + tr + ' Q ' + x1 + ',0 ' + (x1 + tr) + ',0' +
+                ' L ' + (x2 - tr) + ',0 Q ' + x2 + ',0 ' + x2 + ',' + tr +
+                ' L ' + x2 + ',' + (tabH - flare) + ' Q ' + x2 + ',' + tabH + ' ' + (x2 + flare) + ',' + tabH +
+                ' L ' + (w - r) + ',' + tabH + ' Q ' + w + ',' + tabH + ' ' + w + ',' + (tabH + r) +
+                ' L ' + w + ',' + (h - r) + ' Q ' + w + ',' + h + ' ' + (w - r) + ',' + h +
+                ' L ' + r + ',' + h + ' Q 0,' + h + ' 0,' + (h - r) + ' Z';
+        }
+        panel.style.setProperty('--ds-plate-clip', "path('" + d + "')");
+
+        var svg = panel.querySelector('.ds-tab-outline-svg');
+        if (!svg) {
+            svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('class', 'ds-tab-outline-svg');
+            svg.setAttribute('aria-hidden', 'true');
+            var pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            pathEl.setAttribute('class', 'ds-tab-outline-path');
+            svg.appendChild(pathEl);
+            panel.insertBefore(svg, panel.firstChild);
+        }
+        svg.style.display = '';
+        svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+        var outlinePath = svg.querySelector('.ds-tab-outline-path');
+        if (outlinePath) outlinePath.setAttribute('d', d);
+    }
+
+    function initSeamlessTabPlates() {
+        document.querySelectorAll('.ds-tab-panel').forEach(function (panel) {
+            var tabBar = panel.previousElementSibling;
+            if (!tabBar || !tabBar.classList.contains('nav-tabs')) return;
+            updateSeamlessPlate(tabBar, panel);
+            if (!panel.dataset.dsPlateObserved && typeof ResizeObserver !== 'undefined') {
+                panel.dataset.dsPlateObserved = '1';
+                new ResizeObserver(function () {
+                    updateSeamlessPlate(tabBar, panel);
+                }).observe(panel);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initSeamlessTabPlates);
+    window.addEventListener('resize', initSeamlessTabPlates, { passive: true });
+    document.addEventListener('shown.bs.tab', initSeamlessTabPlates);
+    document.body.addEventListener('htmx:afterSettle', initSeamlessTabPlates);
 })();
