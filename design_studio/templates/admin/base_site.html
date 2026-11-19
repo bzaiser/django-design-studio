@@ -6,11 +6,11 @@
 {% block branding %}
 <div class="ds-admin-branding">
     <a href="/" class="ds-admin-back-pill" title="{% trans 'Zurück zur App' %}">
-        <i class="bi bi-arrow-left"></i>
+        <i class="bi bi-arrow-left ds-admin-back-icon"></i>
         {% if design_studio_app_icon != "none" %}
-        <i class="bi {{ design_studio_app_icon|default:'bi-speedometer2' }}"></i>
+        <i class="bi {{ design_studio_app_icon|default:'bi-speedometer2' }} ds-admin-back-app-icon"></i>
         {% endif %}
-        <span>{% trans "Zurück zu" %} {{ design_studio_app_name|default:"App" }}</span>
+        <span class="ds-admin-back-label">{% trans "Zurück zu" %} {{ design_studio_app_name|default:"App" }}</span>
     </a>
     <div id="site-name">
         <a href="{% url 'admin:index' %}">
@@ -40,4 +40,30 @@
         html.ds-admin-embed body,
         html.ds-admin-embed #container { background: transparent !important; }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var pill = document.querySelector('.ds-admin-back-pill');
+            if (!pill) return;
+            var canClose = !!(window.opener && !window.opener.closed);
+            if (canClose) {
+                var label = pill.querySelector('.ds-admin-back-label');
+                if (label) label.textContent = '{% trans "Tab schließen"|escapejs %}';
+                var icon = pill.querySelector('.ds-admin-back-icon');
+                if (icon) icon.className = 'bi bi-x-lg ds-admin-back-icon';
+                var appIcon = pill.querySelector('.ds-admin-back-app-icon');
+                if (appIcon) appIcon.style.display = 'none';
+                pill.setAttribute('title', '{% trans "Tab schließen"|escapejs %}');
+            }
+            pill.addEventListener('click', function (ev) {
+                if (window.opener && !window.opener.closed) {
+                    ev.preventDefault();
+                    try { window.opener.focus(); } catch (e) {}
+                    window.close();
+                    setTimeout(function () {
+                        if (!window.closed) window.location.href = pill.getAttribute('href') || '/';
+                    }, 120);
+                }
+            });
+        });
+    </script>
 {% endblock %}
