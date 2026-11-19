@@ -28,6 +28,10 @@ MOODS = {
     "earth":     {"s": 32, "l": 48, "bg": "#ede6dc", "dark": False, "shift": 0.15, "earth": True, "surface": "tinted", "svg": "topography", "font": "serif"},
     "monochrom": {"s": 55, "l": 50, "bg": "#f4f6f9", "dark": False, "shift": 0.88, "surface": "glass", "svg": "grid", "font": "sans"},
     "grayscale": {"s": 0,  "l": 50, "bg": "#efefef", "dark": False, "shift": 0.00, "surface": "glass", "svg": "grid", "font": "sans"},
+    "liquid_light":    {"s": 68, "l": 48, "bg": "#e7ecf0", "dark": False, "shift": 0.06, "surface": "liquid", "svg": "topography", "font": "sans", "scale": "normal"},
+    "liquid_dark":     {"s": 72, "l": 52, "bg": "#0b0d11", "dark": True,  "shift": 0.06, "surface": "liquid", "svg": "grid", "font": "tech", "scale": "normal"},
+    "cockpit_compact": {"s": 70, "l": 50, "bg": "#0f172a", "dark": True,  "shift": 0.08, "surface": "liquid", "svg": "grid", "font": "tech", "scale": "compact"},
+    "editorial_air":   {"s": 50, "l": 52, "bg": "#f8fafc", "dark": False, "shift": 0.12, "surface": "tinted", "svg": "aura", "font": "serif", "scale": "comfortable"},
 }
 
 CARD_SURFACES = ("auto", "solid", "glass", "tinted", "liquid", "brutal")
@@ -35,7 +39,7 @@ BG_SVG_MODES = ("auto", "topography", "grid", "curves", "aura", "brutal_grid", "
 MENU_LAYOUTS = ("top", "sidebar")
 MENU_STYLES = ("auto", "glass", "gradient")
 FONT_FAMILIES = ("auto", "sans", "rounded", "serif", "tech", "mono")
-FONT_SCALES = ("compact", "normal", "comfortable")
+FONT_SCALES = ("auto", "compact", "normal", "comfortable")
 
 APP_PRESETS = {
     "finanz_serioes": {
@@ -46,6 +50,7 @@ APP_PRESETS = {
         "bg_mode": "light",
         "card_surface": "glass",
         "bg_svg_mode": "grid",
+        "font_scale": "normal",
     },
     "modern_glass": {
         "label": _("Modern Glass"),
@@ -55,6 +60,7 @@ APP_PRESETS = {
         "bg_mode": "auto",
         "card_surface": "tinted",
         "bg_svg_mode": "topography",
+        "font_scale": "normal",
     },
     "neon_dark": {
         "label": _("Neon Dark"),
@@ -64,6 +70,7 @@ APP_PRESETS = {
         "bg_mode": "dark",
         "card_surface": "tinted",
         "bg_svg_mode": "curves",
+        "font_scale": "normal",
     },
     "eco_future": {
         "label": _("Eco Future"),
@@ -73,6 +80,7 @@ APP_PRESETS = {
         "bg_mode": "dark",
         "card_surface": "tinted",
         "bg_svg_mode": "curves",
+        "font_scale": "normal",
     },
     "brutal_contrast": {
         "label": _("Polished Brutalism"),
@@ -82,6 +90,83 @@ APP_PRESETS = {
         "bg_mode": "dark",
         "card_surface": "brutal",
         "bg_svg_mode": "brutal_grid",
+        "font_scale": "normal",
+    },
+    "liquid_emerald": {
+        "label": _("Liquid Glass · Finanz"),
+        "c1": "#43A36B",
+        "c2": "#9D7A96",
+        "mood": "liquid_light",
+        "bg_mode": "light",
+        "card_surface": "liquid",
+        "bg_svg_mode": "topography",
+        "font_scale": "normal",
+        "glass_alpha": 36,
+        "glass_blur": 14,
+        "bg_strength": 75,
+    },
+    "liquid_smoked": {
+        "label": _("Liquid Glass · Rauchglas"),
+        "c1": "#43A36B",
+        "c2": "#3B82F6",
+        "mood": "liquid_dark",
+        "bg_mode": "dark",
+        "card_surface": "liquid",
+        "bg_svg_mode": "grid",
+        "font_scale": "normal",
+        "glass_alpha": 32,
+        "glass_blur": 14,
+        "bg_strength": 75,
+    },
+    "cockpit_kompakt": {
+        "label": _("Cockpit · Kompakt"),
+        "c1": "#0EA5E9",
+        "c2": "#6366F1",
+        "mood": "cockpit_compact",
+        "bg_mode": "dark",
+        "card_surface": "liquid",
+        "bg_svg_mode": "grid",
+        "font_scale": "compact",
+        "ui_zoom": 95,
+        "glass_alpha": 38,
+        "glass_blur": 12,
+        "bg_strength": 60,
+    },
+    "lounge_grosszuegig": {
+        "label": _("Lounge · Großzügig"),
+        "c1": "#8B5CF6",
+        "c2": "#EC4899",
+        "mood": "editorial_air",
+        "bg_mode": "light",
+        "card_surface": "liquid",
+        "bg_svg_mode": "aura",
+        "font_scale": "comfortable",
+        "ui_zoom": 100,
+        "glass_alpha": 44,
+        "glass_blur": 18,
+        "bg_strength": 60,
+    },
+    "werkstatt_pro": {
+        "label": _("Werkstatt · Kompakt"),
+        "c1": "#F97316",
+        "c2": "#EAB308",
+        "mood": "dunkel",
+        "bg_mode": "dark",
+        "card_surface": "glass",
+        "bg_svg_mode": "grid",
+        "font_scale": "compact",
+        "ui_zoom": 100,
+    },
+    "nordic_calm": {
+        "label": _("Nordic · Großzügig"),
+        "c1": "#0D9488",
+        "c2": "#38BDF8",
+        "mood": "wellness",
+        "bg_mode": "light",
+        "card_surface": "tinted",
+        "bg_svg_mode": "topography",
+        "font_scale": "comfortable",
+        "ui_zoom": 100,
     },
 }
 
@@ -241,6 +326,7 @@ def normalize_settings(raw):
         else data["menu_style"]
     )
     data["resolved_font_family"] = m.get("font", "sans") if data["font_family"] == "auto" else data["font_family"]
+    data["resolved_font_scale"] = m.get("scale", "normal") if data["font_scale"] == "auto" else data["font_scale"]
     for bkey in ("sync_cards_and_charts", "kpi_sparklines", "kpi_progress_bars", "kpi_watermarks", "kpi_spotlight", "kpi_click_navigation"):
         data[bkey] = bool(data[bkey])
     return data

@@ -330,6 +330,14 @@ class DesignStudioPackageTests(TestCase):
         self.assertIn("--glass-blur: 18px;", html)
         self.assertIn("--bg-strength: 0.80;", html)
 
+    def test_new_liquid_and_density_presets(self):
+        resp = self.client.post("/design-studio/save/", {"app_preset": "cockpit_kompakt"})
+        self.assertEqual(resp.status_code, 302)
+        html = self.client.get("/design-studio/").content.decode("utf-8")
+        self.assertIn('data-card-surface="liquid"', html)
+        self.assertIn('data-font-scale="compact"', html)
+        self.assertIn('data-ui-zoom="95"', html)
+
     def test_design_studio_css_includes_ds_tabs_and_panel_styles(self):
         from pathlib import Path
         css_path = Path(__file__).resolve().parent.parent / "design_studio" / "static" / "design_studio" / "css" / "design-studio.css"

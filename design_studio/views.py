@@ -72,6 +72,11 @@ def save_studio_view(request):
             "day_bg_mode": p["bg_mode"] if p["bg_mode"] != "dark" else prev.get("day_bg_mode", "light"),
             "card_surface": p["card_surface"],
             "bg_svg_mode": p["bg_svg_mode"],
+            "font_scale": p.get("font_scale", prev.get("font_scale", "normal")),
+            "ui_zoom": p.get("ui_zoom", prev.get("ui_zoom", 100)),
+            "glass_alpha": p.get("glass_alpha", prev.get("glass_alpha", 32)),
+            "glass_blur": p.get("glass_blur", prev.get("glass_blur", 14)),
+            "bg_strength": p.get("bg_strength", prev.get("bg_strength", 65)),
             "sync_cards_and_charts": True,
         }
     else:
