@@ -213,8 +213,36 @@ FALLBACK_MENU_ITEMS = [
 def get_base_menu_items():
     configured = getattr(django_settings, "DESIGN_STUDIO_MENU_ITEMS", None)
     if isinstance(configured, (list, tuple)) and len(configured) > 0:
-        return list(configured)
-    return list(FALLBACK_MENU_ITEMS)
+        items = list(configured)
+    else:
+        items = list(FALLBACK_MENU_ITEMS)
+
+    installed = getattr(django_settings, "INSTALLED_APPS", ()) or ()
+    if "ops_kit" in installed:
+        has_ops = any(
+            isinstance(it, dict) and (it.get("id") == "ops_updates" or it.get("url_name") == "ops_kit:updates")
+            for it in items
+        )
+        if not has_ops:
+            try:
+                reverse("ops_kit:updates")
+            except NoReverseMatch:
+                pass
+            else:
+                items.append({
+                    "id": "ops_updates",
+                    "url_name": "ops_kit:updates",
+                    "match_urls": ["ops_kit:updates"],
+                    "default_label": _("Auto-Updates"),
+                    "icon": "bi-cloud-download",
+                    "zone": "utility",
+                    "display": "icon_only",
+                    "visible": True,
+                    "order": 4,
+                    "locked": False,
+                    "staff_only": True,
+                })
+    return items
 
 
 def resolve_user_menu(user, saved_menu_config=None):
