@@ -342,7 +342,7 @@
             if (oldSvg) oldSvg.style.display = 'none';
             return;
         }
-        var tabH = Math.round(tabBar.getBoundingClientRect().height) || Math.round(activeLink.getBoundingClientRect().height) || 44;
+        var tabH = Math.round(tabBar.offsetHeight) || Math.round(activeLink.offsetHeight) || 44;
         tabBar.style.setProperty('--ds-tab-h', tabH + 'px');
         panel.style.setProperty('--ds-tab-h', tabH + 'px');
         tabBar.classList.add('ds-tabs-seamless');
@@ -350,12 +350,13 @@
 
         var pRect = panel.getBoundingClientRect();
         var aRect = activeLink.getBoundingClientRect();
-        var w = Math.round(pRect.width);
-        var h = Math.round(pRect.height);
+        var w = Math.round(panel.offsetWidth);
+        var h = Math.round(panel.offsetHeight);
         if (w < 40 || h < tabH + 20) return;
 
-        var x1 = Math.round(Math.max(0, aRect.left - pRect.left));
-        var x2 = Math.round(Math.min(w, aRect.right - pRect.left));
+        var scale = (pRect.width > 0 && w > 0) ? (pRect.width / w) : 1;
+        var x1 = Math.round(Math.max(0, (aRect.left - pRect.left) / scale));
+        var x2 = Math.round(Math.min(w, (aRect.right - pRect.left) / scale));
         var r = 22, tr = 14, flare = 12;
         var d = '';
         if (x1 <= 6) {
@@ -417,6 +418,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', initSeamlessTabPlates);
+    window.addEventListener('load', initSeamlessTabPlates);
     window.addEventListener('resize', initSeamlessTabPlates, { passive: true });
     document.addEventListener('shown.bs.tab', initSeamlessTabPlates);
     document.body.addEventListener('htmx:afterSettle', initSeamlessTabPlates);
