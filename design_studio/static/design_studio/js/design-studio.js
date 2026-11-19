@@ -241,7 +241,8 @@
             }
         } catch (err) {}
         var sbBtn = document.getElementById('sidebarCollapseBtn');
-        if (sbBtn) {
+        if (sbBtn && !sbBtn.dataset.dsSidebarBound) {
+            sbBtn.dataset.dsSidebarBound = '1';
             sbBtn.addEventListener('click', function () {
                 document.body.classList.toggle('sidebar-collapsed');
                 try {
