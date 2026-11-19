@@ -833,10 +833,15 @@ body[data-card-surface="liquid"] .metric-card::after {
     pointer-events: none;
     z-index: 5;
 }
-body[data-card-surface="liquid"] .card > *,
-body[data-card-surface="liquid"] .metric-card > * {
+body[data-card-surface="liquid"] .card > :not(.kpi-decor-clip),
+body[data-card-surface="liquid"] .metric-card > :not(.kpi-decor-clip) {
     position: relative;
     z-index: 2;
+}
+body[data-card-surface="liquid"] .metric-card > .kpi-decor-clip {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
 }
 body[data-card-surface="liquid"] .card:not(.metric-card) > .card-header,
 body[data-card-surface="liquid"] .card:not(.metric-card) > .card-footer {
