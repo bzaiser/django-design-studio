@@ -350,12 +350,12 @@
 
         var pRect = panel.getBoundingClientRect();
         var aRect = activeLink.getBoundingClientRect();
-        var w = pRect.width;
-        var h = pRect.height;
+        var w = Math.round(pRect.width);
+        var h = Math.round(pRect.height);
         if (w < 40 || h < tabH + 20) return;
 
-        var x1 = Math.max(0, aRect.left - pRect.left);
-        var x2 = Math.min(w, aRect.right - pRect.left);
+        var x1 = Math.round(Math.max(0, aRect.left - pRect.left));
+        var x2 = Math.round(Math.min(w, aRect.right - pRect.left));
         var r = 22, tr = 14, flare = 12;
         var d = '';
         if (x1 <= 6) {
@@ -381,7 +381,10 @@
                 ' L ' + w + ',' + (h - r) + ' Q ' + w + ',' + h + ' ' + (w - r) + ',' + h +
                 ' L ' + r + ',' + h + ' Q 0,' + h + ' 0,' + (h - r) + ' Z';
         }
-        panel.style.setProperty('--ds-plate-clip', "path('" + d + "')");
+        var clipVal = "path('" + d + "')";
+        panel.style.setProperty('--ds-plate-clip', clipVal);
+        panel.style.clipPath = clipVal;
+        panel.style.webkitClipPath = clipVal;
 
         var svg = panel.querySelector('.ds-tab-outline-svg');
         if (!svg) {

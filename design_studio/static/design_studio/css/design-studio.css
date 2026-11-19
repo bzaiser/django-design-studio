@@ -382,7 +382,7 @@ body[data-card-surface="liquid"] .folder-tabs-bar .nav-link.active {
 /* Nahtlose Glasplatte mit Auswölbung aus einem Guss */
 body:not([data-card-surface="brutal"]) .ds-tabs-seamless {
     position: relative;
-    z-index: 5;
+    z-index: 10 !important;
     border-bottom: none !important;
     padding: 0 !important;
     margin-bottom: calc(-1 * var(--ds-tab-h, 44px)) !important;
@@ -623,8 +623,11 @@ body[data-card-surface="liquid"] .ds-tab-panel.ds-plate-ready::after {
         white-space: nowrap;
         flex-shrink: 0;
     }
-    .ds-tab-panel {
+    .ds-tab-panel:not(.ds-plate-ready) {
         padding: 0.85rem !important;
+    }
+    .ds-tab-panel.ds-plate-ready {
+        padding: calc(var(--ds-tab-h, 44px) + 0.85rem) 0.85rem 0.85rem 0.85rem !important;
     }
 }
 @media (max-width: 575.98px) {
