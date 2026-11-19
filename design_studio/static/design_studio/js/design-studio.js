@@ -302,7 +302,7 @@
         }
         if (!document.body || document.body.getAttribute('data-card-surface') !== 'liquid') return;
         var vh = window.innerHeight || 800;
-        document.querySelectorAll('.card, .metric-card').forEach(function (card) {
+        document.querySelectorAll('.card, .metric-card, .ds-tab-panel').forEach(function (card) {
             var rect = card.getBoundingClientRect();
             var centerProgress = ((rect.top + rect.height / 2) - vh / 2) / (vh / 2);
             var clamped = Math.max(-1.2, Math.min(1.2, centerProgress));

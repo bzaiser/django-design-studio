@@ -1,9 +1,9 @@
 <div class="kpi-size-{{ size|default:'sm' }}">
-    <div class="card metric-card {% if hover_rows %}widget-expand-card {% endif %}h-100 p-3"
+    <div class="card metric-card {% if hover_rows %}widget-expand-card {% endif %}{% if target_url or target_tab %}kpi-clickable {% endif %}h-100 p-3"
          {% if target_url %}data-target-url="{{ target_url }}"{% endif %}
          {% if target_tab %}data-target-tab="{{ target_tab }}"{% endif %}
          {% if target_url %}onclick="navigateDesignStudioKpiCard(event, '{{ target_url|escapejs }}');"{% endif %}
-         style="--card-accent: {{ accent|default:'var(--app-primary, #0d6efd)' }}; background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), {{ accent|default:'var(--app-primary, #0d6efd)' }}; color: {{ text_color|default:'#ffffff' }};{% if target_url or target_tab %} cursor: pointer;{% endif %}">
+         {% if accent or text_color %}style="{% if accent %}--card-accent: {{ accent }};{% endif %}{% if text_color %} --card-text: {{ text_color }};{% endif %}"{% endif %}>
         <div class="kpi-decor-clip">
             <div class="kpi-spotlight"></div>
             {% if icon %}<i class="bi {{ icon }} kpi-watermark-icon"></i>{% endif %}
@@ -22,7 +22,7 @@
         </div>
         <div class="card-body p-0 d-flex flex-column justify-content-between">
             <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="text-uppercase fw-bold opacity-85" style="font-size: var(--app-fs-xs); letter-spacing: 0.05em;">{{ title }}</span>
+                <span class="kpi-title text-uppercase fw-bold opacity-85">{{ title }}</span>
                 {% if icon %}<i class="bi {{ icon }} fs-5 ms-2"></i>{% endif %}
             </div>
             <div class="metric-value">
@@ -30,7 +30,7 @@
                     {{ value }}{% if unit %} <span class="fs-6 fw-normal opacity-75">{{ unit }}</span>{% endif %}
                 </h3>
                 {% if subtitle %}
-                <div class="mt-2 small opacity-75" style="font-size: var(--app-fs-xs);">{{ subtitle }}</div>
+                <div class="kpi-subtitle mt-2 small opacity-75">{{ subtitle }}</div>
                 {% endif %}
                 {% if progress_segments %}
                 <div class="kpi-segmented-wrap">
@@ -40,16 +40,15 @@
                         {% endfor %}
                         {% if progress_marker_pct %}<div class="target-marker" style="left: {{ progress_marker_pct }}%;"></div>{% endif %}
                     </div>
-                    {% if progress_label %}<div class="small opacity-85 fw-semibold" style="font-size: var(--app-fs-xs);">{{ progress_label }}</div>{% endif %}
+                    {% if progress_label %}<div class="kpi-progress-label small opacity-85 fw-semibold">{{ progress_label }}</div>{% endif %}
                 </div>
                 {% endif %}
             </div>
             {% if hover_rows %}
-            <div class="widget-hover-details border-top border-white border-opacity-25 pt-2"
-                 style="background-color: {{ accent|default:'var(--app-card-color)' }}; color: {{ text_color|default:'inherit' }};">
+            <div class="widget-hover-details border-top border-white border-opacity-25 pt-2">
                 {% for row in hover_rows %}
-                <div class="d-flex justify-content-between align-items-center py-1 {% if not forloop.last %}border-bottom border-white border-opacity-10{% endif %} gap-2" style="font-size: var(--app-fs-xs);">
-                    <span class="text-truncate flex-grow-1" style="min-width: 0;">{{ row.label }}</span>
+                <div class="kpi-hover-row d-flex justify-content-between align-items-center py-1 {% if not forloop.last %}border-bottom border-white border-opacity-10{% endif %} gap-2">
+                    <span class="text-truncate flex-grow-1 min-w-0">{{ row.label }}</span>
                     <span class="font-monospace fw-bold text-end text-nowrap flex-shrink-0 ms-auto">{{ row.value }}</span>
                 </div>
                 {% endfor %}

@@ -283,6 +283,102 @@ body[data-card-surface="brutal"] .nav-tabs.ds-tabs .nav-link,
 body[data-card-surface="brutal"] .ds-tab-panel {
     border-radius: 0 !important;
 }
+body[data-card-surface="glass"] .ds-tab-panel {
+    background: color-mix(in srgb, var(--app-card-bg, #ffffff) 78%, transparent) !important;
+    backdrop-filter: blur(14px) saturate(135%);
+    -webkit-backdrop-filter: blur(14px) saturate(135%);
+    border-color: color-mix(in srgb, var(--app-card-color, #888888) 12%, transparent) !important;
+}
+body[data-card-surface="tinted"] .ds-tab-panel {
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--app-primary, #0d6efd) 6%, color-mix(in srgb, var(--app-card-bg, #ffffff) 82%, transparent)),
+        color-mix(in srgb, var(--app-card-bg, #ffffff) 80%, transparent)
+    ) !important;
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-color: color-mix(in srgb, var(--app-primary, #0d6efd) 22%, var(--app-table-border-color, rgba(125,125,125,0.18))) !important;
+}
+body[data-card-surface="glass"] .nav-tabs .nav-link.active,
+body[data-card-surface="glass"] .nav-tabs.ds-tabs .nav-link.active,
+body[data-card-surface="tinted"] .nav-tabs .nav-link.active,
+body[data-card-surface="tinted"] .nav-tabs.ds-tabs .nav-link.active {
+    background: color-mix(in srgb, var(--app-card-bg, #ffffff) 84%, transparent) !important;
+    backdrop-filter: blur(14px) saturate(135%);
+    -webkit-backdrop-filter: blur(14px) saturate(135%);
+    border-bottom-color: transparent !important;
+}
+body[data-card-surface="liquid"] .ds-tab-panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 22px 22px !important;
+    background: color-mix(in srgb, var(--app-card-bg, #ffffff) calc(var(--glass-alpha, 0.32) * 100%), transparent) !important;
+    backdrop-filter: blur(var(--glass-blur, 14px)) saturate(175%) contrast(108%);
+    -webkit-backdrop-filter: blur(var(--glass-blur, 14px)) saturate(175%) contrast(108%);
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-top: none !important;
+    box-shadow:
+        0 18px 38px -10px rgba(15, 25, 35, 0.22),
+        0 4px 12px -2px rgba(15, 20, 25, 0.12),
+        inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.45),
+        inset 1.5px 0 1px 0 rgba(255, 255, 255, 0.35),
+        inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.14) !important;
+    --shine-pos: 30%;
+    --shine-angle: 125deg;
+}
+body[data-card-surface="liquid"] .ds-tab-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        var(--shine-angle, 125deg),
+        rgba(255, 255, 255, 0) calc(var(--shine-pos, 30%) - 28%),
+        rgba(255, 255, 255, 0.24) var(--shine-pos, 30%),
+        rgba(255, 255, 255, 0) calc(var(--shine-pos, 30%) + 28%)
+    );
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: overlay;
+}
+body[data-card-surface="liquid"] .ds-tab-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(
+        var(--shine-angle, 125deg),
+        rgba(255, 255, 255, 0.68),
+        rgba(255, 255, 255, 0.06) 45%,
+        color-mix(in srgb, var(--app-primary, #0d6efd) 50%, rgba(255, 255, 255, 0.25)) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 5;
+}
+body[data-card-surface="liquid"] .ds-tab-panel > * {
+    position: relative;
+    z-index: 2;
+}
+body[data-card-surface="liquid"] .nav-tabs .nav-link,
+body[data-card-surface="liquid"] .nav-tabs.ds-tabs .nav-link,
+body[data-card-surface="liquid"] .folder-tabs-bar .nav-link {
+    background: color-mix(in srgb, var(--app-card-bg, #ffffff) calc(var(--glass-alpha, 0.32) * 75%), transparent) !important;
+    backdrop-filter: blur(var(--glass-blur, 14px)) saturate(160%);
+    -webkit-backdrop-filter: blur(var(--glass-blur, 14px)) saturate(160%);
+    border-color: rgba(255, 255, 255, 0.22) !important;
+}
+body[data-card-surface="liquid"] .nav-tabs .nav-link.active,
+body[data-card-surface="liquid"] .nav-tabs.ds-tabs .nav-link.active,
+body[data-card-surface="liquid"] .folder-tabs-bar .nav-link.active {
+    background: color-mix(in srgb, var(--app-card-bg, #ffffff) calc(var(--glass-alpha, 0.32) * 115%), transparent) !important;
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    border-top: 3px solid var(--app-primary, #0d6efd) !important;
+    border-bottom-color: transparent !important;
+}
 .folder-tabs-bar {
     display: flex;
     flex-wrap: wrap;
@@ -667,12 +763,18 @@ body[data-card-surface="liquid"] .metric-card::after {
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
-    z-index: 1;
+    z-index: 5;
 }
 body[data-card-surface="liquid"] .card > *,
 body[data-card-surface="liquid"] .metric-card > * {
     position: relative;
     z-index: 2;
+}
+body[data-card-surface="liquid"] .card:not(.metric-card) > .card-header,
+body[data-card-surface="liquid"] .card:not(.metric-card) > .card-footer {
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 10%, transparent) !important;
+    color: var(--app-card-color) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
 }
 body[data-card-surface="brutal"] .card:not(.metric-card) {
     background: var(--app-card-bg, #111317) !important;
@@ -939,11 +1041,32 @@ body[data-kpi-click="false"] .kpi-details-nav-link {
 }
 
 .metric-card {
+    background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), var(--card-accent, var(--app-primary, #0d6efd));
+    color: var(--card-text, #ffffff);
     border: none !important;
     border-radius: 18px !important;
     position: relative;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+.metric-card.kpi-clickable {
+    cursor: pointer;
+}
+.kpi-title,
+.kpi-subtitle,
+.kpi-progress-label,
+.kpi-hover-row {
+    font-size: var(--app-fs-xs);
+}
+.kpi-title {
+    letter-spacing: 0.05em;
+}
+.min-w-0 {
+    min-width: 0;
+}
+.widget-hover-details {
+    background-color: var(--card-accent, var(--app-card-color));
+    color: var(--card-text, inherit);
 }
 .kpi-decor-clip {
     position: absolute;
