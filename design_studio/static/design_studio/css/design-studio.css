@@ -359,7 +359,7 @@ body[data-card-surface="liquid"] .ds-tab-panel::after {
     pointer-events: none;
     z-index: 5;
 }
-body[data-card-surface="liquid"] .ds-tab-panel > * {
+body[data-card-surface="liquid"] .ds-tab-panel > :not(.ds-tab-outline-svg) {
     position: relative;
     z-index: 2;
 }
@@ -400,7 +400,7 @@ body:not([data-card-surface="brutal"]) .ds-tabs-seamless .nav-link {
     -webkit-backdrop-filter: blur(8px);
     border-color: rgba(255, 255, 255, 0.18) !important;
 }
-body:not([data-card-surface="brutal"]) .ds-tabs-seamless .nav-link.active {
+body:not([data-card-surface="brutal"]) .nav-tabs.ds-tabs-seamless .nav-link.active {
     background: transparent !important;
     border-color: transparent !important;
     border-top: none !important;
@@ -432,12 +432,12 @@ body[data-card-surface="liquid"] .ds-tab-panel.ds-plate-ready::after {
     display: none !important;
 }
 .ds-tab-outline-svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
     pointer-events: none;
-    z-index: 6;
+    z-index: 6 !important;
 }
 .ds-tab-outline-path {
     fill: none;

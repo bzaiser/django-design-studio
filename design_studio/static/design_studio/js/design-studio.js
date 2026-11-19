@@ -342,7 +342,7 @@
             if (oldSvg) oldSvg.style.display = 'none';
             return;
         }
-        var tabH = Math.round(activeLink.getBoundingClientRect().height) || 44;
+        var tabH = Math.round(tabBar.getBoundingClientRect().height) || Math.round(activeLink.getBoundingClientRect().height) || 44;
         tabBar.style.setProperty('--ds-tab-h', tabH + 'px');
         panel.style.setProperty('--ds-tab-h', tabH + 'px');
         tabBar.classList.add('ds-tabs-seamless');
