@@ -302,8 +302,11 @@ def resolve_user_menu(user, saved_menu_config=None):
         icon = (ov.get("icon") or "").strip()
         if not is_valid_bi_icon(icon):
             icon = item.get("icon", "bi-circle")
-        default_zone = "system" if item_id in SYSTEM_HUB_ITEM_IDS else item.get("zone", "main")
-        zone = ov.get("zone") if ov.get("zone") in ("main", "utility", "system") else default_zone
+        if item_id in SYSTEM_HUB_ITEM_IDS:
+            zone = "main" if ov.get("zone") == "main" else "system"
+        else:
+            default_zone = item.get("zone", "main")
+            zone = ov.get("zone") if ov.get("zone") in ("main", "utility", "system") else default_zone
         default_display = item.get("display", "icon_text" if zone == "main" else "icon_only")
         display = ov.get("display") if ov.get("display") in ("icon_text", "icon_only", "text_only") else default_display
         locked = bool(item.get("locked", False))
