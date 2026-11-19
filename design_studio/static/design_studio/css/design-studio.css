@@ -400,7 +400,8 @@ body:not([data-card-surface="brutal"]) .ds-tabs-seamless .nav-link {
     -webkit-backdrop-filter: blur(8px);
     border-color: rgba(255, 255, 255, 0.18) !important;
 }
-body:not([data-card-surface="brutal"]) .nav-tabs.ds-tabs-seamless .nav-link.active {
+body:not([data-card-surface="brutal"]) .nav-tabs.ds-tabs-seamless .nav-link.active,
+body:not([data-card-surface="brutal"]) .folder-tabs-bar.ds-tabs-seamless .nav-link.active {
     background: transparent !important;
     border-color: transparent !important;
     border-top: none !important;
@@ -423,7 +424,7 @@ body:not([data-card-surface="brutal"]) .ds-tab-panel.ds-plate-ready {
     z-index: 2;
     border: none !important;
     border-radius: 22px !important;
-    padding-top: calc(var(--ds-tab-h, 44px) + 1.15rem) !important;
+    padding: calc(var(--ds-tab-h, 44px) + 1.15rem) 1.25rem 1.25rem 1.25rem !important;
     clip-path: var(--ds-plate-clip);
     -webkit-clip-path: var(--ds-plate-clip);
     transition: clip-path 0.28s cubic-bezier(0.22, 1, 0.36, 1);

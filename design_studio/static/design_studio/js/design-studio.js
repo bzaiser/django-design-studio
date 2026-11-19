@@ -405,9 +405,15 @@
     }
 
     function initSeamlessTabPlates() {
+        document.querySelectorAll('.folder-tabs-bar').forEach(function (bar) {
+            var next = bar.nextElementSibling;
+            if (next && next.classList.contains('tab-content') && !next.classList.contains('ds-tab-panel')) {
+                next.classList.add('ds-tab-panel');
+            }
+        });
         document.querySelectorAll('.ds-tab-panel').forEach(function (panel) {
             var tabBar = panel.previousElementSibling;
-            if (!tabBar || !tabBar.classList.contains('nav-tabs')) return;
+            if (!tabBar || (!tabBar.classList.contains('nav-tabs') && !tabBar.classList.contains('folder-tabs-bar'))) return;
             updateSeamlessPlate(tabBar, panel);
             if (!panel.dataset.dsPlateObserved && typeof ResizeObserver !== 'undefined') {
                 panel.dataset.dsPlateObserved = '1';
