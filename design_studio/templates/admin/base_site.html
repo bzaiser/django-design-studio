@@ -33,4 +33,11 @@
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'design_studio/vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
     <link rel="stylesheet" href="{% url 'design_studio:admin_css' %}">
+    <script>if (window.self !== window.top) document.documentElement.classList.add('ds-admin-embed');</script>
+    <style>
+        html.ds-admin-embed #header,
+        html.ds-admin-embed .ds-admin-branding { display: none !important; }
+        html.ds-admin-embed body,
+        html.ds-admin-embed #container { background: transparent !important; }
+    </style>
 {% endblock %}
