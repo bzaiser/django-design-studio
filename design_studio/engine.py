@@ -30,7 +30,7 @@ MOODS = {
     "grayscale": {"s": 0,  "l": 50, "bg": "#efefef", "dark": False, "shift": 0.00, "surface": "glass", "svg": "grid", "font": "sans"},
 }
 
-CARD_SURFACES = ("auto", "solid", "glass", "tinted", "brutal")
+CARD_SURFACES = ("auto", "solid", "glass", "tinted", "liquid", "brutal")
 BG_SVG_MODES = ("auto", "topography", "grid", "curves", "aura", "brutal_grid", "none")
 MENU_LAYOUTS = ("top", "sidebar")
 MENU_STYLES = ("auto", "glass", "gradient")
@@ -105,6 +105,10 @@ DEFAULT_SETTINGS = {
     "menu_style": "auto",
     "font_family": "auto",
     "font_scale": "normal",
+    "ui_zoom": 100,
+    "glass_alpha": 32,
+    "glass_blur": 14,
+    "bg_strength": 65,
     "menu_config": [],
     "brand_title": "",
     "brand_icon": "",
@@ -202,6 +206,19 @@ def normalize_settings(raw):
         data["font_family"] = "auto"
     if data["font_scale"] not in FONT_SCALES:
         data["font_scale"] = "normal"
+
+    def _clamp_int(val, lo, hi, default):
+        try:
+            return max(lo, min(hi, int(val)))
+        except (TypeError, ValueError):
+            return default
+
+    data["ui_zoom"] = _clamp_int(data.get("ui_zoom"), 10, 100, 100)
+    data["glass_alpha"] = _clamp_int(data.get("glass_alpha"), 10, 85, 32)
+    data["glass_blur"] = _clamp_int(data.get("glass_blur"), 2, 28, 14)
+    data["bg_strength"] = _clamp_int(data.get("bg_strength"), 20, 100, 65)
+    data["glass_alpha_css"] = f"{data['glass_alpha'] / 100:.2f}"
+    data["bg_strength_css"] = f"{data['bg_strength'] / 100:.2f}"
     if not isinstance(data["menu_config"], list):
         data["menu_config"] = []
     data["brand_title"] = str(data.get("brand_title") or "").strip()[:60]
@@ -400,6 +417,11 @@ def serialize_export_payload(settings_dict):
         "kpi_watermarks": norm["kpi_watermarks"],
         "kpi_spotlight": norm["kpi_spotlight"],
         "kpi_click_navigation": norm["kpi_click_navigation"],
+        "font_scale": norm["font_scale"],
+        "ui_zoom": norm["ui_zoom"],
+        "glass_alpha": norm["glass_alpha"],
+        "glass_blur": norm["glass_blur"],
+        "bg_strength": norm["bg_strength"],
     }
 
 

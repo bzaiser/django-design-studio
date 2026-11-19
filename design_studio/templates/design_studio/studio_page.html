@@ -100,6 +100,7 @@
                             <option value="auto" {% if theme_studio.card_surface == 'auto' %}selected{% endif %}>Auto</option>
                             <option value="tinted" {% if theme_studio.card_surface == 'tinted' %}selected{% endif %}>Tinted Glass</option>
                             <option value="glass" {% if theme_studio.card_surface == 'glass' %}selected{% endif %}>Frosted Glass</option>
+                            <option value="liquid" {% if theme_studio.card_surface == 'liquid' %}selected{% endif %}>Liquid Glass</option>
                             <option value="solid" {% if theme_studio.card_surface == 'solid' %}selected{% endif %}>Classic Solid</option>
                             <option value="brutal" {% if theme_studio.card_surface == 'brutal' %}selected{% endif %}>Brutalist</option>
                         </select>
@@ -128,12 +129,47 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-6">
-                        <label class="form-label small fw-bold"><i class="bi bi-arrows-angle-expand me-1 text-primary"></i>{% trans "Schriftgröße (4-Stufen-Skala)" %}</label>
+                        <label class="form-label small fw-bold"><i class="bi bi-arrows-angle-expand me-1 text-primary"></i>{% trans "Layout-Dichte &amp; Schriftgröße" %}</label>
                         <select id="dsFontScale" name="theme_font_scale" class="form-select">
-                            <option value="compact" {% if theme_studio.font_scale == 'compact' %}selected{% endif %}>Kompakt (Hohe Informationsdichte)</option>
-                            <option value="normal" {% if not theme_studio.font_scale or theme_studio.font_scale == 'normal' %}selected{% endif %}>Standard (Ruhig &amp; Ausgewogen)</option>
-                            <option value="comfortable" {% if theme_studio.font_scale == 'comfortable' %}selected{% endif %}>Komfort (Größer &amp; Entspannt)</option>
+                            <option value="normal" {% if not theme_studio.font_scale or theme_studio.font_scale == 'normal' %}selected{% endif %}>Standard (Wie bisher)</option>
+                            <option value="compact" {% if theme_studio.font_scale == 'compact' %}selected{% endif %}>Kompakt (Platzoptimiert &amp; eng)</option>
+                            <option value="comfortable" {% if theme_studio.font_scale == 'comfortable' %}selected{% endif %}>Großzügig (Luftiger &amp; größer)</option>
                         </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label small fw-bold mb-0" for="dsUiZoom"><i class="bi bi-zoom-in me-1 text-primary"></i>{% trans "Skalierbar (Inhalt-Zoom)" %}</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <span id="dsUiZoomVal" class="badge bg-primary-subtle text-primary fw-bold">{{ theme_studio.ui_zoom|default:100 }}%</span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="var z=document.getElementById('dsUiZoom');if(z){z.value=100;z.dispatchEvent(new Event('input'));}">100%</button>
+                            </div>
+                        </div>
+                        <input type="range" class="form-range" id="dsUiZoom" name="theme_ui_zoom" min="10" max="100" step="5" value="{{ theme_studio.ui_zoom|default:100 }}">
+                    </div>
+                    <div class="col-12">
+                        <div class="row g-3 pt-2 border-top border-secondary border-opacity-25">
+                            <div class="col-12 col-md-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label small fw-semibold mb-0" for="dsGlassAlpha">{% trans "Glas-Tönung" %}</label>
+                                    <span id="dsGlassAlphaVal" class="small fw-bold text-primary">{{ theme_studio.glass_alpha|default:32 }}%</span>
+                                </div>
+                                <input type="range" class="form-range" id="dsGlassAlpha" name="theme_glass_alpha" min="10" max="85" step="1" value="{{ theme_studio.glass_alpha|default:32 }}">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label small fw-semibold mb-0" for="dsGlassBlur">{% trans "Unschärfe (Blur)" %}</label>
+                                    <span id="dsGlassBlurVal" class="small fw-bold text-primary">{{ theme_studio.glass_blur|default:14 }}px</span>
+                                </div>
+                                <input type="range" class="form-range" id="dsGlassBlur" name="theme_glass_blur" min="2" max="28" step="1" value="{{ theme_studio.glass_blur|default:14 }}">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label small fw-semibold mb-0" for="dsBgStrength">{% trans "Hintergrund-Stärke" %}</label>
+                                    <span id="dsBgStrengthVal" class="small fw-bold text-primary">{{ theme_studio.bg_strength|default:65 }}%</span>
+                                </div>
+                                <input type="range" class="form-range" id="dsBgStrength" name="theme_bg_strength" min="20" max="100" step="1" value="{{ theme_studio.bg_strength|default:65 }}">
+                            </div>
+                        </div>
                     </div>
                     <div class="col-12">
                         <div class="d-flex flex-wrap gap-3 pt-2 border-top border-secondary border-opacity-25">
@@ -766,6 +802,36 @@
             document.body.setAttribute('data-font-family', fontKey);
             document.body.setAttribute('data-font-scale', scaleKey);
 
+            var zoomEl = document.getElementById('dsUiZoom');
+            var gaEl = document.getElementById('dsGlassAlpha');
+            var gbEl = document.getElementById('dsGlassBlur');
+            var bgStEl = document.getElementById('dsBgStrength');
+            if (zoomEl) {
+                var zv = parseInt(zoomEl.value || '100', 10);
+                document.documentElement.style.setProperty('--app-ui-zoom', zv);
+                document.body.setAttribute('data-ui-zoom', zv);
+                var zvLbl = document.getElementById('dsUiZoomVal');
+                if (zvLbl) zvLbl.textContent = zv + '%';
+            }
+            if (gaEl) {
+                var gav = parseInt(gaEl.value || '32', 10);
+                document.documentElement.style.setProperty('--glass-alpha', (gav / 100).toFixed(2));
+                var gavLbl = document.getElementById('dsGlassAlphaVal');
+                if (gavLbl) gavLbl.textContent = gav + '%';
+            }
+            if (gbEl) {
+                var gbv = parseInt(gbEl.value || '14', 10);
+                document.documentElement.style.setProperty('--glass-blur', gbv + 'px');
+                var gbvLbl = document.getElementById('dsGlassBlurVal');
+                if (gbvLbl) gbvLbl.textContent = gbv + 'px';
+            }
+            if (bgStEl) {
+                var bsv = parseInt(bgStEl.value || '65', 10);
+                document.documentElement.style.setProperty('--bg-strength', (bsv / 100).toFixed(2));
+                var bsvLbl = document.getElementById('dsBgStrengthVal');
+                if (bsvLbl) bsvLbl.textContent = bsv + '%';
+            }
+
             var chkSp = document.getElementById('dsSpark'), chkPr = document.getElementById('dsProg'),
                 chkWm = document.getElementById('dsWater'), chkSl = document.getElementById('dsSpot'), chkCl = document.getElementById('dsClick');
             if (chkSp) document.body.setAttribute('data-kpi-sparklines', chkSp.checked ? 'true' : 'false');
@@ -816,7 +882,7 @@
                 document.body.setAttribute('data-menu-style', resMs);
             }
         }
-        ['dsC1','dsC2','dsMood','dsBgMode','dsBgCustom','dsCardSurface','dsBgSvg','dsFontFamily','dsFontScale','dsSpark','dsProg','dsWater','dsSpot','dsClick','dsMenuLayout','dsMenuStyle'].forEach(function (id) {
+        ['dsC1','dsC2','dsMood','dsBgMode','dsBgCustom','dsCardSurface','dsBgSvg','dsFontFamily','dsFontScale','dsUiZoom','dsGlassAlpha','dsGlassBlur','dsBgStrength','dsSpark','dsProg','dsWater','dsSpot','dsClick','dsMenuLayout','dsMenuStyle'].forEach(function (id) {
             var el = document.getElementById(id);
             if (el) {
                 el.addEventListener('input', applyDsLivePreview);

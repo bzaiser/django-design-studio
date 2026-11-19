@@ -308,6 +308,28 @@ class DesignStudioPackageTests(TestCase):
         self.assertEqual(exp["state_overrides"]["1"], "#26D96B")
         self.assertEqual(exp["state_overrides"]["8"], "#7126D9")
 
+    def test_liquid_glass_density_and_zoom_settings(self):
+        resp = self.client.post(
+            "/design-studio/save/",
+            {
+                "theme_card_surface": "liquid",
+                "theme_font_scale": "compact",
+                "theme_ui_zoom": "75",
+                "theme_glass_alpha": "40",
+                "theme_glass_blur": "18",
+                "theme_bg_strength": "80",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        html = self.client.get("/design-studio/").content.decode("utf-8")
+        self.assertIn('data-card-surface="liquid"', html)
+        self.assertIn('data-font-scale="compact"', html)
+        self.assertIn('data-ui-zoom="75"', html)
+        self.assertIn("--app-ui-zoom: 75;", html)
+        self.assertIn("--glass-alpha: 0.40;", html)
+        self.assertIn("--glass-blur: 18px;", html)
+        self.assertIn("--bg-strength: 0.80;", html)
+
     def test_design_studio_css_includes_ds_tabs_and_panel_styles(self):
         from pathlib import Path
         css_path = Path(__file__).resolve().parent.parent / "design_studio" / "static" / "design_studio" / "css" / "design-studio.css"

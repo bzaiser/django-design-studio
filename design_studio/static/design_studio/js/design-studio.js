@@ -292,4 +292,29 @@
             document.body.appendChild(e.target);
         }
     });
+
+    function updateLiquidGlassOptics() {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var bgLayer = document.querySelector('.app-bg-svg-layer');
+        if (bgLayer) {
+            var scrollY = window.scrollY || window.pageYOffset || 0;
+            bgLayer.style.transform = 'translate3d(0, ' + (-(scrollY * 0.08)).toFixed(1) + 'px, 0)';
+        }
+        if (!document.body || document.body.getAttribute('data-card-surface') !== 'liquid') return;
+        var vh = window.innerHeight || 800;
+        document.querySelectorAll('.card, .metric-card').forEach(function (card) {
+            var rect = card.getBoundingClientRect();
+            var centerProgress = ((rect.top + rect.height / 2) - vh / 2) / (vh / 2);
+            var clamped = Math.max(-1.2, Math.min(1.2, centerProgress));
+            var shinePos = 50 + clamped * 38;
+            var shineAngle = 125 + clamped * 22;
+            card.style.setProperty('--shine-pos', shinePos.toFixed(1) + '%');
+            card.style.setProperty('--shine-angle', shineAngle.toFixed(1) + 'deg');
+        });
+    }
+    window.addEventListener('scroll', function () {
+        requestAnimationFrame(updateLiquidGlassOptics);
+    }, { passive: true });
+    window.addEventListener('resize', updateLiquidGlassOptics, { passive: true });
+    document.addEventListener('DOMContentLoaded', updateLiquidGlassOptics);
 })();

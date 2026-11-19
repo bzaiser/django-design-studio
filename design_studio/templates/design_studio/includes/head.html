@@ -25,6 +25,10 @@
         --app-input-bg: {{ theme_palette.table_body_bg_color|default:"var(--app-card-bg)" }};
         --app-input-color: {{ theme_palette.table_body_text_color|default:"var(--app-card-color)" }};
         --app-input-border: {{ theme_palette.table_border_color|default:"rgba(0,0,0,0.1)" }};
+        --app-ui-zoom: {{ theme_studio.ui_zoom|default:100 }};
+        --glass-alpha: {{ theme_studio.glass_alpha_css|default:"0.32" }};
+        --glass-blur: {{ theme_studio.glass_blur|default:14 }}px;
+        --bg-strength: {{ theme_studio.bg_strength_css|default:"0.65" }};
         {% if theme_palette and theme_palette.states %}
         {% for st in theme_palette.states %}
         --theme-state-{{ st.index }}: {{ st.hex }};
@@ -34,7 +38,7 @@
         {% endif %}
     }
 </style>
-<link rel="stylesheet" href="{% static 'design_studio/css/design-studio.css' %}?v=1.5.0">
+<link rel="stylesheet" href="{% static 'design_studio/css/design-studio.css' %}?v=1.6.0">
 {% if design_studio_pwa_enabled %}
 <meta name="theme-color" content="{{ theme_palette.primary_color|default:'#0d6efd' }}">
 <meta name="mobile-web-app-capable" content="yes">
