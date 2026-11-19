@@ -169,6 +169,60 @@
     document.body.addEventListener('htmx:afterSettle', function (e) { enhanceKpiCards(e.target || document); });
     document.body.addEventListener('htmx:oobAfterSwap', function (e) { enhanceKpiCards(e.target || document); });
 
+    function animateKpiCounters(root) {
+        if (document.body && document.body.getAttribute('data-kpi-animate') === 'false') return;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var scope = (root && root.querySelectorAll) ? root : document;
+        scope.querySelectorAll('.metric-card h3, .metric-card h4').forEach(function (hEl) {
+            if (hEl.dataset.kpiAnimated === '1') return;
+            var targetNode = null;
+            for (var i = 0; i < hEl.childNodes.length; i++) {
+                var n = hEl.childNodes[i];
+                if (n.nodeType === 3 && /\d/.test(n.nodeValue)) { targetNode = n; break; }
+            }
+            if (!targetNode) return;
+            var raw = targetNode.textContent;
+            var m = raw.match(/^(\s*[+\-−]?\s*)(\d[\d.,]*)(.*)$/);
+            if (!m) return;
+            var prefix = m[1], numStr = m[2], suffix = m[3];
+            var decMatch = numStr.match(/([.,])(\d{1,2})$/);
+            var decimals = 0, decSep = ',', thouSep = '.', clean = numStr;
+            if (decMatch && !(numStr.indexOf('.') !== -1 && decMatch[1] === '.' && decMatch[2].length === 3)) {
+                if (decMatch[1] === ',' || decMatch[2].length <= 2) {
+                    decimals = decMatch[2].length;
+                    decSep = decMatch[1];
+                    thouSep = decSep === ',' ? '.' : ',';
+                    clean = numStr.slice(0, numStr.length - decMatch[0].length).replace(/[.,]/g, '') + '.' + decMatch[2];
+                }
+            } else {
+                clean = numStr.replace(/[.,]/g, '');
+                if (numStr.indexOf(',') !== -1 && numStr.indexOf('.') === -1) thouSep = ',';
+            }
+            var targetVal = parseFloat(clean);
+            if (isNaN(targetVal) || targetVal === 0) return;
+            hEl.dataset.kpiAnimated = '1';
+            var duration = 650, startTs = null;
+            function formatVal(val) {
+                var fixed = val.toFixed(decimals);
+                var parts = fixed.split('.');
+                var intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thouSep);
+                return decimals > 0 ? intPart + decSep + parts[1] : intPart;
+            }
+            function step(ts) {
+                if (!startTs) startTs = ts;
+                var p = Math.min(1, (ts - startTs) / duration);
+                var eased = 1 - Math.pow(1 - p, 3);
+                targetNode.textContent = prefix + formatVal(targetVal * eased) + suffix;
+                if (p < 1) requestAnimationFrame(step);
+                else targetNode.textContent = raw;
+            }
+            requestAnimationFrame(step);
+        });
+    }
+    document.addEventListener('DOMContentLoaded', function () { animateKpiCounters(document); });
+    document.body.addEventListener('htmx:afterSettle', function (e) { animateKpiCounters(e.target || document); });
+    document.body.addEventListener('htmx:oobAfterSwap', function (e) { animateKpiCounters(e.target || document); });
+
     document.addEventListener('pointermove', function (e) {
         if (!document.body || document.body.dataset.kpiSpotlight === 'false') return;
         var card = e.target && e.target.closest ? e.target.closest('.metric-card') : null;

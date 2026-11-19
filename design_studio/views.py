@@ -329,7 +329,7 @@ def pwa_icon_svg_view(request):
 
 def pwa_sw_view(request):
     static_url = getattr(django_settings, "STATIC_URL", "/static/").rstrip("/") + "/"
-    sw_js = f"""const CACHE_NAME = 'ds-pwa-v2';
+    sw_js = f"""const CACHE_NAME = 'ds-pwa-v1.5.0';
 const STATIC_PREFIX = '{static_url}design_studio/';
 
 self.addEventListener('install', (event) => {{

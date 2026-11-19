@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django-design-studio"
-version = "1.4.0"
+version = "1.5.0"
 description = "Reusable Design Studio, 16-mood theme engine, 8-state semantic harmony, glass/brutal card surfaces, adaptive SVG backgrounds, and Chart.js harmonizer for Django + Bootstrap 5."
 readme = "README.md"
 requires-python = ">=3.10"
