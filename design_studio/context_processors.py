@@ -29,6 +29,7 @@ def theme_context(request):
     return {
         "theme_studio": ts,
         "theme_palette": palette,
+        "theme_state_overrides_json": json.dumps(ts.get("state_overrides", {})),
         "theme_palette_json": json.dumps({
             "mood": palette["mood"],
             "is_dark": palette["is_dark"],

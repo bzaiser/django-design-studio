@@ -1,0 +1,943 @@
+{% load i18n static %}
+    <div class="py-1">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span class="fw-bold"><i class="bi bi-magic me-2 opacity-75"></i>{% trans "Design Studio" %}</span>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'design_studio:export' %}" class="btn btn-sm bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3">
+                        <i class="bi bi-download me-1"></i>{% trans "Theme exportieren (.json)" %}
+                    </a>
+                    <a href="{% url 'design_studio:toggle_night' %}" class="btn btn-sm bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3">
+                        {% if theme_palette.is_dark %}<i class="bi bi-sun me-1"></i>{% trans "Tag" %}{% else %}<i class="bi bi-moon-stars me-1"></i>{% trans "Nacht" %}{% endif %}
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+
+            {% if messages %}
+            <div class="mb-3">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show py-2 rounded-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Built-in App Presets -->
+            <div class="mb-4">
+                <label class="form-label small fw-bold">{% trans "App-Vorlagen (1-Klick-Start)" %}</label>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for preset in design_studio_presets %}
+                    <form method="post" action="{% url 'design_studio:save' %}" class="d-inline">{% if ds_studio_next %}<input type="hidden" name="next" value="{{ ds_studio_next }}">{% endif %}
+                        {% csrf_token %}
+                        <input type="hidden" name="app_preset" value="{{ preset.key }}">
+                        <button type="submit" class="btn btn-sm rounded-pill px-3 text-white fw-semibold border-0 shadow-sm"
+                                style="background: linear-gradient(135deg, {{ preset.c1 }}, {{ preset.c2 }});">
+                            {{ preset.label }}
+                        </button>
+                    </form>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Main Studio Form -->
+            <form method="post" action="{% url 'design_studio:save' %}">{% if ds_studio_next %}<input type="hidden" name="next" value="{{ ds_studio_next }}">{% endif %}
+                {% csrf_token %}
+                <input type="hidden" name="kpi_ext_present" value="1">
+                <input type="hidden" name="next" value="{{ back_url|default:'' }}">
+                <div class="row g-3">
+                    <div class="col-6 col-md-2">
+                        <label class="form-label small fw-bold">{% trans "Grundfarbe" %}</label>
+                        <input type="color" id="dsC1" name="gradient_start" class="form-control form-control-color w-100" value="{{ theme_studio.c1 }}">
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <label class="form-label small fw-bold">{% trans "Verlauf 2" %}</label>
+                        <input type="color" id="dsC2" name="gradient_end" class="form-control form-control-color w-100" value="{{ theme_studio.c2 }}">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small fw-bold">{% trans "Design-Stimmung" %}</label>
+                        <select id="dsMood" name="theme_mood" class="form-select">
+                            <option value="modern" {% if theme_studio.mood == 'modern' %}selected{% endif %}>Modern</option>
+                            <option value="dualtone" {% if theme_studio.mood == 'dualtone' %}selected{% endif %}>Dualtone</option>
+                            <option value="serioes" {% if theme_studio.mood == 'serioes' %}selected{% endif %}>Seriös</option>
+                            <option value="dunkel" {% if theme_studio.mood == 'dunkel' %}selected{% endif %}>Dunkel</option>
+                            <option value="brutalism" {% if theme_studio.mood == 'brutalism' %}selected{% endif %}>Polished Brutalism</option>
+                            <option value="wellness" {% if theme_studio.mood == 'wellness' %}selected{% endif %}>Digital Wellness</option>
+                            <option value="ecofuture" {% if theme_studio.mood == 'ecofuture' %}selected{% endif %}>Eco-Futurism</option>
+                            <option value="moody" {% if theme_studio.mood == 'moody' %}selected{% endif %}>Moody &amp; Rich</option>
+                            <option value="fancy" {% if theme_studio.mood == 'fancy' %}selected{% endif %}>Fancy</option>
+                            <option value="vintage" {% if theme_studio.mood == 'vintage' %}selected{% endif %}>Vintage</option>
+                            <option value="knallbunt" {% if theme_studio.mood == 'knallbunt' %}selected{% endif %}>Knallbunt</option>
+                            <option value="neon" {% if theme_studio.mood == 'neon' %}selected{% endif %}>Neon</option>
+                            <option value="duester" {% if theme_studio.mood == 'duester' %}selected{% endif %}>Düster</option>
+                            <option value="earth" {% if theme_studio.mood == 'earth' %}selected{% endif %}>Erde</option>
+                            <option value="monochrom" {% if theme_studio.mood == 'monochrom' %}selected{% endif %}>Monochrom</option>
+                            <option value="grayscale" {% if theme_studio.mood == 'grayscale' %}selected{% endif %}>Graustufen</option>
+                            <option value="liquid_light" {% if theme_studio.mood == 'liquid_light' %}selected{% endif %}>Liquid Glass Hell</option>
+                            <option value="liquid_dark" {% if theme_studio.mood == 'liquid_dark' %}selected{% endif %}>Liquid Glass Rauchglas</option>
+                            <option value="cockpit_compact" {% if theme_studio.mood == 'cockpit_compact' %}selected{% endif %}>Cockpit Kompakt</option>
+                            <option value="editorial_air" {% if theme_studio.mood == 'editorial_air' %}selected{% endif %}>Editorial Großzügig</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small fw-bold">{% trans "Hintergrund" %}</label>
+                        <div class="d-flex gap-2">
+                            <select name="theme_bg_mode" id="dsBgMode" class="form-select flex-grow-1" onchange="document.getElementById('dsBgCustom').style.display = this.value === 'custom' ? 'block' : 'none';">
+                                <option value="auto" {% if theme_studio.bg_mode == 'auto' %}selected{% endif %}>Auto</option>
+                                <option value="light" {% if theme_studio.bg_mode == 'light' %}selected{% endif %}>Immer Hell</option>
+                                <option value="dark" {% if theme_studio.bg_mode == 'dark' %}selected{% endif %}>Immer Dunkel</option>
+                                <option value="custom" {% if theme_studio.bg_mode == 'custom' %}selected{% endif %}>Eigene Farbe</option>
+                            </select>
+                            <input type="color" name="theme_bg_custom" id="dsBgCustom" class="form-control form-control-color" value="{{ theme_studio.bg_custom|default:'#ffffff' }}" style="width: 44px; display: {% if theme_studio.bg_mode == 'custom' %}block{% else %}none{% endif %};">
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small fw-bold">{% trans "KPI-Karten-Stil" %}</label>
+                        <select id="dsCardSurface" name="theme_card_surface" class="form-select">
+                            <option value="auto" {% if theme_studio.card_surface == 'auto' %}selected{% endif %}>Auto</option>
+                            <option value="tinted" {% if theme_studio.card_surface == 'tinted' %}selected{% endif %}>Tinted Glass</option>
+                            <option value="glass" {% if theme_studio.card_surface == 'glass' %}selected{% endif %}>Frosted Glass</option>
+                            <option value="liquid" {% if theme_studio.card_surface == 'liquid' %}selected{% endif %}>Liquid Glass</option>
+                            <option value="solid" {% if theme_studio.card_surface == 'solid' %}selected{% endif %}>Classic Solid</option>
+                            <option value="brutal" {% if theme_studio.card_surface == 'brutal' %}selected{% endif %}>Brutalist</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small fw-bold">{% trans "Seiten-SVG-Hintergrund" %}</label>
+                        <select id="dsBgSvg" name="theme_bg_svg_mode" class="form-select">
+                            <option value="auto" {% if theme_studio.bg_svg_mode == 'auto' %}selected{% endif %}>Auto</option>
+                            <option value="topography" {% if theme_studio.bg_svg_mode == 'topography' %}selected{% endif %}>Topografie</option>
+                            <option value="grid" {% if theme_studio.bg_svg_mode == 'grid' %}selected{% endif %}>Architektur-Raster</option>
+                            <option value="curves" {% if theme_studio.bg_svg_mode == 'curves' %}selected{% endif %}>Zinseszins-Kurven</option>
+                            <option value="aura" {% if theme_studio.bg_svg_mode == 'aura' %}selected{% endif %}>Seiden-Aura</option>
+                            <option value="brutal_grid" {% if theme_studio.bg_svg_mode == 'brutal_grid' %}selected{% endif %}>Kontrast-Gitter</option>
+                            <option value="none" {% if theme_studio.bg_svg_mode == 'none' %}selected{% endif %}>Aus</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small fw-bold"><i class="bi bi-fonts me-1 text-primary"></i>{% trans "Schriftart (Typografie)" %}</label>
+                        <select id="dsFontFamily" name="theme_font_family" class="form-select">
+                            <option value="auto" {% if theme_studio.font_family == 'auto' %}selected{% endif %}>Auto (passend zur Stimmung)</option>
+                            <option value="sans" {% if theme_studio.font_family == 'sans' %}selected{% endif %}>Modern Sans (Klar &amp; Neutral)</option>
+                            <option value="rounded" {% if theme_studio.font_family == 'rounded' %}selected{% endif %}>Soft Geometric (Freundlich &amp; Rund)</option>
+                            <option value="serif" {% if theme_studio.font_family == 'serif' %}selected{% endif %}>Editorial Serif (Klassisch &amp; Seriös)</option>
+                            <option value="tech" {% if theme_studio.font_family == 'tech' %}selected{% endif %}>Technical Grotesk (Präzise &amp; Modern)</option>
+                            <option value="mono" {% if theme_studio.font_family == 'mono' %}selected{% endif %}>Brutalist Mono (Technisch / Code)</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small fw-bold"><i class="bi bi-arrows-angle-expand me-1 text-primary"></i>{% trans "Layout-Dichte &amp; Schriftgröße" %}</label>
+                        <select id="dsFontScale" name="theme_font_scale" class="form-select">
+                            <option value="auto" {% if theme_studio.font_scale == 'auto' %}selected{% endif %}>Auto (Aus Stimmung)</option>
+                            <option value="normal" {% if not theme_studio.font_scale or theme_studio.font_scale == 'normal' %}selected{% endif %}>Standard (Wie bisher)</option>
+                            <option value="compact" {% if theme_studio.font_scale == 'compact' %}selected{% endif %}>Kompakt (Platzoptimiert &amp; eng)</option>
+                            <option value="comfortable" {% if theme_studio.font_scale == 'comfortable' %}selected{% endif %}>Großzügig (Luftiger &amp; größer)</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label small fw-bold mb-0" for="dsUiZoom"><i class="bi bi-zoom-in me-1 text-primary"></i>{% trans "Skalierbar (Inhalt-Zoom)" %}</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <span id="dsUiZoomVal" class="badge bg-primary-subtle text-primary fw-bold">{{ theme_studio.ui_zoom|default:100 }}%</span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="var z=document.getElementById('dsUiZoom');if(z){z.value=100;z.dispatchEvent(new Event('input'));}">100%</button>
+                            </div>
+                        </div>
+                        <input type="range" class="form-range" id="dsUiZoom" name="theme_ui_zoom" min="10" max="100" step="5" value="{{ theme_studio.ui_zoom|default:100 }}">
+                    </div>
+                    <div class="col-12">
+                        <div class="row g-3 pt-2 border-top border-secondary border-opacity-25">
+                            <div class="col-12 col-md-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label small fw-semibold mb-0" for="dsGlassAlpha">{% trans "Glas-Tönung" %}</label>
+                                    <span id="dsGlassAlphaVal" class="small fw-bold text-primary">{{ theme_studio.glass_alpha|default:32 }}%</span>
+                                </div>
+                                <input type="range" class="form-range" id="dsGlassAlpha" name="theme_glass_alpha" min="10" max="85" step="1" value="{{ theme_studio.glass_alpha|default:32 }}">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label small fw-semibold mb-0" for="dsGlassBlur">{% trans "Unschärfe (Blur)" %}</label>
+                                    <span id="dsGlassBlurVal" class="small fw-bold text-primary">{{ theme_studio.glass_blur|default:14 }}px</span>
+                                </div>
+                                <input type="range" class="form-range" id="dsGlassBlur" name="theme_glass_blur" min="2" max="28" step="1" value="{{ theme_studio.glass_blur|default:14 }}">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label small fw-semibold mb-0" for="dsBgStrength">{% trans "Hintergrund-Stärke" %}</label>
+                                    <span id="dsBgStrengthVal" class="small fw-bold text-primary">{{ theme_studio.bg_strength|default:65 }}%</span>
+                                </div>
+                                <input type="range" class="form-range" id="dsBgStrength" name="theme_bg_strength" min="20" max="100" step="1" value="{{ theme_studio.bg_strength|default:65 }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-3 pt-2 border-top border-secondary border-opacity-25">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dsSyncCards" name="theme_sync_cards" {% if theme_studio.sync_cards_and_charts %}checked{% endif %}>
+                                <label class="form-check-label small fw-semibold" for="dsSyncCards">{% trans "Karten & Charts synchronisieren" %}</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dsSpark" name="kpi_sparklines" {% if theme_studio.kpi_sparklines %}checked{% endif %}>
+                                <label class="form-check-label small" for="dsSpark">{% trans "SVG-Sparklines" %}</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dsProg" name="kpi_progress_bars" {% if theme_studio.kpi_progress_bars %}checked{% endif %}>
+                                <label class="form-check-label small" for="dsProg">{% trans "Ziel-Fortschrittsbalken" %}</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dsWater" name="kpi_watermarks" {% if theme_studio.kpi_watermarks %}checked{% endif %}>
+                                <label class="form-check-label small" for="dsWater">{% trans "Watermark-Icons" %}</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dsSpot" name="kpi_spotlight" {% if theme_studio.kpi_spotlight %}checked{% endif %}>
+                                <label class="form-check-label small" for="dsSpot">{% trans "Maus-Spotlight" %}</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dsClick" name="kpi_click_navigation" {% if theme_studio.kpi_click_navigation %}checked{% endif %}>
+                                <label class="form-check-label small" for="dsClick">{% trans "Klick-Navigation" %}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Vorschau: Beispielkarten & Tabellen-Card -->
+                    <div class="col-12 mt-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                            <span class="small fw-bold"><i class="bi bi-eye-fill me-1 text-primary"></i>{% trans "Live-Vorschau (ändert sich sofort beim Umstellen)" %}</span>
+                            <span id="dsLiveBadge" class="badge rounded-pill px-3 py-1 fw-semibold" style="font-size: var(--app-fs-xs); background: color-mix(in srgb, var(--app-primary, #0d6efd) 16%, transparent); color: var(--app-primary, #0d6efd); border: 1px solid color-mix(in srgb, var(--app-primary, #0d6efd) 35%, transparent);">
+                                {{ theme_studio.resolved_card_surface|title }} · {{ theme_studio.resolved_bg_svg|title }}
+                            </span>
+                        </div>
+                        <div id="dsLiveStage" class="position-relative rounded-4 p-3 overflow-hidden border border-secondary border-opacity-25 shadow-sm" style="transition: background-color 0.25s ease;">
+                            <div id="dsLiveStageSvg" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 0;"></div>
+                            <div class="row g-3 position-relative" style="z-index: 1;">
+                                <div class="col-12 col-md-4">
+                                    <div id="dsDemoCard1" class="card metric-card widget-expand-card h-100 p-3" data-target-url="#dsLiveStage" style="--card-accent: var(--theme-state-1, #198754); background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), var(--theme-state-1, #198754); color: #ffffff;">
+                                        <div class="kpi-decor-clip">
+                                            <div class="kpi-spotlight"></div>
+                                            <i class="bi bi-graph-up-arrow kpi-watermark-icon"></i>
+                                            <svg class="kpi-sparkline-svg" viewBox="0 0 200 42" preserveAspectRatio="none">
+                                                <defs><linearGradient id="dsDemoSp1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="currentColor" stop-opacity="0.30"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
+                                                <path d="M0,36 L40,28 L80,32 L120,18 L160,22 L200,8 L200,42 L0,42 Z" fill="url(#dsDemoSp1)"/>
+                                                <path d="M0,36 L40,28 L80,32 L120,18 L160,22 L200,8" fill="none" stroke="currentColor" stroke-width="2" opacity="0.7"/>
+                                            </svg>
+                                        </div>
+                                        <div class="card-body p-0 d-flex flex-column justify-content-between">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <span class="text-uppercase fw-bold opacity-85" style="font-size: var(--app-fs-xs);">{% trans "Beispiel-KPI (Sparkline)" %}</span>
+                                                <i class="bi bi-graph-up-arrow"></i>
+                                            </div>
+                                            <div class="metric-value">
+                                                <h4 class="mb-0 fw-bold font-monospace">4.830 <span class="fs-6 fw-normal opacity-75">€</span></h4>
+                                                <div class="mt-2 d-flex justify-content-between align-items-center small" style="font-size: var(--app-fs-xs);">
+                                                    <span class="opacity-75">+4,2 % Trend</span>
+                                                    <span class="ds-demo-click-pill badge rounded-pill" style="background: rgba(128,128,128,0.22); color: inherit;"><i class="bi bi-box-arrow-up-right me-1"></i>Details</span>
+                                                </div>
+                                            </div>
+                                            <div class="widget-hover-details border-top border-white border-opacity-25 pt-2" style="background-color: var(--theme-state-1, #198754); color: inherit;">
+                                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-white border-opacity-10 small">
+                                                    <span>{% trans "Position A" %}</span>
+                                                    <span class="font-monospace fw-bold">+4.200 €</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center py-1 small">
+                                                    <span>{% trans "Position B" %}</span>
+                                                    <span class="font-monospace fw-bold">+630 €</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <div id="dsDemoCard2" class="card metric-card widget-expand-card h-100 p-3" data-target-url="#dsLiveStage" style="--card-accent: var(--theme-state-8, #6f42c1); background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), var(--theme-state-8, #6f42c1); color: #ffffff;">
+                                        <div class="kpi-decor-clip">
+                                            <div class="kpi-spotlight"></div>
+                                            <i class="bi bi-shield-check kpi-watermark-icon"></i>
+                                        </div>
+                                        <div class="card-body p-0 d-flex flex-column justify-content-between">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <span class="text-uppercase fw-bold opacity-85" style="font-size: var(--app-fs-xs);">{% trans "Ziel-Fortschritt" %}</span>
+                                                <i class="bi bi-shield-check"></i>
+                                            </div>
+                                            <div class="metric-value">
+                                                <h4 class="mb-0 fw-bold font-monospace">70 %</h4>
+                                                <div class="kpi-segmented-wrap">
+                                                    <div class="segmented-progress">
+                                                        <div class="seg-bar active"></div><div class="seg-bar active"></div><div class="seg-bar active"></div><div class="seg-bar active"></div><div class="seg-bar active"></div>
+                                                        <div class="seg-bar active"></div><div class="seg-bar active"></div><div class="seg-bar"></div><div class="seg-bar"></div><div class="seg-bar"></div>
+                                                        <div class="target-marker" style="left: 80%;"></div>
+                                                    </div>
+                                                    <div class="small opacity-85 fw-semibold" style="font-size: var(--app-fs-xs);">Ziel-Marker: 80 %</div>
+                                                </div>
+                                            </div>
+                                            <div class="widget-hover-details border-top border-white border-opacity-25 pt-2" style="background-color: var(--theme-state-8, #6f42c1); color: inherit;">
+                                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-white border-opacity-10 small">
+                                                    <span>{% trans "Ist-Wert" %}</span>
+                                                    <span class="font-monospace fw-bold">2.380 €</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center py-1 small">
+                                                    <span>{% trans "Ziel-Wert" %}</span>
+                                                    <span class="font-monospace fw-bold">3.400 €</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <div class="card h-100 overflow-hidden shadow-sm">
+                                        <div class="card-header py-2 px-3 small fw-bold" style="background: var(--app-gradient); color: #fff;">
+                                            <i class="bi bi-table me-1"></i>{% trans "Tabellen-Vorschau" %}
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-hover mb-0" style="font-size: var(--app-fs-xs);">
+                                                <thead><tr><th>{% trans "Eintrag" %}</th><th class="text-end">{% trans "Wert" %}</th></tr></thead>
+                                                <tbody>
+                                                    <tr><td>{% trans "Beispiel A" %}</td><td class="text-end font-monospace">1.200 €</td></tr>
+                                                    <tr><td>{% trans "Beispiel B" %}</td><td class="text-end font-monospace">850 €</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Semantische Farbharmonie (8 Zustände) -->
+                    <div class="col-12 mt-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+                            <span class="small fw-bold"><i class="bi bi-palette2 me-1 text-primary"></i>{% trans "Semantische Farbharmonie (8 Zustände für Karten, Kategorien & Charts)" %}</span>
+                            <small class="text-muted">{% trans "Klick auf Farbfeld ändert Farbe · Copy-Icon kopiert HEX" %}</small>
+                        </div>
+                        <input type="hidden" name="theme_state_overrides" id="studioStateOverrides" value='{{ theme_state_overrides_json|default:"{}" }}'>
+                        <div class="row row-cols-2 row-cols-sm-4 g-2" id="studioSwatchGrid"></div>
+                    </div>
+
+                    <!-- Menü-Studio -->
+                    <div class="col-12 mt-3">
+                        <div class="accordion accordion-flush rounded-4 overflow-hidden border border-secondary border-opacity-25" id="dsMenuAccordion">
+                            <div class="accordion-item bg-transparent">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed py-2 fw-bold bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#dsCollapseMenu" style="color: inherit;">
+                                        <i class="bi bi-layout-sidebar-inset me-2 text-primary"></i> {% trans "Menü-Studio (Navigation, Seitenpanel & Icons)" %}
+                                    </button>
+                                </h2>
+                                <div id="dsCollapseMenu" class="accordion-collapse collapse" data-bs-parent="#dsMenuAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-12 col-sm-6">
+                                                <label class="form-label small fw-bold">{% trans "Menü-Position" %}</label>
+                                                <select id="dsMenuLayout" name="theme_menu_layout" class="form-select form-select-sm">
+                                                    <option value="top" {% if theme_studio.menu_layout == 'top' or not theme_studio.menu_layout %}selected{% endif %}>{% trans "Top-Navigationsleiste (Oben)" %}</option>
+                                                    <option value="sidebar" {% if theme_studio.menu_layout == 'sidebar' %}selected{% endif %}>{% trans "Seitenpanel (Links am Desktop, einklappbar)" %}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12 col-sm-6">
+                                                <label class="form-label small fw-bold">{% trans "Menü-Design" %}</label>
+                                                <select id="dsMenuStyle" name="theme_menu_style" class="form-select form-select-sm">
+                                                    <option value="auto" {% if theme_studio.menu_style == 'auto' or not theme_studio.menu_style %}selected{% endif %}>{% trans "Auto (passend zum Karten-Stil)" %}</option>
+                                                    <option value="glass" {% if theme_studio.menu_style == 'glass' %}selected{% endif %}>{% trans "Edles Milchglas (Translucent)" %}</option>
+                                                    <option value="gradient" {% if theme_studio.menu_style == 'gradient' %}selected{% endif %}>{% trans "Markanter Farbverlauf (Gradient)" %}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <input type="hidden" name="menu_config_json" id="dsMenuConfigInput" value="">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="small fw-bold">{% trans "Menüpunkte per Drag & Drop sortieren, umbenennen & anpassen:" %}</span>
+                                            <button type="button" id="dsBtnResetMenu" class="btn btn-outline-secondary btn-sm py-0 px-2 rounded-pill">
+                                                <i class="bi bi-arrow-counterclockwise me-1"></i>{% trans "Standard" %}
+                                            </button>
+                                        </div>
+                                        <div class="border rounded-3 p-2 mb-2 bg-body-tertiary bg-opacity-50">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-auto">
+                                                    <span class="small fw-semibold text-muted">{% trans "App-Titel" %}:</span>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <input type="hidden" name="brand_icon" id="dsBrandIconInput" value="{{ theme_studio.brand_icon|default:'' }}">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 ds-open-icon-picker"
+                                                            data-target-input="#dsBrandIconInput" data-target-preview="#dsBrandIconPreview" data-allow-none="1"
+                                                            title="{% trans 'App-Icon wählen' %}">
+                                                        <i id="dsBrandIconPreview" class="bi {{ design_studio_app_icon|default:'bi-speedometer2' }} text-primary{% if design_studio_app_icon == 'none' %} d-none{% endif %}"></i>
+                                                        <span class="small">{% trans "Icon" %}</span>
+                                                    </button>
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" name="brand_title" class="form-control form-control-sm"
+                                                           value="{{ theme_studio.brand_title|default:'' }}"
+                                                           placeholder="{{ design_studio_app_name|default:'App' }}" maxlength="60">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive border rounded-3">
+                                            <table class="table table-sm table-hover align-middle mb-0" style="font-size: var(--app-fs-sm);">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width: 28px;"></th>
+                                                        <th style="width: 145px;">{% trans "Icon" %}</th>
+                                                        <th>{% trans "Menü-Text" %}</th>
+                                                        <th style="width: 112px;">{% trans "Darstellung" %}</th>
+                                                        <th style="width: 100px;">{% trans "Bereich" %}</th>
+                                                        <th style="width: 56px;" class="text-center">{% trans "An" %}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="dsMenuTableBody">
+                                                    {% for mitem in menu_studio_items %}
+                                                    <tr data-id="{{ mitem.id }}">
+                                                        <td class="text-center"><i class="bi bi-grip-vertical ds-menu-drag text-muted" style="cursor: grab;"></i></td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center gap-1">
+                                                                <input type="hidden" class="ds-menu-icon" value="{{ mitem.icon }}">
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 w-100 text-start py-0 px-2 ds-open-icon-picker"
+                                                                        style="font-size: var(--app-fs-xs); height: 26px;">
+                                                                    <i class="bi {{ mitem.icon }} ds-menu-icon-preview fs-6 text-primary"></i>
+                                                                    <span class="text-truncate ds-menu-icon-label">{{ mitem.icon }}</span>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control form-control-sm ds-menu-label py-0 px-2" style="font-size: var(--app-fs-xs);"
+                                                                   value="{{ mitem.custom_label }}" placeholder="{{ mitem.default_label }}" maxlength="40">
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-select form-select-sm ds-menu-display py-0 px-1" style="font-size: var(--app-fs-xs);">
+                                                                <option value="icon_text" {% if mitem.display == 'icon_text' %}selected{% endif %}>{% trans "Icon + Text" %}</option>
+                                                                <option value="icon_only" {% if mitem.display == 'icon_only' %}selected{% endif %}>{% trans "Nur Icon" %}</option>
+                                                                <option value="text_only" {% if mitem.display == 'text_only' %}selected{% endif %}>{% trans "Nur Text" %}</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-select form-select-sm ds-menu-zone py-0 px-1" style="font-size: var(--app-fs-xs);">
+                                                                <option value="main" {% if mitem.zone == 'main' %}selected{% endif %}>{% trans "Hauptmenü" %}</option>
+                                                                <option value="utility" {% if mitem.zone == 'utility' %}selected{% endif %}>{% trans "Aktionen" %}</option>
+                                                                <option value="system" {% if mitem.zone == 'system' %}selected{% endif %}>{% trans "System-Hub" %}</option>
+                                                            </select>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input type="checkbox" class="form-check-input ds-menu-visible"
+                                                                   {% if mitem.visible %}checked{% endif %}
+                                                                   {% if mitem.locked %}disabled{% endif %}>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 d-flex justify-content-end gap-2">
+                    <a href="{{ back_url|default:'/' }}" class="btn btn-outline-secondary rounded-pill px-4">
+                        {% trans "Abbrechen" %}
+                    </a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold" style="background: var(--app-gradient); border: none;">
+                        <i class="bi bi-save me-1"></i>{% trans "Speichern" %}
+                    </button>
+                </div>
+            </form>
+
+            <!-- JSON Import -->
+            <hr class="my-4">
+            <form method="post" action="{% url 'design_studio:import' %}" enctype="multipart/form-data" class="d-flex flex-wrap gap-2 align-items-center">{% if ds_studio_next %}<input type="hidden" name="next" value="{{ ds_studio_next }}">{% endif %}
+                {% csrf_token %}
+                <label class="small fw-bold mb-0">{% trans "Theme importieren (.json):" %}</label>
+                <input type="file" name="theme_file" accept=".json,application/json" class="form-control form-control-sm" style="max-width: 280px;" required>
+                <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                    <i class="bi bi-upload me-1"></i>{% trans "Importieren" %}
+                </button>
+            </form>
+            </div>
+        </div>
+    </div>
+    <!-- Icon Picker Modal -->
+    <div class="modal fade" id="dsIconPickerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-grid-3x3-gap me-1"></i>{% trans "Icon auswählen oder manuell eingeben" %}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2 mb-3 align-items-center">
+                        <div class="col-md-6">
+                            <input type="search" id="dsIconSearch" class="form-control form-control-sm" placeholder="{% trans 'Icons durchsuchen (z. B. server, bank, chart)...' %}">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i id="dsManualIconPreview" class="bi bi-star"></i></span>
+                                <input type="text" id="dsManualIconInput" class="form-control" placeholder="bi-rocket-takeoff">
+                                <button type="button" id="dsApplyManualIcon" class="btn btn-primary">{% trans "Übernehmen" %}</button>
+                                <button type="button" id="dsClearBrandIcon" class="btn btn-outline-secondary d-none">{% trans "Kein Icon" %}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dsIconGrid" class="row row-cols-3 row-cols-sm-4 row-cols-md-6 g-2">
+                        {% for ic_val, ic_lbl in menu_icon_choices %}
+                        <div class="col ds-icon-choice" data-icon="{{ ic_val }}" data-label="{{ ic_lbl|lower }} {{ ic_val }}">
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center py-2 px-1" title="{{ ic_lbl }} ({{ ic_val }})">
+                                <i class="bi {{ ic_val }} fs-5 mb-1"></i>
+                                <span class="text-truncate w-100" style="font-size: var(--app-fs-xs);">{{ ic_lbl }}</span>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'design_studio/vendor/sortable/Sortable.min.js' %}"></script>
+    <script>
+    (function () {
+        var tbody = document.getElementById('dsMenuTableBody');
+        var input = document.getElementById('dsMenuConfigInput');
+        var resetBtn = document.getElementById('dsBtnResetMenu');
+        function serializeMenu() {
+            if (!tbody || !input || input.dataset.reset === '1') return;
+            var list = [];
+            tbody.querySelectorAll('tr').forEach(function (tr, idx) {
+                list.push({
+                    id: tr.dataset.id,
+                    icon: tr.querySelector('.ds-menu-icon').value,
+                    label: tr.querySelector('.ds-menu-label').value,
+                    display: tr.querySelector('.ds-menu-display').value,
+                    zone: tr.querySelector('.ds-menu-zone').value,
+                    visible: tr.querySelector('.ds-menu-visible').checked,
+                    order: idx + 1
+                });
+            });
+            input.value = JSON.stringify(list);
+        }
+        if (tbody) {
+            if (typeof Sortable !== 'undefined') {
+                new Sortable(tbody, { handle: '.ds-menu-drag', animation: 150, onEnd: serializeMenu });
+            }
+            tbody.addEventListener('change', function (e) {
+                if (input) input.dataset.reset = '0';
+                if (e.target.classList.contains('ds-menu-icon')) {
+                    var prev = e.target.closest('td').querySelector('.ds-menu-icon-preview');
+                    if (prev) prev.className = 'bi ' + e.target.value + ' ds-menu-icon-preview fs-6 text-primary';
+                }
+                serializeMenu();
+            });
+            tbody.addEventListener('input', function () {
+                if (input) input.dataset.reset = '0';
+                serializeMenu();
+            });
+            var form = tbody.closest('form');
+            if (form) form.addEventListener('submit', serializeMenu);
+        }
+        if (resetBtn && input) {
+            resetBtn.addEventListener('click', function () {
+                input.dataset.reset = '1';
+                input.value = 'RESET';
+                var form = resetBtn.closest('form');
+                if (form) form.submit();
+            });
+        }
+
+        // Icon Picker Modal (Suche + Manuelle Eingabe + Brand-Icon)
+        var modalEl = document.getElementById('dsIconPickerModal');
+        var searchEl = document.getElementById('dsIconSearch');
+        var manualEl = document.getElementById('dsManualIconInput');
+        var manualPrevEl = document.getElementById('dsManualIconPreview');
+        var applyManualBtn = document.getElementById('dsApplyManualIcon');
+        var clearBrandBtn = document.getElementById('dsClearBrandIcon');
+        var gridEl = document.getElementById('dsIconGrid');
+        var activeIconInput = null;
+        var activeIconPreview = null;
+        var activeIconLabel = null;
+
+        function normalizeBiIcon(val) {
+            var s = (val || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+            if (!s) return '';
+            return s.indexOf('bi-') === 0 ? s : 'bi-' + s;
+        }
+
+        function setPickedIcon(iconVal) {
+            if (!activeIconInput) return;
+            activeIconInput.value = iconVal;
+            if (activeIconPreview) {
+                if (iconVal === 'none') {
+                    activeIconPreview.classList.add('d-none');
+                } else {
+                    activeIconPreview.classList.remove('d-none');
+                    activeIconPreview.className = 'bi ' + (iconVal || 'bi-speedometer2') + ' text-primary' +
+                        (activeIconPreview.classList.contains('ds-menu-icon-preview') ? ' ds-menu-icon-preview fs-6' : '');
+                }
+            }
+            if (activeIconLabel) activeIconLabel.textContent = iconVal || 'bi-circle';
+            if (input) input.dataset.reset = '0';
+            serializeMenu();
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                var inst = bootstrap.Modal.getInstance(modalEl);
+                if (inst) inst.hide();
+            }
+        }
+
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('.ds-open-icon-picker');
+            if (!btn || !modalEl) return;
+            if (btn.dataset.targetInput) {
+                activeIconInput = document.querySelector(btn.dataset.targetInput);
+                activeIconPreview = document.querySelector(btn.dataset.targetPreview);
+                activeIconLabel = null;
+            } else {
+                var td = btn.closest('td');
+                activeIconInput = td ? td.querySelector('.ds-menu-icon') : null;
+                activeIconPreview = td ? td.querySelector('.ds-menu-icon-preview') : null;
+                activeIconLabel = td ? td.querySelector('.ds-menu-icon-label') : null;
+            }
+            if (clearBrandBtn) {
+                clearBrandBtn.classList.toggle('d-none', btn.dataset.allowNone !== '1');
+            }
+            var cur = activeIconInput ? activeIconInput.value : '';
+            if (manualEl) manualEl.value = (cur && cur !== 'none') ? cur : '';
+            if (manualPrevEl) manualPrevEl.className = 'bi ' + ((cur && cur !== 'none') ? cur : 'bi-star');
+            if (searchEl) {
+                searchEl.value = '';
+                gridEl && gridEl.querySelectorAll('.ds-icon-choice').forEach(function (c) { c.classList.remove('d-none'); });
+            }
+            if (typeof bootstrap !== 'undefined') {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }
+        });
+
+        if (searchEl && gridEl) {
+            searchEl.addEventListener('input', function () {
+                var q = searchEl.value.trim().toLowerCase();
+                gridEl.querySelectorAll('.ds-icon-choice').forEach(function (col) {
+                    var hay = col.dataset.label || '';
+                    col.classList.toggle('d-none', q && hay.indexOf(q) === -1);
+                });
+            });
+        }
+        if (gridEl) {
+            gridEl.addEventListener('click', function (e) {
+                var col = e.target.closest('.ds-icon-choice');
+                if (col && col.dataset.icon) setPickedIcon(col.dataset.icon);
+            });
+        }
+        if (manualEl && manualPrevEl) {
+            manualEl.addEventListener('input', function () {
+                var norm = normalizeBiIcon(manualEl.value);
+                manualPrevEl.className = 'bi ' + (norm || 'bi-star');
+            });
+        }
+        if (applyManualBtn && manualEl) {
+            applyManualBtn.addEventListener('click', function () {
+                var norm = normalizeBiIcon(manualEl.value);
+                if (norm) setPickedIcon(norm);
+            });
+        }
+        if (clearBrandBtn) {
+            clearBrandBtn.addEventListener('click', function () {
+                setPickedIcon('none');
+            });
+        }
+
+        var MOODS = {
+            modern:    { s: 70, l: 50, bg: "#f4f6f9", dark: false, shift: 0.06, surface: "tinted", svg: "topography", font: "sans" },
+            dualtone:  { s: 78, l: 52, bg: "#f4f6f9", dark: false, shift: 0.00, dual: true, surface: "tinted", svg: "curves", font: "sans" },
+            serioes:   { s: 42, l: 45, bg: "#f1f5f9", dark: false, shift: 0.10, surface: "glass", svg: "grid", font: "serif" },
+            dunkel:    { s: 65, l: 52, bg: "#0f172a", dark: true,  shift: 0.08, surface: "glass", svg: "grid", font: "tech" },
+            brutalism: { s: 92, l: 56, bg: "#050505", dark: true,  shift: 0.00, brutal: true, surface: "brutal", svg: "brutal_grid", font: "mono" },
+            wellness:  { s: 36, l: 74, bg: "#f6f7f4", dark: false, shift: 0.18, surface: "tinted", svg: "topography", font: "rounded" },
+            ecofuture: { s: 88, l: 52, bg: "#141d18", dark: true,  shift: 0.05, eco: true, surface: "tinted", svg: "curves", font: "tech" },
+            moody:     { s: 58, l: 36, bg: "#16131c", dark: true,  shift: 0.12, surface: "tinted", svg: "aura", font: "tech" },
+            fancy:     { s: 65, l: 68, bg: "#f8f5fc", dark: false, shift: 0.12, surface: "tinted", svg: "aura", font: "rounded" },
+            vintage:   { s: 48, l: 54, bg: "#f5f0e6", dark: false, shift: 0.25, warm: true, surface: "tinted", svg: "aura", font: "serif" },
+            knallbunt: { s: 95, l: 52, bg: "#f4f6f9", dark: false, shift: 0.02, surface: "solid", svg: "curves", font: "rounded" },
+            neon:      { s: 100,l: 55, bg: "#090a0f", dark: true,  shift: 0.00, glow: true, surface: "tinted", svg: "curves", font: "tech" },
+            duester:   { s: 35, l: 38, bg: "#111317", dark: true,  shift: 0.15, surface: "glass", svg: "aura", font: "tech" },
+            earth:     { s: 32, l: 48, bg: "#ede6dc", dark: false, shift: 0.15, earth: true, surface: "tinted", svg: "topography", font: "serif" },
+            monochrom: { s: 55, l: 50, bg: "#f4f6f9", dark: false, shift: 0.88, surface: "glass", svg: "grid", font: "sans" },
+            grayscale: { s: 0,  l: 50, bg: "#efefef", dark: false, shift: 0.00, surface: "glass", svg: "grid", font: "sans" },
+            liquid_light:    { s: 68, l: 48, bg: "#e7ecf0", dark: false, shift: 0.06, surface: "liquid", svg: "topography", font: "sans", scale: "normal" },
+            liquid_dark:     { s: 72, l: 52, bg: "#0b0d11", dark: true,  shift: 0.06, surface: "liquid", svg: "grid", font: "tech", scale: "normal" },
+            cockpit_compact: { s: 70, l: 50, bg: "#0f172a", dark: true,  shift: 0.08, surface: "liquid", svg: "grid", font: "tech", scale: "compact" },
+            editorial_air:   { s: 50, l: 52, bg: "#f8fafc", dark: false, shift: 0.12, surface: "tinted", svg: "aura", font: "serif", scale: "comfortable" }
+        };
+        var SVG_MAP = {
+            topography: '<svg viewBox="0 0 800 400" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="dsPvTopA" cx="20%" cy="20%" r="55%"><stop offset="0%" stop-color="var(--app-primary)" stop-opacity="0.24"/><stop offset="100%" stop-color="var(--app-primary)" stop-opacity="0"/></radialGradient><radialGradient id="dsPvTopB" cx="85%" cy="80%" r="55%"><stop offset="0%" stop-color="var(--theme-state-8, var(--app-primary))" stop-opacity="0.20"/><stop offset="100%" stop-color="var(--theme-state-8, var(--app-primary))" stop-opacity="0"/></radialGradient></defs><rect width="800" height="400" fill="url(#dsPvTopA)"/><rect width="800" height="400" fill="url(#dsPvTopB)"/><g fill="none" stroke="var(--app-primary)" stroke-width="1.3" opacity="0.20"><path d="M-30,90 C180,20 420,190 830,80"/><path d="M-30,140 C200,70 440,240 830,130"/><path d="M-30,280 C220,200 500,360 830,250"/></g></svg>',
+            grid: '<svg viewBox="0 0 800 400" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dsPvGrid" width="45" height="45" patternUnits="userSpaceOnUse"><path d="M 45 0 L 0 0 0 45" fill="none" stroke="var(--app-primary)" stroke-width="0.7" opacity="0.18"/><path d="M -3 0 L 3 0 M 0 -3 L 0 3" stroke="var(--app-primary)" stroke-width="1.2" opacity="0.32"/></pattern></defs><rect width="800" height="400" fill="url(#dsPvGrid)"/></svg>',
+            curves: '<svg viewBox="0 0 800 400" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="dsPvCurve" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="var(--app-primary)" stop-opacity="0.24"/><stop offset="100%" stop-color="var(--app-primary)" stop-opacity="0.03"/></linearGradient></defs><path d="M 0 400 Q 360 360 800 40 L 800 400 Z" fill="url(#dsPvCurve)"/><path d="M 0 400 Q 420 370 800 130" fill="none" stroke="var(--app-primary)" stroke-width="1.5" opacity="0.28"/></svg>',
+            aura: '<svg viewBox="0 0 800 400" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="dsPvAuraA" cx="25%" cy="30%" r="55%"><stop offset="0%" stop-color="var(--app-primary)" stop-opacity="0.28"/><stop offset="100%" stop-color="var(--app-primary)" stop-opacity="0"/></radialGradient><radialGradient id="dsPvAuraB" cx="78%" cy="75%" r="55%"><stop offset="0%" stop-color="var(--theme-state-8, var(--app-primary))" stop-opacity="0.24"/><stop offset="100%" stop-color="var(--theme-state-8, var(--app-primary))" stop-opacity="0"/></radialGradient></defs><rect width="800" height="400" fill="url(#dsPvAuraA)"/><rect width="800" height="400" fill="url(#dsPvAuraB)"/></svg>',
+            brutal_grid: '<svg viewBox="0 0 800 400" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dsPvBrutal" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M 32 0 L 0 0 0 32" fill="none" stroke="var(--app-primary)" stroke-width="1" opacity="0.18"/></pattern></defs><rect width="800" height="400" fill="url(#dsPvBrutal)"/></svg>',
+            none: ''
+        };
+        function hexToHsl(hex) {
+            if (!hex || hex.length < 7) return { h: 217, s: 91, l: 60 };
+            var r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+            var mx = Math.max(r,g,b), mn = Math.min(r,g,b), h = 0, s = 0, l = (mx+mn)/2;
+            if (mx !== mn) {
+                var d = mx - mn;
+                s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+                h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : (mx === g ? (b - r) / d + 2 : (r - g) / d + 4);
+                h *= 60;
+            }
+            return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
+        }
+        function hslToHex(h, s, l) {
+            h = ((h % 360) + 360) % 360; s = Math.max(0, Math.min(100, s)); l = Math.max(0, Math.min(100, l));
+            var ln = l / 100, a = s * Math.min(ln, 1 - ln) / 100;
+            var f = function (n) { var k = (n + h / 30) % 12; return Math.round(255 * (ln - a * Math.max(Math.min(k - 3, 9 - k, 1), -1))).toString(16).padStart(2, '0'); };
+            return ('#' + f(0) + f(8) + f(4)).toUpperCase();
+        }
+        function contrastTxt(hex) {
+            var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+            return ((r * 299 + g * 587 + b * 114) / 1000) >= 175 ? '#1e293b' : '#ffffff';
+        }
+        function applyDsLivePreview() {
+            var c1El = document.getElementById('dsC1'), c2El = document.getElementById('dsC2'),
+                moodEl = document.getElementById('dsMood'), bgModeEl = document.getElementById('dsBgMode'),
+                bgCustomEl = document.getElementById('dsBgCustom'), surfEl = document.getElementById('dsCardSurface'),
+                svgEl = document.getElementById('dsBgSvg');
+            if (!c1El || !c2El || !moodEl) return;
+            var c1 = c1El.value, c2 = c2El.value, moodKey = moodEl.value || 'modern', bgMode = bgModeEl ? bgModeEl.value : 'auto';
+            var m = MOODS[moodKey] || MOODS.modern;
+            var pageBg = m.bg, isDark = m.dark;
+            if (bgMode === 'light') { pageBg = '#f4f6f9'; isDark = false; }
+            else if (bgMode === 'dark') { pageBg = '#0f172a'; isDark = true; }
+            else if (bgMode === 'custom' && bgCustomEl) { pageBg = bgCustomEl.value; isDark = hexToHsl(pageBg).l < 50; }
+            var gStart = moodKey === 'grayscale' ? '#333333' : c1;
+            var gEnd = moodKey === 'grayscale' ? '#888888' : c2;
+            var primary = moodKey === 'grayscale' ? '#555555' : c1;
+            var txtCol = isDark ? '#f8fafc' : '#1e293b';
+            var base1 = hexToHsl(c1);
+            var thBg = hslToHex(base1.h, m.s, moodKey === 'grayscale' ? 30 : (isDark ? 28 : Math.max(32, Math.min(52, m.l))));
+            var thTxt = contrastTxt(thBg);
+            var borderCol = isDark ? '#334155' : '#dee2e6';
+            var STATES_DEF = [
+                { index: 1, n: '1. OK / Ampel Grün', h: 142, t: '✓ Stabil', side: 1 },
+                { index: 2, n: '2. Positiv / Info', h: 185, t: 'ℹ Info', side: 1 },
+                { index: 3, n: '3. Mittel / Achtung', h: 43, t: '⚠ Achtung', side: 2 },
+                { index: 4, n: '4. Warnung', h: 26, t: '⚡ Warnung', side: 2 },
+                { index: 5, n: '5. Schlecht / Negativ', h: 4, t: '✕ Fehler', side: 2 },
+                { index: 6, n: '6. Gefahr / Kritisch', h: 338, t: '🛑 Gefahr', side: 2 },
+                { index: 7, n: '7. Neutral / Inaktiv', h: null, t: '• Inaktiv', side: 0 },
+                { index: 8, n: '8. Fokus / Highlight', h: 272, t: '★ Fokus', side: 1 }
+            ];
+            var ovInput = document.getElementById('studioStateOverrides');
+            var stateOverrides = {};
+            try {
+                var parsedOv = JSON.parse(ovInput ? (ovInput.value || '{}') : '{}');
+                if (parsedOv && typeof parsedOv === 'object' && !Array.isArray(parsedOv)) stateOverrides = parsedOv;
+            } catch (e) { stateOverrides = {}; }
+
+            var root = document.documentElement;
+            if (isDark) root.setAttribute('data-bs-theme', 'dark'); else root.setAttribute('data-bs-theme', 'light');
+            root.style.setProperty('--bs-primary', primary);
+            root.style.setProperty('--bs-body-bg', pageBg);
+            root.style.setProperty('--bs-body-color', txtCol);
+            root.style.setProperty('--app-primary', primary);
+            root.style.setProperty('--app-card-bg', pageBg);
+            root.style.setProperty('--app-card-color', txtCol);
+            root.style.setProperty('--app-gradient', 'linear-gradient(135deg, ' + gStart + ' 0%, ' + gEnd + ' 100%)');
+            root.style.setProperty('--app-table-header-bg', thBg);
+            root.style.setProperty('--app-table-header-text', thTxt);
+            root.style.setProperty('--app-table-body-bg', pageBg);
+            root.style.setProperty('--app-table-body-text', txtCol);
+            root.style.setProperty('--app-table-border-color', borderCol);
+            root.style.setProperty('--app-input-bg', pageBg);
+            root.style.setProperty('--app-input-color', txtCol);
+            root.style.setProperty('--app-input-border', borderCol);
+
+            var swatchGrid = document.getElementById('studioSwatchGrid');
+            var swatchHtml = '';
+            STATES_DEF.forEach(function (st, idx) {
+                var hue = st.h === null ? base1.h : Math.round(st.h + (base1.h - st.h) * m.shift);
+                var s = st.h === null ? (m.s === 0 ? 0 : 12) : m.s;
+                var l = m.l;
+                if (m.dual) {
+                    if (st.side === 1) { hue = base1.h; l = idx === 0 ? 46 : (idx === 1 ? 56 : 38); }
+                    else if (st.side === 2) { hue = hexToHsl(c2).h; l = 38 + (idx - 2) * 7; }
+                    else { hue = Math.round((base1.h + hexToHsl(c2).h) / 2); s = 14; l = 50; }
+                }
+                if (m.warm && st.h !== null) hue = Math.round(hue * 0.85 + 35 * 0.15);
+                if (m.earth) { hue = st.h === null ? 32 : Math.round(hue * 0.35 + 28 * 0.65); l = 35 + (idx * 4); }
+                if (m.eco && st.h !== null) { if (st.h === 142 || st.h === 185) { s = 48; l = 44; } else { s = 98; l = 56; } }
+                if (moodKey === 'monochrom' || moodKey === 'grayscale') { l = 24 + (idx * 7); }
+                else if (!m.dual && st.h !== null && st.h >= 35 && st.h <= 55 && !isDark && moodKey !== 'wellness') { l = Math.max(48, l); }
+
+                var hex = hslToHex(hue, s, l);
+                var stKey = String(st.index);
+                var isOverridden = false;
+                if (typeof stateOverrides[stKey] === 'string' && /^#[0-9A-Fa-f]{6}$/.test(stateOverrides[stKey].trim())) {
+                    hex = stateOverrides[stKey].trim().toUpperCase();
+                    isOverridden = true;
+                }
+                var hsl = hexToHsl(hex);
+                var bgTint = 'hsla(' + hsl.h + ', ' + hsl.s + '%, ' + hsl.l + '%, ' + (isDark ? '0.24' : '0.15') + ')';
+                var txtTint = hslToHex(hsl.h, hsl.s, isDark ? Math.min(86, hsl.l + 24) : Math.max(22, hsl.l - 26));
+                var hdrTxt = contrastTxt(hex);
+
+                root.style.setProperty('--theme-state-' + st.index, hex);
+                root.style.setProperty('--theme-state-' + st.index + '-bg', bgTint);
+                root.style.setProperty('--theme-state-' + st.index + '-txt', txtTint);
+
+                swatchHtml += '<div class="col">' +
+                    '<div class="card h-100 border shadow-sm overflow-hidden ds-state-card" data-state="' + stKey + '" style="border-radius: 12px;">' +
+                    '<div class="px-2 py-2 d-flex justify-content-between align-items-center position-relative ds-state-hdr" style="background:' + hex + '; color:' + hdrTxt + '; cursor:pointer;" title="Klick zum Ändern">' +
+                    '<input type="color" class="ds-state-picker position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor:pointer; z-index:1;" data-state="' + stKey + '" value="' + hex + '">' +
+                    '<span class="font-monospace fw-bold ds-state-hex" style="font-size:0.75rem; pointer-events:none;">' + hex + '</span>' +
+                    '<span class="d-flex gap-1 position-relative" style="z-index:2;">' +
+                    (isOverridden ? '<button type="button" class="btn btn-sm p-0 border-0 ds-state-reset" data-state="' + stKey + '" style="color:' + hdrTxt + ';" title="Zurücksetzen"><i class="bi bi-arrow-counterclockwise"></i></button>' : '') +
+                    '<button type="button" class="btn btn-sm p-0 border-0 ds-state-copy" data-hex="' + hex + '" style="color:' + hdrTxt + ';" title="HEX kopieren"><i class="bi bi-copy"></i></button>' +
+                    '</span></div>' +
+                    '<div class="p-2 small">' +
+                    '<div class="fw-bold text-truncate" style="font-size:0.72rem;">' + st.n + '</div>' +
+                    '<span class="badge mt-1 ds-state-badge" style="background:' + bgTint + '; color:' + txtTint + '; font-size:0.68rem;">' + st.t + '</span>' +
+                    '</div></div></div>';
+            });
+            if (swatchGrid && !window._dsActivePickerState) swatchGrid.innerHTML = swatchHtml;
+
+            var surf = (surfEl && surfEl.value !== 'auto') ? surfEl.value : (m.surface || 'tinted');
+            var svgKey = (svgEl && svgEl.value !== 'auto') ? svgEl.value : (m.svg || 'topography');
+            var ffEl = document.getElementById('dsFontFamily'), fsEl = document.getElementById('dsFontScale');
+            var fontKey = (ffEl && ffEl.value !== 'auto') ? ffEl.value : (m.font || 'sans');
+            var scaleKey = (fsEl && fsEl.value && fsEl.value !== 'auto') ? fsEl.value : (m.scale || 'normal');
+            document.body.setAttribute('data-card-surface', surf);
+            document.body.setAttribute('data-bg-svg', svgKey);
+            document.body.setAttribute('data-font-family', fontKey);
+            document.body.setAttribute('data-font-scale', scaleKey);
+
+            var zoomEl = document.getElementById('dsUiZoom');
+            var gaEl = document.getElementById('dsGlassAlpha');
+            var gbEl = document.getElementById('dsGlassBlur');
+            var bgStEl = document.getElementById('dsBgStrength');
+            if (zoomEl) {
+                var zv = parseInt(zoomEl.value || '100', 10);
+                document.documentElement.style.setProperty('--app-ui-zoom', zv);
+                document.body.setAttribute('data-ui-zoom', zv);
+                var zvLbl = document.getElementById('dsUiZoomVal');
+                if (zvLbl) zvLbl.textContent = zv + '%';
+            }
+            if (gaEl) {
+                var gav = parseInt(gaEl.value || '32', 10);
+                document.documentElement.style.setProperty('--glass-alpha', (gav / 100).toFixed(2));
+                var gavLbl = document.getElementById('dsGlassAlphaVal');
+                if (gavLbl) gavLbl.textContent = gav + '%';
+            }
+            if (gbEl) {
+                var gbv = parseInt(gbEl.value || '14', 10);
+                document.documentElement.style.setProperty('--glass-blur', gbv + 'px');
+                var gbvLbl = document.getElementById('dsGlassBlurVal');
+                if (gbvLbl) gbvLbl.textContent = gbv + 'px';
+            }
+            if (bgStEl) {
+                var bsv = parseInt(bgStEl.value || '65', 10);
+                document.documentElement.style.setProperty('--bg-strength', (bsv / 100).toFixed(2));
+                var bsvLbl = document.getElementById('dsBgStrengthVal');
+                if (bsvLbl) bsvLbl.textContent = bsv + '%';
+            }
+
+            var chkSp = document.getElementById('dsSpark'), chkPr = document.getElementById('dsProg'),
+                chkWm = document.getElementById('dsWater'), chkSl = document.getElementById('dsSpot'), chkCl = document.getElementById('dsClick');
+            if (chkSp) document.body.setAttribute('data-kpi-sparklines', chkSp.checked ? 'true' : 'false');
+            if (chkPr) document.body.setAttribute('data-kpi-progress', chkPr.checked ? 'true' : 'false');
+            if (chkWm) document.body.setAttribute('data-kpi-watermarks', chkWm.checked ? 'true' : 'false');
+            if (chkSl) document.body.setAttribute('data-kpi-spotlight', chkSl.checked ? 'true' : 'false');
+            if (chkCl) document.body.setAttribute('data-kpi-click', chkCl.checked ? 'true' : 'false');
+
+            var stage = document.getElementById('dsLiveStage'), stageSvg = document.getElementById('dsLiveStageSvg');
+            if (stage) stage.style.backgroundColor = pageBg;
+            if (stageSvg) stageSvg.innerHTML = SVG_MAP[svgKey] || '';
+            var globalSvg = document.querySelector('.app-bg-svg-layer');
+            if (!globalSvg && svgKey !== 'none') {
+                globalSvg = document.createElement('div');
+                globalSvg.className = 'app-bg-svg-layer';
+                globalSvg.setAttribute('aria-hidden', 'true');
+                document.body.insertBefore(globalSvg, document.body.firstChild);
+            }
+            if (globalSvg) globalSvg.innerHTML = SVG_MAP[svgKey] || '';
+
+            var st1 = root.style.getPropertyValue('--theme-state-1') || '#26D96B';
+            var st8 = root.style.getPropertyValue('--theme-state-8') || '#7126D9';
+            var c1Card = document.getElementById('dsDemoCard1'), c2Card = document.getElementById('dsDemoCard2');
+            if (c1Card) {
+                c1Card.style.setProperty('--card-accent', st1);
+                c1Card.style.background = 'linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), ' + st1;
+                c1Card.style.color = contrastTxt(st1);
+                var hd1 = c1Card.querySelector('.widget-hover-details');
+                if (hd1) { hd1.style.backgroundColor = st1; hd1.style.color = contrastTxt(st1); }
+                var pill = c1Card.querySelector('.ds-demo-click-pill');
+                if (pill && chkCl) pill.style.display = chkCl.checked ? 'inline-block' : 'none';
+            }
+            if (c2Card) {
+                c2Card.style.setProperty('--card-accent', st8);
+                c2Card.style.background = 'linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%), ' + st8;
+                c2Card.style.color = contrastTxt(st8);
+                var hd2 = c2Card.querySelector('.widget-hover-details');
+                if (hd2) { hd2.style.backgroundColor = st8; hd2.style.color = contrastTxt(st8); }
+            }
+            var badge = document.getElementById('dsLiveBadge');
+            if (badge) badge.textContent = surf + ' · ' + svgKey + ' · ' + fontKey;
+
+            var mlEl = document.getElementById('dsMenuLayout'), msEl = document.getElementById('dsMenuStyle');
+            if (mlEl) document.body.setAttribute('data-menu-layout', mlEl.value || 'top');
+            if (msEl) {
+                var rawMs = msEl.value || 'auto';
+                var resMs = rawMs === 'auto' ? (surf === 'brutal' ? 'brutal' : 'gradient') : rawMs;
+                document.body.setAttribute('data-menu-style', resMs);
+            }
+        }
+        ['dsC1','dsC2','dsMood','dsBgMode','dsBgCustom','dsCardSurface','dsBgSvg','dsFontFamily','dsFontScale','dsUiZoom','dsGlassAlpha','dsGlassBlur','dsBgStrength','dsSpark','dsProg','dsWater','dsSpot','dsClick','dsMenuLayout','dsMenuStyle'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', applyDsLivePreview);
+                el.addEventListener('change', applyDsLivePreview);
+            }
+        });
+        document.addEventListener('input', function (e) {
+            if (!e.target.classList.contains('ds-state-picker')) return;
+            var stKey = e.target.dataset.state;
+            var hex = e.target.value.toUpperCase();
+            var ovInput = document.getElementById('studioStateOverrides');
+            if (!ovInput) return;
+            var ov = {};
+            try { ov = JSON.parse(ovInput.value || '{}') || {}; } catch (err) { ov = {}; }
+            ov[stKey] = hex;
+            ovInput.value = JSON.stringify(ov);
+            window._dsActivePickerState = stKey;
+            var card = e.target.closest('.ds-state-card');
+            if (card) {
+                var hdr = card.querySelector('.ds-state-hdr');
+                var hexSpan = card.querySelector('.ds-state-hex');
+                var copyBtn = card.querySelector('.ds-state-copy');
+                var txt = contrastTxt(hex);
+                if (hdr) { hdr.style.background = hex; hdr.style.color = txt; }
+                if (hexSpan) hexSpan.textContent = hex;
+                if (copyBtn) { copyBtn.dataset.hex = hex; copyBtn.style.color = txt; }
+            }
+            applyDsLivePreview();
+        });
+        document.addEventListener('change', function (e) {
+            if (!e.target.classList.contains('ds-state-picker')) return;
+            window._dsActivePickerState = null;
+            applyDsLivePreview();
+        });
+        document.addEventListener('click', function (e) {
+            var resetBtn = e.target.closest('.ds-state-reset');
+            if (resetBtn) {
+                var ovInput = document.getElementById('studioStateOverrides');
+                if (ovInput) {
+                    var ov = {};
+                    try { ov = JSON.parse(ovInput.value || '{}') || {}; } catch (err) { ov = {}; }
+                    delete ov[resetBtn.dataset.state];
+                    ovInput.value = JSON.stringify(ov);
+                    applyDsLivePreview();
+                }
+                return;
+            }
+            var copyBtn = e.target.closest('.ds-state-copy');
+            if (copyBtn && navigator.clipboard) {
+                navigator.clipboard.writeText(copyBtn.dataset.hex || '').catch(function () {});
+            }
+        });
+        applyDsLivePreview();
+    })();
+    </script>
