@@ -713,6 +713,24 @@ nav,
     color: #ffffff !important;
     border-radius: 999px;
 }
+.ds-color-swatch-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.65);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.15s ease, outline 0.15s ease;
+}
+.ds-color-swatch-btn:hover {
+    transform: scale(1.12);
+}
+.ds-color-swatch-btn.active {
+    outline: 2px solid var(--app-card-color, #1e293b);
+    outline-offset: 2px;
+    transform: scale(1.14);
+}
 @media (max-width: 767.98px) {
     .modal-dialog {
         margin: 0.2rem auto !important;
