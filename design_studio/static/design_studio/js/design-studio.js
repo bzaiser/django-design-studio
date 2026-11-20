@@ -335,7 +335,7 @@
         allLinks.forEach(function (lnk) {
             if (Math.abs(lnk.getBoundingClientRect().top - firstTop) > 10) isSingleRow = false;
         });
-        if (!isSingleRow || window.innerWidth < 576) {
+        if (!isSingleRow) {
             tabBar.classList.remove('ds-tabs-seamless');
             panel.classList.remove('ds-plate-ready');
             panel.style.removeProperty('--ds-plate-clip');
@@ -404,13 +404,51 @@
         if (outlinePath) outlinePath.setAttribute('d', d);
     }
 
+    function initTabSlidingHover(tabBar) {
+        if (!tabBar || tabBar.dataset.dsHoverInit === '1') return;
+        tabBar.dataset.dsHoverInit = '1';
+        var pill = tabBar.querySelector('.ds-tab-sliding-pill');
+        if (!pill) {
+            pill = document.createElement('li');
+            pill.className = 'ds-tab-sliding-pill';
+            pill.setAttribute('aria-hidden', 'true');
+            tabBar.insertBefore(pill, tabBar.firstChild);
+        }
+        function movePillTo(el) {
+            if (!el || window.innerWidth < 992) {
+                pill.style.opacity = '0';
+                return;
+            }
+            var tRect = tabBar.getBoundingClientRect();
+            var elRect = el.getBoundingClientRect();
+            pill.style.width = elRect.width + 'px';
+            pill.style.height = elRect.height + 'px';
+            pill.style.transform = 'translate3d(' + (elRect.left - tRect.left) + 'px, ' + (elRect.top - tRect.top) + 'px, 0)';
+            pill.style.opacity = '1';
+        }
+        tabBar.querySelectorAll('.nav-link').forEach(function (lnk) {
+            lnk.addEventListener('pointerenter', function () {
+                if (lnk.classList.contains('active')) {
+                    pill.style.opacity = '0';
+                    return;
+                }
+                movePillTo(lnk);
+            });
+        });
+        tabBar.addEventListener('pointerleave', function () {
+            pill.style.opacity = '0';
+        });
+    }
+
     function initSeamlessTabPlates() {
         document.querySelectorAll('.folder-tabs-bar').forEach(function (bar) {
             var next = bar.nextElementSibling;
             if (next && next.classList.contains('tab-content') && !next.classList.contains('ds-tab-panel')) {
                 next.classList.add('ds-tab-panel');
             }
+            initTabSlidingHover(bar);
         });
+        document.querySelectorAll('.nav-tabs.ds-tabs').forEach(initTabSlidingHover);
         document.querySelectorAll('.ds-tab-panel').forEach(function (panel) {
             var tabBar = panel.previousElementSibling;
             if (!tabBar || (!tabBar.classList.contains('nav-tabs') && !tabBar.classList.contains('folder-tabs-bar'))) return;

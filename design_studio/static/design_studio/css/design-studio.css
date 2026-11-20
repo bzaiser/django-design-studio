@@ -609,7 +609,7 @@ body[data-card-surface="liquid"] .ds-tab-panel.ds-plate-ready::after {
         overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        padding-bottom: 2px;
+        padding-bottom: 0;
     }
     .nav-tabs::-webkit-scrollbar,
     .nav-tabs.ds-tabs::-webkit-scrollbar,
@@ -619,10 +619,22 @@ body[data-card-surface="liquid"] .ds-tab-panel.ds-plate-ready::after {
     .nav-tabs .nav-link,
     .nav-tabs.ds-tabs .nav-link,
     .folder-tabs-bar .nav-link {
-        padding: 0.5rem 0.85rem !important;
-        font-size: var(--app-fs-sm) !important;
+        padding: 0.55rem 0.9rem !important;
+        font-size: 0 !important;
+        line-height: 1 !important;
         white-space: nowrap;
         flex-shrink: 0;
+    }
+    .nav-tabs.ds-tabs .nav-link i.bi,
+    .folder-tabs-bar .nav-link i.bi {
+        font-size: 1.15rem !important;
+        margin: 0 !important;
+        vertical-align: middle;
+    }
+    .nav-tabs.ds-tabs .nav-link .badge,
+    .folder-tabs-bar .nav-link .badge {
+        font-size: 0.65rem !important;
+        margin-left: 0.25rem !important;
     }
     .ds-tab-panel:not(.ds-plate-ready) {
         padding: 0.85rem !important;
@@ -1523,6 +1535,28 @@ body[data-menu-layout="sidebar"] .nav-sliding-pill { border-radius: 12px; }
     }
 }
 
+
+/* === Sliding Hover Pill for Tab Bars === */
+.folder-tabs-bar,
+.nav-tabs.ds-tabs {
+    position: relative;
+}
+.folder-tabs-bar .nav-link,
+.nav-tabs.ds-tabs .nav-link {
+    position: relative;
+    z-index: 1;
+}
+.ds-tab-sliding-pill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 10px 10px 0 0;
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 14%, transparent);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 0;
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), width 0.22s cubic-bezier(0.22, 1, 0.36, 1), height 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.16s ease;
+}
 
 /* === Per-Page Genre Layer & Scoped Styling (Moderate Navbar) === */
 .ds-genre-photo-layer {
