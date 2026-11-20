@@ -100,9 +100,16 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Starte Update: {' '.join(cmd)}")
         try:
-            subprocess.run(cmd, check=True)
+            proc = subprocess.run(cmd, check=True, stdin=subprocess.DEVNULL, timeout=180, capture_output=True, text=True)
+            if isinstance(getattr(proc, "stdout", None), str) and proc.stdout:
+                self.stdout.write(proc.stdout)
+            if isinstance(getattr(proc, "stderr", None), str) and proc.stderr:
+                self.stdout.write(proc.stderr)
+        except subprocess.TimeoutExpired as exc:
+            raise CommandError("pip install Timeout (>180s).") from exc
         except subprocess.CalledProcessError as exc:
-            raise CommandError(f"pip install fehlgeschlagen (Exit {exc.returncode}).") from exc
+            err_detail = (getattr(exc, "stderr", None) or getattr(exc, "stdout", None) or "").strip()
+            raise CommandError(f"pip install fehlgeschlagen (Exit {exc.returncode}): {err_detail}"[:500]) from exc
 
         manage_py = Path(getattr(settings, "BASE_DIR", ".")) / "manage.py"
         use_subproc = manage_py.exists()
@@ -112,7 +119,7 @@ class Command(BaseCommand):
                 mig_cmd = [sys.executable, str(manage_py), "migrate", "--noinput"]
                 if not options.get("all_kits"):
                     mig_cmd.append("design_studio")
-                subprocess.run(mig_cmd, check=True)
+                subprocess.run(mig_cmd, check=True, stdin=subprocess.DEVNULL, timeout=120)
             elif options.get("all_kits"):
                 call_command("migrate", interactive=False, stdout=self.stdout)
             else:
@@ -121,7 +128,7 @@ class Command(BaseCommand):
         if not options.get("skip_collectstatic"):
             if getattr(settings, "STATIC_ROOT", None):
                 if use_subproc:
-                    subprocess.run([sys.executable, str(manage_py), "collectstatic", "--clear", "--noinput"], check=True)
+                    subprocess.run([sys.executable, str(manage_py), "collectstatic", "--clear", "--noinput"], check=True, stdin=subprocess.DEVNULL, timeout=120)
                 else:
                     call_command("collectstatic", clear=True, interactive=False, stdout=self.stdout)
             else:
