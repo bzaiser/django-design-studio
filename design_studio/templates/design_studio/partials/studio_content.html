@@ -7,7 +7,7 @@
                     <a href="{% url 'design_studio:export' %}" class="btn btn-sm bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3">
                         <i class="bi bi-download me-1"></i>{% trans "Theme exportieren (.json)" %}
                     </a>
-                    <a href="{% url 'design_studio:toggle_night' %}" class="btn btn-sm bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3">
+                    <a href="{% url 'design_studio:toggle_night' %}{% if ds_studio_next %}?next={{ ds_studio_next|urlencode }}{% endif %}" class="btn btn-sm bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3">
                         {% if theme_palette.is_dark %}<i class="bi bi-sun me-1"></i>{% trans "Tag" %}{% else %}<i class="bi bi-moon-stars me-1"></i>{% trans "Nacht" %}{% endif %}
                     </a>
                 </div>

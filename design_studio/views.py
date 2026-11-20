@@ -7,6 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
@@ -214,6 +215,9 @@ def toggle_night_mode_view(request):
         state_overrides=ts.get("state_overrides"),
     )
     adapter.save_settings(request.user, ts, palette=new_palette, manual_precision=False)
+    next_url = (request.GET.get("next") or request.POST.get("next") or "").strip()
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        return redirect(next_url)
     return redirect(request.META.get("HTTP_REFERER") or "/")
 
 
@@ -231,6 +235,9 @@ def toggle_menu_layout_view(request):
         state_overrides=ts.get("state_overrides"),
     )
     adapter.save_settings(request.user, ts, palette=palette, manual_precision=False)
+    next_url = (request.GET.get("next") or request.POST.get("next") or "").strip()
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        return redirect(next_url)
     return redirect(request.META.get("HTTP_REFERER") or "/")
 
 
