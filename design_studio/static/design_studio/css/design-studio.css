@@ -1528,7 +1528,7 @@ body[data-menu-layout="sidebar"] .nav-sliding-pill { border-radius: 12px; }
 .ds-genre-photo-layer {
     position: fixed;
     inset: 0;
-    z-index: -2;
+    z-index: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -1539,9 +1539,15 @@ body[data-menu-layout="sidebar"] .nav-sliding-pill { border-radius: 12px; }
 .ds-genre-svg-layer {
     position: fixed;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
     pointer-events: none;
     opacity: 0.6;
+}
+body[data-genre]:not([data-genre=""]) main,
+body[data-genre]:not([data-genre=""]) .app-navbar,
+body[data-genre]:not([data-genre=""]) #sidebarNav {
+    position: relative;
+    z-index: 1;
 }
 .ds-genre-svg-layer svg {
     width: 100%;
