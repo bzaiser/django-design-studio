@@ -1582,9 +1582,7 @@ body[data-menu-layout="sidebar"] .nav-sliding-pill { border-radius: 12px; }
     pointer-events: none;
     opacity: 0.6;
 }
-body[data-genre]:not([data-genre=""]) main,
-body[data-genre]:not([data-genre=""]) .app-navbar,
-body[data-genre]:not([data-genre=""]) #sidebarNav {
+body[data-genre]:not([data-genre=""]) main {
     position: relative;
     z-index: 1;
 }
