@@ -256,6 +256,10 @@ def resolve_user_menu(user, saved_menu_config=None):
         if isinstance(entry, dict) and entry.get("id")
     }
     is_staff = bool(getattr(user, "is_staff", False))
+    has_profile_hub = any(
+        isinstance(it, dict) and it.get("id") in ("profile", "settings")
+        for it in base_items
+    )
 
     resolved = []
     for idx, item in enumerate(base_items):
@@ -263,6 +267,8 @@ def resolve_user_menu(user, saved_menu_config=None):
             continue
         item_id = item.get("id")
         if not item_id:
+            continue
+        if item_id == "design_studio" and has_profile_hub:
             continue
         ov = saved_map.get(item_id, {})
         custom_label = (ov.get("label") or "").strip()
