@@ -28,116 +28,118 @@
             <!-- Top Compact Row: App-Preset, App-Genre & Genre-Fotos -->
             <div class="row g-2 align-items-end mb-4 pb-3 border-bottom">
                 <div class="col-12 col-md-5">
-                    <label class="form-label small fw-bold mb-1">{% trans "App-Vorlage (1-Klick-Start)" %}</label>
-                    <form method="post" action="{% url 'design_studio:save' %}" class="d-flex align-items-center gap-2">{% if ds_studio_next %}<input type="hidden" name="next" value="{{ ds_studio_next }}">{% endif %}
+                    <label class="form-label small fw-bold mb-1" for="dsAppPresetSelect">{% trans "App-Vorlage (1-Klick-Start)" %}</label>
+                    <form method="post" action="{% url 'design_studio:save' %}" class="d-flex align-items-center gap-2 mb-0">{% if ds_studio_next %}<input type="hidden" name="next" value="{{ ds_studio_next }}">{% endif %}
                         {% csrf_token %}
-                        <span id="dsAppPresetSwatch" class="rounded-pill flex-shrink-0 border shadow-sm" style="width: 32px; height: 28px; display: inline-block;"></span>
+                        <span id="dsAppPresetSwatch" class="rounded-pill flex-shrink-0 border shadow-sm" style="width: 30px; height: 30px; display: inline-block;"></span>
                         <select id="dsAppPresetSelect" name="app_preset" class="form-select form-select-sm" aria-label="{% trans 'App-Vorlage wählen' %}">
                             {% for preset in design_studio_presets %}
                             <option value="{{ preset.key }}" data-c1="{{ preset.c1 }}" data-c2="{{ preset.c2 }}" data-mood="{{ preset.mood }}" data-surface="{{ preset.card_surface|default:'auto' }}">{{ preset.label }} ({{ preset.mood }})</option>
                             {% endfor %}
                         </select>
-                        <button id="dsAppPresetApplyBtn" type="submit" class="btn btn-sm rounded-pill px-3 text-white fw-semibold border-0 shadow-sm text-nowrap">{% trans "Anwenden" %}</button>
+                        <button id="dsAppPresetApplyBtn" type="submit" class="btn btn-sm rounded-pill px-3 text-white fw-semibold border-0 shadow-sm text-nowrap" style="height: 31px;">{% trans "Anwenden" %}</button>
                     </form>
-                    <script>
-                    (function () {
-                        var sel = document.getElementById('dsAppPresetSelect');
-                        var sw = document.getElementById('dsAppPresetSwatch');
-                        var btn = document.getElementById('dsAppPresetApplyBtn');
-                        function syncPresetPreview(applyToPalette) {
-                            if (!sel || !sel.selectedOptions.length) return;
-                            var opt = sel.selectedOptions[0];
-                            var c1 = opt.dataset.c1 || '#6610f2';
-                            var c2 = opt.dataset.c2 || '#0d6efd';
-                            var grad = 'linear-gradient(135deg, ' + c1 + ', ' + c2 + ')';
-                            if (sw) sw.style.background = grad;
-                            if (btn) btn.style.background = grad;
-                            if (applyToPalette) {
-                                requestAnimationFrame(function () {
-                                    var i1 = document.getElementById('dsC1');
-                                    var i2 = document.getElementById('dsC2');
-                                    var md = document.getElementById('dsMood');
-                                    if (i1) i1.value = c1;
-                                    if (i2) i2.value = c2;
-                                    if (md && opt.dataset.mood) md.value = opt.dataset.mood;
-                                    if (typeof window.applyDsLivePreview === 'function') window.applyDsLivePreview();
-                                });
-                            }
-                        }
-                        if (sel) {
-                            sel.addEventListener('change', function () { syncPresetPreview(true); });
-                            syncPresetPreview(false);
-                        }
-                        var genresData = {{ genre_preview_json|default:"{}"|safe }};
-                        var gSel = document.getElementById('dsDefaultGenre');
-                        var gSw = document.getElementById('dsGenreSwatch');
-                        var gPhotoCb = document.getElementById('dsGenrePhotosEnabled');
-                        function syncGenrePreview(applyLive) {
-                            if (!gSel) return;
-                            var key = gSel.value || '';
-                            var info = genresData[key];
-                            if (gSw) {
-                                gSw.style.background = info ? ('linear-gradient(135deg, ' + info.primary + ', ' + info.secondary + ')') : 'transparent';
-                            }
-                            if (!applyLive) return;
-                            requestAnimationFrame(function () {
-                                document.body.setAttribute('data-genre', key);
-                                var svgEl = document.getElementById('ds-genre-svg-layer');
-                                if (info && info.svg) {
-                                    if (!svgEl) {
-                                        svgEl = document.createElement('div');
-                                        svgEl.id = 'ds-genre-svg-layer';
-                                        svgEl.className = 'ds-genre-svg-layer';
-                                        svgEl.setAttribute('aria-hidden', 'true');
-                                        document.body.insertBefore(svgEl, document.body.firstChild);
-                                    }
-                                    svgEl.innerHTML = info.svg;
-                                } else if (svgEl) {
-                                    svgEl.innerHTML = '';
-                                }
-                                var photoEl = document.getElementById('ds-genre-photo-layer');
-                                var showPhoto = !!(gPhotoCb && gPhotoCb.checked && info && info.photo_url);
-                                if (showPhoto) {
-                                    if (!photoEl) {
-                                        photoEl = document.createElement('div');
-                                        photoEl.id = 'ds-genre-photo-layer';
-                                        photoEl.className = 'ds-genre-photo-layer';
-                                        photoEl.setAttribute('aria-hidden', 'true');
-                                        document.body.insertBefore(photoEl, document.body.firstChild);
-                                    }
-                                    photoEl.style.backgroundImage = "url('" + info.photo_url + "')";
-                                    photoEl.style.display = '';
-                                } else if (photoEl) {
-                                    photoEl.style.display = 'none';
-                                }
-                            });
-                        }
-                        if (gSel) {
-                            gSel.addEventListener('change', function () { syncGenrePreview(true); });
-                            if (gPhotoCb) gPhotoCb.addEventListener('change', function () { syncGenrePreview(true); });
-                            syncGenrePreview(false);
-                        }
-                    })();
-                    </script>
                 </div>
                 <div class="col-12 col-sm-7 col-md-4">
                     <label class="form-label small fw-bold mb-1" for="dsDefaultGenre">{% trans "App-Genre (alle Seiten)" %}</label>
-                    <div class="d-flex align-items-center gap-2">
-                        <span id="dsGenreSwatch" class="rounded-pill flex-shrink-0 border shadow-sm" style="width: 32px; height: 28px; display: inline-block;"></span>
-                        <select id="dsDefaultGenre" name="theme_default_genre" form="dsMainStudioForm" class="form-select form-select-sm">
-                            {% for gkey, glabel in genre_choices %}
-                            <option value="{{ gkey }}" {% if theme_studio.default_genre == gkey %}selected{% endif %}>{{ glabel }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                    <select id="dsDefaultGenre" name="theme_default_genre" form="dsMainStudioForm" class="form-select form-select-sm">
+                        {% for gkey, glabel in genre_choices %}
+                        <option value="{{ gkey }}" {% if theme_studio.default_genre == gkey %}selected{% endif %}>{{ glabel }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                <div class="col-12 col-sm-5 col-md-3">
-                    <div class="form-check form-switch mb-1">
+                <div class="col-12 col-sm-5 col-md-3 d-flex align-items-center" style="min-height: 31px;">
+                    <div class="form-check form-switch mb-0">
                         <input class="form-check-input" type="checkbox" id="dsGenrePhotosEnabled" name="theme_genre_photos_enabled" form="dsMainStudioForm" value="1" {% if theme_studio.genre_photos_enabled %}checked{% endif %}>
                         <label class="form-check-label small fw-semibold" for="dsGenrePhotosEnabled">{% trans "Genre-Bilder (Internet)" %}</label>
                     </div>
                 </div>
             </div>
+            <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var sel = document.getElementById('dsAppPresetSelect');
+                var sw = document.getElementById('dsAppPresetSwatch');
+                var btn = document.getElementById('dsAppPresetApplyBtn');
+                function syncPresetPreview(applyToPalette) {
+                    if (!sel || !sel.selectedOptions.length) return;
+                    var opt = sel.selectedOptions[0];
+                    var c1 = opt.dataset.c1 || '#6610f2';
+                    var c2 = opt.dataset.c2 || '#0d6efd';
+                    var grad = 'linear-gradient(135deg, ' + c1 + ', ' + c2 + ')';
+                    if (sw) sw.style.background = grad;
+                    if (btn) btn.style.background = grad;
+                    if (applyToPalette) {
+                        requestAnimationFrame(function () {
+                            var i1 = document.getElementById('dsC1');
+                            var i2 = document.getElementById('dsC2');
+                            var md = document.getElementById('dsMood');
+                            if (i1) i1.value = c1;
+                            if (i2) i2.value = c2;
+                            if (md && opt.dataset.mood) md.value = opt.dataset.mood;
+                            if (typeof window.applyDsLivePreview === 'function') window.applyDsLivePreview();
+                        });
+                    }
+                }
+                if (sel) {
+                    sel.addEventListener('change', function () { syncPresetPreview(true); });
+                    syncPresetPreview(false);
+                }
+
+                var genresData = {{ genre_preview_json|default:"{}"|safe }};
+                var gSel = document.getElementById('dsDefaultGenre');
+                var gPhotoCb = document.getElementById('dsGenrePhotosEnabled');
+                function syncGenrePreview() {
+                    if (!gSel) return;
+                    var key = gSel.value || '';
+                    var info = genresData[key];
+                    requestAnimationFrame(function () {
+                        document.body.setAttribute('data-genre', key);
+                        if (info && info.primary) {
+                            document.body.style.setProperty('--ds-genre-accent', info.primary);
+                        } else {
+                            document.body.style.removeProperty('--ds-genre-accent');
+                        }
+                        if (document.documentElement.getAttribute('data-bs-theme') !== 'dark') {
+                            if (info && info.bg_light) {
+                                document.body.style.backgroundColor = info.bg_light;
+                            } else {
+                                document.body.style.removeProperty('background-color');
+                            }
+                        }
+                        var svgEl = document.getElementById('ds-genre-svg-layer');
+                        if (info && info.svg) {
+                            if (!svgEl) {
+                                svgEl = document.createElement('div');
+                                svgEl.id = 'ds-genre-svg-layer';
+                                svgEl.className = 'ds-genre-svg-layer';
+                                svgEl.setAttribute('aria-hidden', 'true');
+                                document.body.insertBefore(svgEl, document.body.firstChild);
+                            }
+                            svgEl.innerHTML = info.svg;
+                        } else if (svgEl) {
+                            svgEl.innerHTML = '';
+                        }
+                        var photoEl = document.getElementById('ds-genre-photo-layer');
+                        var showPhoto = !!(gPhotoCb && gPhotoCb.checked && info && info.photo_url);
+                        if (showPhoto) {
+                            if (!photoEl) {
+                                photoEl = document.createElement('div');
+                                photoEl.id = 'ds-genre-photo-layer';
+                                photoEl.className = 'ds-genre-photo-layer';
+                                photoEl.setAttribute('aria-hidden', 'true');
+                                document.body.insertBefore(photoEl, document.body.firstChild);
+                            }
+                            photoEl.style.backgroundImage = "url('" + info.photo_url + "')";
+                            photoEl.style.display = '';
+                        } else if (photoEl) {
+                            photoEl.style.display = 'none';
+                        }
+                    });
+                }
+                if (gSel) gSel.addEventListener('change', syncGenrePreview);
+                if (gPhotoCb) gPhotoCb.addEventListener('change', syncGenrePreview);
+            });
+            </script>
 
             <!-- Main Studio Form -->
             <form id="dsMainStudioForm" method="post" action="{% url 'design_studio:save' %}">

@@ -56,6 +56,7 @@ def theme_context(request):
             k: {
                 "primary": v["primary"],
                 "secondary": v["secondary"],
+                "bg_light": v["bg_light"],
                 "svg": v["svg"],
                 "photo_url": v["photo_url"],
             }
