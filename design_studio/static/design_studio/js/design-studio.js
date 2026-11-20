@@ -423,7 +423,7 @@
             var elRect = el.getBoundingClientRect();
             pill.style.width = elRect.width + 'px';
             pill.style.height = elRect.height + 'px';
-            pill.style.transform = 'translate3d(' + (elRect.left - tRect.left) + 'px, ' + (elRect.top - tRect.top) + 'px, 0)';
+            pill.style.transform = 'translate3d(' + (elRect.left - tRect.left + (tabBar.scrollLeft || 0)) + 'px, ' + (elRect.top - tRect.top) + 'px, 0)';
             pill.style.opacity = '1';
         }
         tabBar.querySelectorAll('.nav-link').forEach(function (lnk) {
