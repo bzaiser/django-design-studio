@@ -199,6 +199,7 @@ DEFAULT_SETTINGS = {
     "brand_icon": "",
     "default_genre": "",
     "genre_photos_enabled": False,
+    "table_header_color": "",
 }
 
 
@@ -297,6 +298,11 @@ def normalize_settings(raw):
     if not is_valid_genre(data.get("default_genre", "")):
         data["default_genre"] = ""
     data["genre_photos_enabled"] = bool(data.get("genre_photos_enabled", False))
+    th_col = str(data.get("table_header_color") or "").strip()
+    if th_col.startswith("#") and len(th_col) in (4, 7):
+        data["table_header_color"] = th_col.upper()
+    else:
+        data["table_header_color"] = ""
 
     def _clamp_int(val, lo, hi, default):
         try:
@@ -388,7 +394,7 @@ def _compute_single_state(st_h, st_side, idx, base1, base2, mood_key, m, is_dark
     }
 
 
-def compute_theme_palette(c1="#6610f2", c2="#0d6efd", mood_key="modern", bg_mode="auto", bg_custom="#e2e8f0", state_overrides=None):
+def compute_theme_palette(c1="#6610f2", c2="#0d6efd", mood_key="modern", bg_mode="auto", bg_custom="#e2e8f0", state_overrides=None, table_header_color=""):
     if mood_key not in MOODS:
         mood_key = "modern"
     m = MOODS[mood_key]
@@ -455,13 +461,11 @@ def compute_theme_palette(c1="#6610f2", c2="#0d6efd", mood_key="modern", bg_mode
 
     text_color = "#f8fafc" if is_dark else "#1e293b"
     sidebar_bg = hsl_to_hex(base1["h"], min(25, m["s"]), 12 if is_dark else 96)
-    th_hue = base1["h"]
-    if m.get("warm"):
-        th_hue = round(th_hue * 0.85 + 35 * 0.15)
-    if m.get("earth"):
-        th_hue = round(th_hue * 0.35 + 28 * 0.65)
-    th_lightness = 30 if mood_key == "grayscale" else (28 if is_dark else max(32, min(52, m["l"])))
-    table_header_bg = hsl_to_hex(th_hue, m["s"], th_lightness)
+    clean_th = str(table_header_color or "").strip()
+    if clean_th.startswith("#") and len(clean_th) in (4, 7):
+        table_header_bg = clean_th.upper()
+    else:
+        table_header_bg = grad_start
     table_header_text = get_contrast_text(table_header_bg)
     table_body_bg = hsl_to_hex(base1["h"], min(18, m["s"]), 11 if is_dark else 99) if bg_mode != "custom" else page_bg
     table_body_text = text_color

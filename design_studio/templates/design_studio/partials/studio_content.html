@@ -383,8 +383,13 @@
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <div class="card h-100 overflow-hidden shadow-sm">
-                                        <div class="card-header py-2 px-3 small fw-bold" style="background: var(--app-gradient); color: #fff;">
-                                            <i class="bi bi-table me-1"></i>{% trans "Tabellen-Vorschau" %}
+                                        <div class="card-header py-2 px-3 small fw-bold d-flex justify-content-between align-items-center" style="background: var(--app-gradient); color: #fff;">
+                                            <span><i class="bi bi-table me-1"></i>{% trans "Tabellen-Vorschau" %}</span>
+                                            <span class="d-inline-flex align-items-center gap-1">
+                                                <input type="hidden" name="theme_table_header_color" id="dsTableHeaderInput" value="{{ theme_studio.table_header_color|default:'' }}">
+                                                <input type="color" id="dsTableHeaderPicker" value="{{ theme_palette.table_header_bg_color|default:theme_studio.c1 }}" class="form-control form-control-color p-0 border-0 rounded-circle" style="width: 20px; height: 20px; cursor: pointer;" title="{% trans 'Tabellenkopf-Farbe wählen' %}">
+                                                <button type="button" id="dsTableHeaderReset" class="btn btn-link btn-sm p-0 text-white opacity-75 {% if not theme_studio.table_header_color %}d-none{% endif %}" title="{% trans 'Auf Grundfarbe zurücksetzen' %}"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                            </span>
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-sm table-hover mb-0" style="font-size: var(--app-fs-xs);">
@@ -816,7 +821,13 @@
             var primary = moodKey === 'grayscale' ? '#555555' : c1;
             var txtCol = isDark ? '#f8fafc' : '#1e293b';
             var base1 = hexToHsl(c1);
-            var thBg = hslToHex(base1.h, m.s, moodKey === 'grayscale' ? 30 : (isDark ? 28 : Math.max(32, Math.min(52, m.l))));
+            var thInput = document.getElementById('dsTableHeaderInput');
+            var thPicker = document.getElementById('dsTableHeaderPicker');
+            var thReset = document.getElementById('dsTableHeaderReset');
+            var customTh = thInput ? (thInput.value || '').trim() : '';
+            var thBg = (customTh && customTh.charAt(0) === '#') ? customTh : gStart;
+            if (thPicker && document.activeElement !== thPicker) thPicker.value = thBg;
+            if (thReset) thReset.classList.toggle('d-none', !customTh);
             var thTxt = contrastTxt(thBg);
             var borderCol = isDark ? '#334155' : '#dee2e6';
             var STATES_DEF = [
@@ -1047,5 +1058,20 @@
             }
         });
         applyDsLivePreview();
+        var thPickerEl = document.getElementById('dsTableHeaderPicker');
+        var thInputEl = document.getElementById('dsTableHeaderInput');
+        var thResetEl = document.getElementById('dsTableHeaderReset');
+        if (thPickerEl && thInputEl) {
+            thPickerEl.addEventListener('input', function () {
+                thInputEl.value = thPickerEl.value;
+                applyDsLivePreview();
+            });
+        }
+        if (thResetEl && thInputEl) {
+            thResetEl.addEventListener('click', function () {
+                thInputEl.value = '';
+                applyDsLivePreview();
+            });
+        }
     })();
     </script>

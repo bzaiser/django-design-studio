@@ -38,6 +38,7 @@ def studio_view(request):
         bg_mode=ts["bg_mode"],
         bg_custom=ts["bg_custom"],
         state_overrides=ts.get("state_overrides"),
+        table_header_color=ts.get("table_header_color", ""),
     )
     referer = request.META.get("HTTP_REFERER", "")
     next_param = request.GET.get("next", "").strip()
@@ -122,6 +123,7 @@ def save_studio_view(request):
             "brand_icon": request.POST.get("brand_icon", prev.get("brand_icon", "")),
             "default_genre": request.POST.get("theme_default_genre", prev.get("default_genre", "")),
             "genre_photos_enabled": request.POST.get("theme_genre_photos_enabled") == "1",
+            "table_header_color": request.POST.get("theme_table_header_color", prev.get("table_header_color", "")),
         }
         if "menu_config_json" in request.POST:
             raw_menu = request.POST.get("menu_config_json", "").strip()
@@ -169,6 +171,7 @@ def save_studio_view(request):
         bg_mode=norm["bg_mode"],
         bg_custom=norm["bg_custom"],
         state_overrides=norm.get("state_overrides"),
+        table_header_color=norm.get("table_header_color", ""),
     )
     manual_precision = request.POST.get("theme_manual_precision") == "1"
     adapter.save_settings(request.user, norm, palette=palette, manual_precision=manual_precision)
@@ -187,6 +190,7 @@ def toggle_night_mode_view(request):
         bg_mode=ts["bg_mode"],
         bg_custom=ts["bg_custom"],
         state_overrides=ts.get("state_overrides"),
+        table_header_color=ts.get("table_header_color", ""),
     )
     mood_key = ts.get("mood", "modern")
     if mood_key not in MOODS:
@@ -213,6 +217,7 @@ def toggle_night_mode_view(request):
         bg_mode=ts["bg_mode"],
         bg_custom=ts["bg_custom"],
         state_overrides=ts.get("state_overrides"),
+        table_header_color=ts.get("table_header_color", ""),
     )
     adapter.save_settings(request.user, ts, palette=new_palette, manual_precision=False)
     next_url = (request.GET.get("next") or request.POST.get("next") or "").strip()
@@ -233,6 +238,7 @@ def toggle_menu_layout_view(request):
         bg_mode=ts["bg_mode"],
         bg_custom=ts["bg_custom"],
         state_overrides=ts.get("state_overrides"),
+        table_header_color=ts.get("table_header_color", ""),
     )
     adapter.save_settings(request.user, ts, palette=palette, manual_precision=False)
     next_url = (request.GET.get("next") or request.POST.get("next") or "").strip()
@@ -301,6 +307,7 @@ def _pwa_theme_context(request):
         bg_mode=ts["bg_mode"],
         bg_custom=ts["bg_custom"],
         state_overrides=ts.get("state_overrides"),
+        table_header_color=ts.get("table_header_color", ""),
     )
     app_name = ts.get("brand_title") or getattr(django_settings, "DESIGN_STUDIO_APP_NAME", "App")
     return ts, palette, str(app_name)

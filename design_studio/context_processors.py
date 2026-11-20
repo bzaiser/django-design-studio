@@ -23,6 +23,7 @@ def theme_context(request):
         bg_mode=ts["bg_mode"],
         bg_custom=ts["bg_custom"],
         state_overrides=ts.get("state_overrides"),
+        table_header_color=ts.get("table_header_color", ""),
     )
     user_menu = resolve_user_menu(user, saved_menu_config=ts.get("menu_config"))
     system_items, system_active, system_entry_url = compute_system_hub_state(request, user_menu["system_items"])

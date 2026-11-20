@@ -27,6 +27,7 @@ class DefaultThemeStorageAdapter:
                 bg_mode=norm["bg_mode"],
                 bg_custom=norm["bg_custom"],
                 state_overrides=norm.get("state_overrides"),
+                table_header_color=norm.get("table_header_color", ""),
             )
         pref, _ = UserThemePreference.objects.get_or_create(user=user)
         pref.config = {
