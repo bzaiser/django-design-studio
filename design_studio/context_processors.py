@@ -3,6 +3,7 @@ import json
 from django.conf import settings as django_settings
 
 from .engine import APP_PRESETS, DEFAULT_SETTINGS, compute_theme_palette, normalize_settings
+from .genres import GENRE_CHOICES, resolve_request_genre
 from .menu import compute_system_hub_state, resolve_user_menu
 from .storage import get_storage_adapter
 
@@ -25,6 +26,7 @@ def theme_context(request):
     )
     user_menu = resolve_user_menu(user, saved_menu_config=ts.get("menu_config"))
     system_items, system_active, system_entry_url = compute_system_hub_state(request, user_menu["system_items"])
+    active_genre = resolve_request_genre(request, user_menu["all_items"], default_genre=ts.get("default_genre", ""))
 
     return {
         "theme_studio": ts,
@@ -48,6 +50,8 @@ def theme_context(request):
         "nav_system_entry_url": system_entry_url,
         "menu_studio_items": user_menu["all_items"],
         "menu_icon_choices": user_menu["icon_choices"],
+        "genre_choices": [(gk, str(gl)) for gk, gl in GENRE_CHOICES],
+        "active_genre": active_genre,
         "design_studio_app_name": ts.get("brand_title") or getattr(django_settings, "DESIGN_STUDIO_APP_NAME", "App"),
         "design_studio_app_icon": ts.get("brand_icon") or getattr(django_settings, "DESIGN_STUDIO_APP_ICON", "bi-speedometer2"),
         "design_studio_pwa_enabled": bool(getattr(django_settings, "DESIGN_STUDIO_PWA_ENABLED", True)),

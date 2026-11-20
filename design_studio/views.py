@@ -119,6 +119,8 @@ def save_studio_view(request):
             "menu_config": prev.get("menu_config", []),
             "brand_title": request.POST.get("brand_title", prev.get("brand_title", "")),
             "brand_icon": request.POST.get("brand_icon", prev.get("brand_icon", "")),
+            "default_genre": request.POST.get("theme_default_genre", prev.get("default_genre", "")),
+            "genre_photos_enabled": request.POST.get("theme_genre_photos_enabled") == "1",
         }
         if "menu_config_json" in request.POST:
             raw_menu = request.POST.get("menu_config_json", "").strip()
@@ -140,6 +142,10 @@ def save_studio_view(request):
                                 ic = ""
                             disp = m_item.get("display") if m_item.get("display") in ("icon_text", "icon_only", "text_only") else "icon_text"
                             zn = m_item.get("zone") if m_item.get("zone") in ("main", "utility") else "main"
+                            from .genres import is_valid_genre
+                            gr = str(m_item.get("genre") or "").strip()
+                            if not is_valid_genre(gr):
+                                gr = ""
                             clean_menu.append({
                                 "id": mid,
                                 "label": str(m_item.get("label") or "").strip()[:40],
@@ -148,6 +154,7 @@ def save_studio_view(request):
                                 "zone": zn,
                                 "visible": bool(m_item.get("visible", True)),
                                 "order": int(m_item.get("order", idx + 1)),
+                                "genre": gr,
                             })
                         merged["menu_config"] = clean_menu
                 except Exception:

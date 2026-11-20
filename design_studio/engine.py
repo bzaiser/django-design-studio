@@ -197,6 +197,8 @@ DEFAULT_SETTINGS = {
     "menu_config": [],
     "brand_title": "",
     "brand_icon": "",
+    "default_genre": "",
+    "genre_photos_enabled": False,
 }
 
 
@@ -291,6 +293,10 @@ def normalize_settings(raw):
         data["font_family"] = "auto"
     if data["font_scale"] not in FONT_SCALES:
         data["font_scale"] = "normal"
+    from .genres import is_valid_genre
+    if not is_valid_genre(data.get("default_genre", "")):
+        data["default_genre"] = ""
+    data["genre_photos_enabled"] = bool(data.get("genre_photos_enabled", False))
 
     def _clamp_int(val, lo, hi, default):
         try:

@@ -345,6 +345,23 @@ class DesignStudioPackageTests(TestCase):
         self.assertIn(".nav-tabs.ds-tabs", css)
         self.assertIn(".ds-tab-panel", css)
 
+    def test_per_page_genre_saves_and_renders_with_photo_toggle(self):
+        resp = self.client.post(
+            "/design-studio/save/",
+            {
+                "theme_genre_photos_enabled": "1",
+                "menu_config_json": json.dumps([
+                    {"id": "design_studio", "icon": "bi-palette", "label": "Studio", "display": "icon_only", "zone": "utility", "visible": True, "order": 1, "genre": "scifi"},
+                ]),
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        html = self.client.get("/design-studio/").content.decode("utf-8")
+        self.assertIn('data-genre="scifi"', html)
+        self.assertIn('id="ds-genre-svg-layer"', html)
+        self.assertIn('id="ds-genre-photo-layer"', html)
+        self.assertIn('ds-menu-genre', html)
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner

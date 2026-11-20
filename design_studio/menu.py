@@ -4,6 +4,8 @@ from django.conf import settings as django_settings
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from .genres import GENRE_CHOICES, is_valid_genre
+
 BI_ICON_RE = re.compile(r"^bi-[a-z0-9-]+$")
 
 
@@ -276,6 +278,8 @@ def resolve_user_menu(user, saved_menu_config=None):
         display = ov.get("display") if ov.get("display") in ("icon_text", "icon_only", "text_only") else default_display
         locked = bool(item.get("locked", False))
         visible = True if locked else bool(ov.get("visible", item.get("visible", True)))
+        raw_genre = ov.get("genre") if is_valid_genre(ov.get("genre")) else item.get("genre", "")
+        genre = raw_genre if is_valid_genre(raw_genre) else ""
         try:
             order = int(ov.get("order", item.get("order", idx + 1)))
         except (TypeError, ValueError):
@@ -301,6 +305,7 @@ def resolve_user_menu(user, saved_menu_config=None):
             "visible": visible,
             "order": order,
             "locked": locked,
+            "genre": genre,
         })
 
     zone_rank = {"main": 0, "utility": 1, "system": 2}
@@ -311,4 +316,5 @@ def resolve_user_menu(user, saved_menu_config=None):
         "utility_items": [x for x in resolved if x["visible"] and x["zone"] == "utility"],
         "system_items": [x for x in resolved if x["visible"] and x["zone"] == "system"],
         "icon_choices": [(ic, str(lbl)) for ic, lbl in MENU_ICON_CHOICES],
+        "genre_choices": [(gk, str(gl)) for gk, gl in GENRE_CHOICES],
     }
