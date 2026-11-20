@@ -59,7 +59,7 @@
             <form id="dsMainStudioForm" method="post" action="{% url 'design_studio:save' %}">
                 {% csrf_token %}
                 <input type="hidden" name="kpi_ext_present" value="1">
-                <input type="hidden" name="next" value="{{ ds_studio_next|default:back_url|default:'' }}">
+                {% if ds_studio_next %}<input type="hidden" name="next" value="{{ ds_studio_next }}">{% elif back_url %}<input type="hidden" name="next" value="{{ back_url }}">{% endif %}
                 <div class="row g-3">
                     <div class="col-6 col-md-2">
                         <label class="form-label small fw-bold">{% trans "Grundfarbe" %}</label>
