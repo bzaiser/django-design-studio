@@ -1,4 +1,4 @@
-{% if user.is_authenticated and theme_studio.resolved_bg_svg and theme_studio.resolved_bg_svg != 'none' %}
+{% if user.is_authenticated and not active_genre and theme_studio.resolved_bg_svg and theme_studio.resolved_bg_svg != 'none' %}
 <div class="app-bg-svg-layer" aria-hidden="true">
     {% if theme_studio.resolved_bg_svg == 'topography' %}
     <svg viewBox="0 0 800 1000" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">

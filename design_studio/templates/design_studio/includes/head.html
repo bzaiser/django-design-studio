@@ -37,6 +37,20 @@
         {% endfor %}
         {% endif %}
     }
+    {% if active_genre %}
+    body[data-genre="{{ active_genre.key }}"] {
+        --ds-genre-accent: {{ active_genre.primary }};
+        --ds-genre-secondary: {{ active_genre.secondary }};
+        {% if not theme_palette.is_dark and active_genre.bg_light %}background-color: {{ active_genre.bg_light }} !important;{% endif %}
+    }
+    {% if active_genre.font_head %}
+    body[data-genre="{{ active_genre.key }}"] main h1,
+    body[data-genre="{{ active_genre.key }}"] main h2,
+    body[data-genre="{{ active_genre.key }}"] main h3 {
+        font-family: {{ active_genre.font_head|safe }};
+    }
+    {% endif %}
+    {% endif %}
 </style>
 <link rel="stylesheet" href="{% static 'design_studio/css/design-studio.css' %}?v=1.6.12">
 {% if design_studio_pwa_enabled %}

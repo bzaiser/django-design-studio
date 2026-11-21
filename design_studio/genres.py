@@ -271,10 +271,19 @@ def is_valid_genre(value) -> bool:
     return isinstance(value, str) and (value == "" or value in GENRE_DEFINITIONS)
 
 
-def get_genre_definition(key: str):
+def get_genre_definition(key: str, user=None):
     if not key or key not in GENRE_DEFINITIONS:
         return None
-    return {"key": key, **GENRE_DEFINITIONS[key]}
+    data = {"key": key, **GENRE_DEFINITIONS[key]}
+    if user and getattr(user, "is_authenticated", False):
+        try:
+            from .bg_media import get_user_genre_bg_url
+            custom_url = get_user_genre_bg_url(user, key)
+            if custom_url:
+                data["custom_photo_url"] = custom_url
+        except Exception:
+            pass
+    return data
 
 
 def resolve_request_genre(request, menu_items, default_genre: str = ""):
