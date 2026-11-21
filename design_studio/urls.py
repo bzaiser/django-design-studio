@@ -15,4 +15,7 @@ urlpatterns = [
     path("pwa-icon.svg", views.pwa_icon_svg_view, name="pwa_icon_svg"),
     path("sw.js", views.pwa_sw_view, name="pwa_sw"),
     path("admin.css", views.admin_theme_css_view, name="admin_css"),
+    path("genre-bg/upload/", views.upload_genre_bg_view, name="upload_genre_bg"),
+    path("genre-bg/delete/", views.delete_genre_bg_view, name="delete_genre_bg"),
+    path("genre-bg/<str:genre_key>/", views.serve_genre_bg_view, name="serve_genre_bg"),
 ]

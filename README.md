@@ -5,7 +5,7 @@ Wiederverwendbares Design- & Menü-Studio-Add-in für Django + Bootstrap 5 (+ op
 ## Features
 - **16 Design-Stimmungen** & **8-Zustände semantische Farbharmonie** (`--theme-state-1` .. `--theme-state-8`)
 - **5 Karten-Oberflächen**: `liquid` (Liquid Glass), `tinted` (Farbharmonie-Milchglas), `glass` (Edles Milchglas), `solid` (Vollton), `brutal` (Kontrast-Kante)
-- **5 Adaptive Seiten-SVG-Hintergründe**: `topography`, `grid`, `curves`, `aura`, `brutal_grid`, `none`
+- **5 Adaptive Seiten-SVG-Hintergründe** (`topography`, `grid`, `curves`, `aura`, `brutal_grid`, `none`) & **App-/Seiten-Genres** inkl. Upload eigener Hintergrundbilder pro Genre (Client- & Server-Prüfung: JPG/PNG/WebP, max. 5 MB, 640×360 bis 6000×6000 px, persistent unter `data/design_studio_bg/`)
 - **KPI-Karten 2.0**: SVG-Sparklines, segmentierte Ziel-Fortschrittsbalken, Watermark-Icons, Maus-Spotlight, Bento-Grid (`sm`/`md`/`lg`)
 - **Menü-Studio**: Top-Leiste oder einklappbares Seitenpanel (`sidebar`), Glass/Gradient-Stil, gleitende Hover-Pille, Drag & Drop-Sortierung, umbenennbare Menütexte, Icon-Auswahl, `Icon + Text` / `Nur Icon` / `Nur Text` pro Punkt
 - **Globale Tabellen-, Card-, Modal- & Chart.js-Harmonisierung** (Hell & Dunkel)

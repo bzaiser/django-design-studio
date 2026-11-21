@@ -405,6 +405,101 @@ class DesignStudioPackageTests(TestCase):
                 self.assertNotIn("persons", all_ids)
 
 
+    def test_custom_genre_background_upload_validation_serve_and_delete(self):
+        import struct
+        import tempfile
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from design_studio.bg_media import MAX_BYTES, detect_image_info
+
+        def make_png(w, h):
+            ihdr = struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)
+            return b"\x89PNG\r\n\x1a\n" + struct.pack(">I", len(ihdr)) + b"IHDR" + ihdr + b"\x00\x00\x00\x00"
+
+        def make_jpeg(w, h):
+            # Minimal SOI + SOF0 segment with height & width
+            sof_body = struct.pack(">BHHB", 8, h, w, 3) + b"\x01\x11\x00\x02\x11\x00\x03\x11\x00"
+            return b"\xff\xd8\xff\xc0" + struct.pack(">H", len(sof_body) + 2) + sof_body + b"\xff\xd9"
+
+        def make_webp_vp8x(w, h):
+            body = b"\x00\x00\x00\x00" + (w - 1).to_bytes(3, "little") + (h - 1).to_bytes(3, "little")
+            return b"RIFF" + struct.pack("<I", 4 + 8 + len(body)) + b"WEBP" + b"VP8X" + struct.pack("<I", len(body)) + body
+
+        # Pure-Python header parsing works for PNG, JPEG, WebP
+        self.assertEqual(detect_image_info(make_png(1920, 1080)), ("png", 1920, 1080))
+        self.assertEqual(detect_image_info(make_jpeg(1280, 720)), ("jpeg", 1280, 720))
+        self.assertEqual(detect_image_info(make_webp_vp8x(2560, 1440)), ("webp", 2560, 1440))
+
+        self.client.force_login(self.user)
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.settings(BASE_DIR=tmp):
+                # 1. Reject SVG / non-image format
+                r_svg = self.client.post(
+                    "/design-studio/genre-bg/upload/",
+                    {"genre_key": "natur", "image": SimpleUploadedFile("bad.svg", b"<svg xmlns='http://www.w3.org/2000/svg'></svg>", content_type="image/svg+xml")},
+                )
+                self.assertEqual(r_svg.status_code, 400)
+                self.assertFalse(r_svg.json()["ok"])
+
+                # 2. Reject too small resolution (< 640x360)
+                r_small = self.client.post(
+                    "/design-studio/genre-bg/upload/",
+                    {"genre_key": "natur", "image": SimpleUploadedFile("tiny.png", make_png(320, 200), content_type="image/png")},
+                )
+                self.assertEqual(r_small.status_code, 400)
+                self.assertIn("640", r_small.json()["error"])
+
+                # 3. Reject too large resolution (> 6000x6000)
+                r_huge = self.client.post(
+                    "/design-studio/genre-bg/upload/",
+                    {"genre_key": "natur", "image": SimpleUploadedFile("huge.png", make_png(7000, 4000), content_type="image/png")},
+                )
+                self.assertEqual(r_huge.status_code, 400)
+                self.assertIn("6000", r_huge.json()["error"])
+
+                # 4. Reject > 5 MB file
+                r_big = self.client.post(
+                    "/design-studio/genre-bg/upload/",
+                    {"genre_key": "natur", "image": SimpleUploadedFile("big.png", make_png(1920, 1080) + (b"\x00" * (MAX_BYTES + 10)), content_type="image/png")},
+                )
+                self.assertEqual(r_big.status_code, 400)
+                self.assertIn("5 MB", r_big.json()["error"])
+
+                # 5. Reject unknown genre
+                r_bad_genre = self.client.post(
+                    "/design-studio/genre-bg/upload/",
+                    {"genre_key": "invalid_genre", "image": SimpleUploadedFile("ok.png", make_png(1280, 720), content_type="image/png")},
+                )
+                self.assertEqual(r_bad_genre.status_code, 400)
+
+                # 6. Valid PNG upload succeeds and is served with image/png
+                r_ok = self.client.post(
+                    "/design-studio/genre-bg/upload/",
+                    {"genre_key": "natur", "image": SimpleUploadedFile("forest.png", make_png(1920, 1080), content_type="image/png")},
+                )
+                self.assertEqual(r_ok.status_code, 200)
+                data = r_ok.json()
+                self.assertTrue(data["ok"])
+                self.assertEqual(data["width"], 1920)
+                self.assertEqual(data["height"], 1080)
+                self.assertIn("/design-studio/genre-bg/natur/", data["url"])
+
+                serve_resp = self.client.get("/design-studio/genre-bg/natur/")
+                self.assertEqual(serve_resp.status_code, 200)
+                self.assertEqual(serve_resp["Content-Type"], "image/png")
+
+                # 7. Select genre 'natur' WITHOUT internet photos -> custom image STILL renders in bg_layer!
+                self.client.post("/design-studio/save/", {"theme_default_genre": "natur"})
+                page_html = self.client.get("/design-studio/").content.decode("utf-8")
+                self.assertIn("dsGenreBgModal", page_html)
+                self.assertIn("/design-studio/genre-bg/natur/", page_html)
+                self.assertIn('id="ds-genre-photo-layer"', page_html)
+
+                # 8. Delete custom image -> serve returns 404
+                r_del = self.client.post("/design-studio/genre-bg/delete/", {"genre_key": "natur"})
+                self.assertEqual(r_del.status_code, 200)
+                self.assertTrue(r_del.json()["removed"])
+                self.assertEqual(self.client.get("/design-studio/genre-bg/natur/").status_code, 404)
+
     def test_no_missing_migrations(self):
         call_command("makemigrations", "design_studio", "--check", "--dry-run", verbosity=0)
 

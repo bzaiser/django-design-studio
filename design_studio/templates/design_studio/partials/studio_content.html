@@ -42,11 +42,16 @@
                 </div>
                 <div class="col-12 col-sm-7 col-md-4">
                     <label class="form-label small fw-bold mb-1" for="dsDefaultGenre">{% trans "App-Genre (alle Seiten)" %}</label>
-                    <select id="dsDefaultGenre" name="theme_default_genre" form="dsMainStudioForm" class="form-select form-select-sm">
-                        {% for gkey, glabel in genre_choices %}
-                        <option value="{{ gkey }}" {% if theme_studio.default_genre == gkey %}selected{% endif %}>{{ glabel }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="d-flex align-items-center gap-2">
+                        <select id="dsDefaultGenre" name="theme_default_genre" form="dsMainStudioForm" class="form-select form-select-sm">
+                            {% for gkey, glabel in genre_choices %}
+                            <option value="{{ gkey }}" {% if theme_studio.default_genre == gkey %}selected{% endif %}>{{ glabel }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" id="dsGenreBgBtn" class="btn btn-sm btn-outline-primary rounded-pill px-3 text-nowrap d-none" title="{% trans 'Eigenes Hintergrundbild für dieses Genre hochladen' %}">
+                            <i class="bi bi-image me-1"></i><span>{% trans "Bild" %}</span><span id="dsGenreBgDot" class="badge bg-success rounded-pill ms-1 d-none">✓</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="col-12 col-sm-5 col-md-3 d-flex align-items-center" style="min-height: 31px;">
                     <div class="form-check form-switch mb-0">
@@ -120,8 +125,9 @@
                             svgEl.innerHTML = '';
                         }
                         var photoEl = document.getElementById('ds-genre-photo-layer');
-                        var showPhoto = !!(gPhotoCb && gPhotoCb.checked && info && info.photo_url);
-                        if (showPhoto) {
+                        var customUrl = (info && info.custom_photo_url) ? info.custom_photo_url : '';
+                        var activePhotoUrl = customUrl || ((gPhotoCb && gPhotoCb.checked && info && info.photo_url) ? info.photo_url : '');
+                        if (activePhotoUrl) {
                             if (!photoEl) {
                                 photoEl = document.createElement('div');
                                 photoEl.id = 'ds-genre-photo-layer';
@@ -129,17 +135,257 @@
                                 photoEl.setAttribute('aria-hidden', 'true');
                                 document.body.insertBefore(photoEl, document.body.firstChild);
                             }
-                            photoEl.style.backgroundImage = "url('" + info.photo_url + "')";
+                            photoEl.style.backgroundImage = "url('" + activePhotoUrl + "')";
                             photoEl.style.display = '';
                         } else if (photoEl) {
                             photoEl.style.display = 'none';
                         }
                     });
+                    syncGenreBgButton();
+                }
+
+                var gBgBtn = document.getElementById('dsGenreBgBtn');
+                var gBgDot = document.getElementById('dsGenreBgDot');
+                function syncGenreBgButton() {
+                    if (!gBgBtn || !gSel) return;
+                    var key = gSel.value || '';
+                    var info = genresData[key];
+                    gBgBtn.classList.toggle('d-none', !key || !info);
+                    if (gBgDot) {
+                        gBgDot.classList.toggle('d-none', !(info && info.custom_photo_url));
+                    }
                 }
                 if (gSel) gSel.addEventListener('change', syncGenrePreview);
                 if (gPhotoCb) gPhotoCb.addEventListener('change', syncGenrePreview);
+                syncGenreBgButton();
+
+                // --- Custom Genre Background Upload Modal & Client Validation ---
+                var bgModalEl = document.getElementById('dsGenreBgModal');
+                if (bgModalEl && bgModalEl.parentElement !== document.body) {
+                    document.body.appendChild(bgModalEl);
+                }
+                var bgFileInput = document.getElementById('dsGenreBgFile');
+                var bgUploadBtn = document.getElementById('dsGenreBgUploadBtn');
+                var bgDeleteBtn = document.getElementById('dsGenreBgDeleteBtn');
+                var bgPreviewBox = document.getElementById('dsGenreBgPreviewBox');
+                var bgPreviewImg = document.getElementById('dsGenreBgPreviewImg');
+                var bgCurrentBox = document.getElementById('dsGenreBgCurrentBox');
+                var bgCurrentImg = document.getElementById('dsGenreBgCurrentImg');
+                var bgChecksBox = document.getElementById('dsGenreBgChecks');
+                var bgAlert = document.getElementById('dsGenreBgAlert');
+                var bgLabelEl = document.getElementById('dsGenreBgGenreLabel');
+                var bgCsrf = (document.querySelector('#dsMainStudioForm [name="csrfmiddlewaretoken"]') || {}).value || '';
+                var MAX_BG_BYTES = 5 * 1024 * 1024;
+                var ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
+                var ALLOWED_EXTS = ['jpg', 'jpeg', 'png', 'webp'];
+                var pendingFile = null;
+
+                function setCheckRow(id, ok, text, warn) {
+                    var el = document.getElementById(id);
+                    if (!el) return;
+                    var icon = ok ? (warn ? 'bi-exclamation-triangle-fill text-warning' : 'bi-check-circle-fill text-success') : 'bi-x-circle-fill text-danger';
+                    el.innerHTML = '<i class="bi ' + icon + ' me-2"></i><span></span>';
+                    el.querySelector('span').textContent = text;
+                }
+
+                function showBgAlert(msg, isError) {
+                    if (!bgAlert) return;
+                    if (!msg) {
+                        bgAlert.classList.add('d-none');
+                        bgAlert.textContent = '';
+                        return;
+                    }
+                    bgAlert.className = 'alert py-2 px-3 small mb-2 ' + (isError ? 'alert-danger' : 'alert-success');
+                    bgAlert.textContent = msg;
+                }
+
+                function resetUploadDialog() {
+                    pendingFile = null;
+                    if (bgFileInput) bgFileInput.value = '';
+                    if (bgUploadBtn) bgUploadBtn.disabled = true;
+                    if (bgPreviewBox) bgPreviewBox.classList.add('d-none');
+                    if (bgChecksBox) bgChecksBox.classList.add('d-none');
+                    showBgAlert('', false);
+                    var key = gSel ? (gSel.value || '') : '';
+                    var info = genresData[key] || {};
+                    if (bgLabelEl) bgLabelEl.textContent = info.label || key;
+                    var hasCustom = !!info.custom_photo_url;
+                    if (bgDeleteBtn) bgDeleteBtn.classList.toggle('d-none', !hasCustom);
+                    if (bgCurrentBox && bgCurrentImg) {
+                        bgCurrentBox.classList.toggle('d-none', !hasCustom);
+                        if (hasCustom) bgCurrentImg.src = info.custom_photo_url;
+                    }
+                }
+
+                if (gBgBtn && bgModalEl) {
+                    gBgBtn.addEventListener('click', function () {
+                        resetUploadDialog();
+                        if (typeof bootstrap !== 'undefined') bootstrap.Modal.getOrCreateInstance(bgModalEl).show();
+                    });
+                }
+
+                if (bgFileInput) {
+                    bgFileInput.addEventListener('change', function () {
+                        showBgAlert('', false);
+                        pendingFile = null;
+                        if (bgUploadBtn) bgUploadBtn.disabled = true;
+                        var file = bgFileInput.files && bgFileInput.files[0];
+                        if (!file) {
+                            if (bgPreviewBox) bgPreviewBox.classList.add('d-none');
+                            if (bgChecksBox) bgChecksBox.classList.add('d-none');
+                            return;
+                        }
+                        if (bgChecksBox) bgChecksBox.classList.remove('d-none');
+                        var ext = (file.name.split('.').pop() || '').toLowerCase();
+                        var fmtOk = (ALLOWED_MIMES.indexOf(file.type) !== -1) && (ALLOWED_EXTS.indexOf(ext) !== -1);
+                        setCheckRow('dsBgChkFormat', fmtOk, fmtOk ? ('Format: ' + ext.toUpperCase() + ' (zulässig)') : ('Format nicht erlaubt (' + (file.type || ext || '?') + ') — nur JPG, PNG, WebP'), false);
+
+                        var sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+                        var sizeOk = file.size > 0 && file.size <= MAX_BG_BYTES;
+                        setCheckRow('dsBgChkSize', sizeOk, sizeOk ? ('Dateigröße: ' + sizeMb + ' MB (max. 5 MB)') : ('Datei zu groß: ' + sizeMb + ' MB (max. 5 MB erlaubt)'), false);
+
+                        if (!fmtOk) {
+                            setCheckRow('dsBgChkDim', false, 'Auflösung: Bild kann nicht geladen werden', false);
+                            if (bgPreviewBox) bgPreviewBox.classList.add('d-none');
+                            return;
+                        }
+
+                        var reader = new FileReader();
+                        reader.onload = function (ev) {
+                            var img = new Image();
+                            img.onload = function () {
+                                var w = img.naturalWidth || 0;
+                                var h = img.naturalHeight || 0;
+                                var dimOk = (w >= 640 && h >= 360 && w <= 6000 && h <= 6000);
+                                var dimWarn = dimOk && (w < 1280 || h < 720 || h > w);
+                                var dimText = 'Auflösung: ' + w + ' × ' + h + ' px';
+                                if (!dimOk) {
+                                    dimText += (w < 640 || h < 360) ? ' (zu klein — min. 640 × 360 px)' : ' (zu groß — max. 6000 × 6000 px)';
+                                } else if (h > w) {
+                                    dimText += ' (Hinweis: Hochformat wird auf Desktop beschnitten)';
+                                } else if (w < 1280 || h < 720) {
+                                    dimText += ' (OK — empfohlen ≥ 1280 × 720 px)';
+                                } else {
+                                    dimText += ' (optimal)';
+                                }
+                                setCheckRow('dsBgChkDim', dimOk, dimText, dimWarn);
+                                if (bgPreviewImg && bgPreviewBox) {
+                                    bgPreviewImg.src = ev.target.result;
+                                    bgPreviewBox.classList.remove('d-none');
+                                }
+                                if (fmtOk && sizeOk && dimOk) {
+                                    pendingFile = file;
+                                    if (bgUploadBtn) bgUploadBtn.disabled = false;
+                                }
+                            };
+                            img.onerror = function () {
+                                setCheckRow('dsBgChkDim', false, 'Bilddatei ist beschädigt oder kein gültiges Bild', false);
+                                if (bgPreviewBox) bgPreviewBox.classList.add('d-none');
+                            };
+                            img.src = ev.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                if (bgUploadBtn) {
+                    bgUploadBtn.addEventListener('click', function () {
+                        var key = gSel ? (gSel.value || '') : '';
+                        if (!key || !pendingFile) return;
+                        bgUploadBtn.disabled = true;
+                        showBgAlert('', false);
+                        var fd = new FormData();
+                        fd.append('genre_key', key);
+                        fd.append('image', pendingFile);
+                        fetch('{% url "design_studio:upload_genre_bg" %}', {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': bgCsrf, 'X-Requested-With': 'XMLHttpRequest' },
+                            body: fd
+                        }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+                        .then(function (res) {
+                            if (res.ok && res.data.ok) {
+                                if (!genresData[key]) genresData[key] = {};
+                                genresData[key].custom_photo_url = res.data.url;
+                                syncGenrePreview();
+                                if (typeof bootstrap !== 'undefined' && bgModalEl) bootstrap.Modal.getOrCreateInstance(bgModalEl).hide();
+                            } else {
+                                showBgAlert((res.data && res.data.error) || 'Upload fehlgeschlagen.', true);
+                                bgUploadBtn.disabled = false;
+                            }
+                        }).catch(function () {
+                            showBgAlert('Netzwerkfehler beim Hochladen.', true);
+                            bgUploadBtn.disabled = false;
+                        });
+                    });
+                }
+
+                if (bgDeleteBtn) {
+                    bgDeleteBtn.addEventListener('click', function () {
+                        var key = gSel ? (gSel.value || '') : '';
+                        if (!key) return;
+                        var fd = new FormData();
+                        fd.append('genre_key', key);
+                        fetch('{% url "design_studio:delete_genre_bg" %}', {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': bgCsrf, 'X-Requested-With': 'XMLHttpRequest' },
+                            body: fd
+                        }).then(function (r) { return r.json(); }).then(function (data) {
+                            if (data && data.ok) {
+                                if (genresData[key]) genresData[key].custom_photo_url = '';
+                                syncGenrePreview();
+                                resetUploadDialog();
+                                showBgAlert('Eigenes Hintergrundbild entfernt.', false);
+                            }
+                        });
+                    });
+                }
             });
             </script>
+
+            <!-- Custom Genre Background Upload Modal -->
+            <div class="modal fade" id="dsGenreBgModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="bi bi-image text-primary me-2"></i>{% trans "Eigenes Genre-Hintergrundbild" %}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Schließen' %}"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="small text-muted mb-2">{% trans "Genre:" %} <strong id="dsGenreBgGenreLabel" class="text-body"></strong></div>
+                            <div id="dsGenreBgAlert" class="d-none"></div>
+                            <div id="dsGenreBgCurrentBox" class="mb-3 d-none">
+                                <div class="small fw-semibold mb-1">{% trans "Aktuell gespeichertes eigenes Bild" %}</div>
+                                <img id="dsGenreBgCurrentImg" src="" alt="" class="img-fluid rounded border w-100" style="max-height: 140px; object-fit: cover;">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold" for="dsGenreBgFile">{% trans "Neues Bild auswählen" %}</label>
+                                <input type="file" id="dsGenreBgFile" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                                <div class="form-text">{% trans "Erlaubt: JPG, PNG, WebP · max. 5 MB · Auflösung 640×360 bis 6000×6000 px (empfohlen Querformat ≥ 1280×720)" %}</div>
+                            </div>
+                            <div id="dsGenreBgChecks" class="border rounded p-2 bg-body-tertiary small mb-2 d-none">
+                                <div id="dsBgChkFormat" class="mb-1"></div>
+                                <div id="dsBgChkSize" class="mb-1"></div>
+                                <div id="dsBgChkDim"></div>
+                            </div>
+                            <div id="dsGenreBgPreviewBox" class="d-none">
+                                <div class="small fw-semibold mb-1">{% trans "Vorschau" %}</div>
+                                <img id="dsGenreBgPreviewImg" src="" alt="" class="img-fluid rounded border w-100" style="max-height: 160px; object-fit: cover;">
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" id="dsGenreBgDeleteBtn" class="btn btn-sm btn-outline-danger rounded-pill px-3 d-none">
+                                <i class="bi bi-trash me-1"></i>{% trans "Eigenes Bild entfernen" %}
+                            </button>
+                            <div class="d-flex gap-2 ms-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">{% trans "Abbrechen" %}</button>
+                                <button type="button" id="dsGenreBgUploadBtn" class="btn btn-sm btn-primary rounded-pill px-4 fw-bold" disabled>
+                                    <i class="bi bi-cloud-upload me-1"></i>{% trans "Hochladen & Übernehmen" %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Main Studio Form -->
             <form id="dsMainStudioForm" method="post" action="{% url 'design_studio:save' %}">

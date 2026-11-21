@@ -50,7 +50,9 @@
 </div>
 {% endif %}
 {% if active_genre %}
-{% if theme_studio.genre_photos_enabled and active_genre.photo_url %}
+{% if active_genre.custom_photo_url %}
+<div id="ds-genre-photo-layer" class="ds-genre-photo-layer" style="background-image: url('{{ active_genre.custom_photo_url }}');" aria-hidden="true"></div>
+{% elif theme_studio.genre_photos_enabled and active_genre.photo_url %}
 <div id="ds-genre-photo-layer" class="ds-genre-photo-layer" style="background-image: url('{{ active_genre.photo_url }}');" aria-hidden="true"></div>
 {% endif %}
 {% if active_genre.svg %}

@@ -2,6 +2,7 @@ import json
 
 from django.conf import settings as django_settings
 
+from .bg_media import get_user_genre_bg_map
 from .engine import APP_PRESETS, DEFAULT_SETTINGS, compute_theme_palette, normalize_settings
 from .genres import GENRE_CHOICES, GENRE_DEFINITIONS, resolve_request_genre
 from .menu import compute_system_hub_state, resolve_user_menu
@@ -28,6 +29,9 @@ def theme_context(request):
     user_menu = resolve_user_menu(user, saved_menu_config=ts.get("menu_config"))
     system_items, system_active, system_entry_url = compute_system_hub_state(request, user_menu["system_items"])
     active_genre = resolve_request_genre(request, user_menu["all_items"], default_genre=ts.get("default_genre", ""))
+    custom_genre_bgs = get_user_genre_bg_map(user) if (user and getattr(user, "is_authenticated", False)) else {}
+    if active_genre and active_genre.get("key") in custom_genre_bgs:
+        active_genre = {**active_genre, "custom_photo_url": custom_genre_bgs[active_genre["key"]]}
 
     return {
         "theme_studio": ts,
@@ -55,11 +59,13 @@ def theme_context(request):
         "active_genre": active_genre,
         "genre_preview_json": json.dumps({
             k: {
+                "label": str(v["label"]),
                 "primary": v["primary"],
                 "secondary": v["secondary"],
                 "bg_light": v["bg_light"],
                 "svg": v["svg"],
                 "photo_url": v["photo_url"],
+                "custom_photo_url": custom_genre_bgs.get(k, ""),
             }
             for k, v in GENRE_DEFINITIONS.items()
         }),

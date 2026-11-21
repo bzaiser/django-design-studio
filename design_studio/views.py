@@ -556,3 +556,53 @@ a.button,
 }}
 """
     return HttpResponse(css, content_type="text/css; charset=utf-8")
+
+
+@login_required
+@require_POST
+def upload_genre_bg_view(request):
+    from .bg_media import save_user_genre_bg
+
+    genre_key = (request.POST.get("genre_key") or "").strip()
+    uploaded = request.FILES.get("image")
+    try:
+        info = save_user_genre_bg(request.user, genre_key, uploaded)
+    except ValueError as exc:
+        return JsonResponse({"ok": False, "error": str(exc)}, status=400)
+    except Exception as exc:
+        return JsonResponse({"ok": False, "error": f"Upload fehlgeschlagen: {exc}"}, status=500)
+
+    return JsonResponse({
+        "ok": True,
+        "genre_key": genre_key,
+        "url": info["url"],
+        "ext": info["ext"],
+        "width": info["width"],
+        "height": info["height"],
+        "size_kb": round(info["size_bytes"] / 1024, 1),
+    })
+
+
+@login_required
+@require_POST
+def delete_genre_bg_view(request):
+    from .bg_media import delete_user_genre_bg
+
+    genre_key = (request.POST.get("genre_key") or "").strip()
+    removed = delete_user_genre_bg(request.user, genre_key)
+    return JsonResponse({"ok": True, "removed": removed, "genre_key": genre_key})
+
+
+@login_required
+def serve_genre_bg_view(request, genre_key: str):
+    from django.http import Http404
+    from .bg_media import CONTENT_TYPE_BY_EXT, get_user_genre_bg_path
+
+    path = get_user_genre_bg_path(request.user, (genre_key or "").strip())
+    if not path or not path.is_file():
+        raise Http404("Kein eigenes Hintergrundbild vorhanden.")
+    ext = path.suffix.lstrip(".").lower()
+    content_type = CONTENT_TYPE_BY_EXT.get(ext, "application/octet-stream")
+    resp = HttpResponse(path.read_bytes(), content_type=content_type)
+    resp["Cache-Control"] = "private, max-age=86400"
+    return resp
