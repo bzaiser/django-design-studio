@@ -405,6 +405,10 @@ class DesignStudioPackageTests(TestCase):
                 self.assertNotIn("persons", all_ids)
 
 
+    def test_no_missing_migrations(self):
+        call_command("makemigrations", "design_studio", "--check", "--dry-run", verbosity=0)
+
+
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner
     call_command("migrate", verbosity=0)

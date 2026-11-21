@@ -71,9 +71,11 @@ class Command(BaseCommand):
         repo = options["repo"]
         target = (options.get("target") or "").strip()
         if not target:
-            for p in os.environ.get("PYTHONPATH", "").split(os.pathsep):
-                p = p.strip()
-                if p and os.path.isdir(p) and os.access(p, os.W_OK):
+            candidates = [p.strip() for p in os.environ.get("PYTHONPATH", "").split(os.pathsep) if p.strip()]
+            if "/opt/ds-pkg" not in candidates:
+                candidates.append("/opt/ds-pkg")
+            for p in candidates:
+                if os.path.isdir(p) and os.access(p, os.W_OK):
                     target = p
                     break
 
@@ -111,15 +113,20 @@ class Command(BaseCommand):
             err_detail = (getattr(exc, "stderr", None) or getattr(exc, "stdout", None) or "").strip()
             raise CommandError(f"pip install fehlgeschlagen (Exit {exc.returncode}): {err_detail}"[:500]) from exc
 
-        manage_py = Path(getattr(settings, "BASE_DIR", ".")) / "manage.py"
+        base_dir = Path(getattr(settings, "BASE_DIR", "."))
+        manage_py = base_dir / "manage.py"
         use_subproc = manage_py.exists()
+        has_migrate_all = (base_dir / "core" / "management" / "commands" / "migrate_all.py").exists()
 
         if not options.get("skip_migrate"):
             if use_subproc:
-                mig_cmd = [sys.executable, str(manage_py), "migrate", "--noinput"]
-                if not options.get("all_kits"):
-                    mig_cmd.append("design_studio")
-                subprocess.run(mig_cmd, check=True, stdin=subprocess.DEVNULL, timeout=120)
+                if has_migrate_all:
+                    mig_cmd = [sys.executable, str(manage_py), "migrate_all"]
+                else:
+                    mig_cmd = [sys.executable, str(manage_py), "migrate", "--noinput"]
+                    if not options.get("all_kits"):
+                        mig_cmd.append("design_studio")
+                subprocess.run(mig_cmd, check=True, stdin=subprocess.DEVNULL, timeout=180)
             elif options.get("all_kits"):
                 call_command("migrate", interactive=False, stdout=self.stdout)
             else:
