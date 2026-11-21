@@ -4,7 +4,7 @@ Wiederverwendbares Design- & Menü-Studio-Add-in für Django + Bootstrap 5 (+ op
 
 ## Features
 - **16 Design-Stimmungen** & **8-Zustände semantische Farbharmonie** (`--theme-state-1` .. `--theme-state-8`)
-- **4 Karten-Oberflächen**: `tinted` (Farbharmonie-Milchglas), `glass` (Edles Milchglas), `solid` (Vollton), `brutal` (Kontrast-Kante)
+- **5 Karten-Oberflächen**: `liquid` (Liquid Glass), `tinted` (Farbharmonie-Milchglas), `glass` (Edles Milchglas), `solid` (Vollton), `brutal` (Kontrast-Kante)
 - **5 Adaptive Seiten-SVG-Hintergründe**: `topography`, `grid`, `curves`, `aura`, `brutal_grid`, `none`
 - **KPI-Karten 2.0**: SVG-Sparklines, segmentierte Ziel-Fortschrittsbalken, Watermark-Icons, Maus-Spotlight, Bento-Grid (`sm`/`md`/`lg`)
 - **Menü-Studio**: Top-Leiste oder einklappbares Seitenpanel (`sidebar`), Glass/Gradient-Stil, gleitende Hover-Pille, Drag & Drop-Sortierung, umbenennbare Menütexte, Icon-Auswahl, `Icon + Text` / `Nur Icon` / `Nur Text` pro Punkt
@@ -86,33 +86,29 @@ docker compose exec web python manage.py design_studio_doctor
 docker compose exec web python manage.py design_studio_doctor --clean-overrides   # sichert lokale Overrides als .bak
 ```
 
-### 2. Sofort-Update im laufenden Container (ohne `docker build`)
-Da App-Container meist als Non-Root-User laufen, Update als `root` (`-u root`) ausführen:
-```bash
-docker compose exec -u root web python manage.py design_studio_update --reload-gunicorn
-```
-*(Falls `design_studio_update` im alten Container noch fehlt, einmalig vorab:)*
-```bash
-docker compose exec -u root web pip install --force-reinstall --no-deps --no-cache-dir \
-  git+https://github.com/bzaiser/django-design-studio.git@main
-```
-
-### 3. Dauerhaft automatisch (übersteht Container-Neustarts ohne Rebuild)
-Volume + `PYTHONPATH` in `docker-compose.yml` einhängen:
+### 2. Persistentes Update über `/opt/ds-pkg` (Standard für alle Baukasten-Apps)
+Alle Baukasten-Kits werden **persistent** im Named Volume `ds_pkg:/opt/ds-pkg` installiert (niemals flüchtig nach `site-packages` im laufenden Container):
 ```yaml
 services:
   web:
     environment:
       - PYTHONPATH=/opt/ds-pkg
+      - DESIGN_STUDIO_TARGET=/opt/ds-pkg
     volumes:
+      - .:/app
+      - ./data:/app/data
       - ds_pkg:/opt/ds-pkg
 
 volumes:
   ds_pkg:
 ```
-Dann reicht im `entrypoint.sh` (vor `gunicorn`) oder per `exec`:
+Im Container oder über das einheitliche `./docker/update-fast.sh` (empfohlen):
 ```bash
-python manage.py design_studio_update --target /opt/ds-pkg --reload-gunicorn
+./docker/update-fast.sh             # prüft Commits & synct nur geänderte Kits nach /opt/ds-pkg
+./docker/update-fast.sh --force-kits # erzwingt Neuinstallation aller aktiven Kits nach /opt/ds-pkg
 ```
-*(Ohne `--reload-gunicorn`, wenn der Befehl direkt im `entrypoint.sh` vor dem Start von Gunicorn läuft.)*
+Direkt per Management-Command (erkennt `migrate_all` in Multi-Tenant-Apps automatisch):
+```bash
+python manage.py design_studio_update --all-kits --target /opt/ds-pkg
+```
 
