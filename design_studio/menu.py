@@ -271,6 +271,77 @@ def resolve_user_menu(user, saved_menu_config=None):
     except Exception:
         domain_settings = None
 
+    if domain_settings is not None:
+        existing_domain_urls = {
+            item.get("url_name") for item in base_items if isinstance(item, dict) and item.get("url_name")
+        }
+        canonical_domain_items = [
+            {
+                "id": "master_data",
+                "url_name": "domain_kit:settings",
+                "match_urls": ["settings"],
+                "default_label": _("Stammdaten"),
+                "icon": "bi-tags",
+                "zone": "main",
+                "display": "icon_text",
+                "visible": True,
+                "order": 20,
+                "module_key": "master_data",
+            },
+            {
+                "id": "persons",
+                "url_name": "domain_kit:persons",
+                "match_urls": ["persons"],
+                "default_label": _("Personen"),
+                "icon": "bi-people",
+                "zone": "main",
+                "display": "icon_text",
+                "visible": True,
+                "order": 21,
+                "module_key": "persons",
+            },
+            {
+                "id": "assets",
+                "url_name": "domain_kit:assets",
+                "match_urls": ["assets"],
+                "default_label": _("Assets"),
+                "icon": "bi-boxes",
+                "zone": "main",
+                "display": "icon_text",
+                "visible": True,
+                "order": 22,
+                "module_key": "assets",
+            },
+            {
+                "id": "documents",
+                "url_name": "domain_kit:documents",
+                "match_urls": ["documents"],
+                "default_label": _("Dokumente"),
+                "icon": "bi-folder2-open",
+                "zone": "main",
+                "display": "icon_text",
+                "visible": True,
+                "order": 23,
+                "module_key": "documents",
+            },
+            {
+                "id": "search",
+                "url_name": "domain_kit:search",
+                "match_urls": ["search"],
+                "default_label": _("Suche"),
+                "icon": "bi-search",
+                "zone": "main",
+                "display": "icon_text",
+                "visible": True,
+                "order": 24,
+                "module_key": "global_search",
+            },
+        ]
+        for c_item in canonical_domain_items:
+            if c_item["url_name"] not in existing_domain_urls:
+                if domain_settings.is_module_enabled(c_item["module_key"]):
+                    base_items.append(c_item)
+
     resolved = []
     for idx, item in enumerate(base_items):
         if item.get("staff_only") and not is_staff:
