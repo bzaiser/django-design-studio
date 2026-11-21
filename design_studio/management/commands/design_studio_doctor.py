@@ -87,13 +87,17 @@ class Command(BaseCommand):
             issues.append("TEMPLATES context_processors enthält 'design_studio.context_processors.theme_context' nicht.")
 
         # 2. Override check (Typ-A-Problem)
-        pkg_root = Path(__file__).resolve().parents[3]
+        pkg_app_dir = Path(__file__).resolve().parents[2]
         for kind in ("templates", "static"):
             for parent in self._collect_search_dirs(base_dir, kind):
+                try:
+                    if parent.resolve().is_relative_to(pkg_app_dir.resolve()):
+                        continue
+                except AttributeError:
+                    if str(parent.resolve()).startswith(str(pkg_app_dir.resolve())):
+                        continue
                 candidate = parent / "design_studio"
                 if not candidate.exists() or not candidate.is_dir():
-                    continue
-                if candidate.resolve() == pkg_root.resolve():
                     continue
                 if clean:
                     self._backup_or_remove(candidate, no_backup=no_backup)
