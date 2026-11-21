@@ -362,6 +362,34 @@ class DesignStudioPackageTests(TestCase):
         self.assertIn('id="ds-genre-photo-layer"', html)
         self.assertIn('ds-menu-genre', html)
 
+    def test_domain_kit_modular_subsections_menu_filtering(self):
+        from unittest.mock import MagicMock, patch
+        from design_studio.menu import resolve_user_menu
+
+        mock_settings = MagicMock()
+        mock_settings.is_module_enabled.side_effect = lambda mod: mod in ("persons", "documents")
+
+        custom_items = [
+            {"id": "persons", "url_name": "domain_kit:persons", "default_label": "Personen", "zone": "main", "visible": True},
+            {"id": "assets", "url_name": "domain_kit:assets", "default_label": "Assets", "zone": "main", "visible": True},
+            {"id": "documents", "url_name": "domain_kit:documents", "default_label": "Dokumente", "zone": "main", "visible": True},
+            {"id": "search", "url_name": "domain_kit:search", "default_label": "Suche", "zone": "main", "visible": True},
+        ]
+
+        with self.settings(DESIGN_STUDIO_MENU_ITEMS=custom_items):
+            with patch("django.apps.apps.is_installed", return_value=True), \
+                 patch("django.apps.apps.get_model") as mock_get_model:
+                mock_model = MagicMock()
+                mock_model.get_solo.return_value = mock_settings
+                mock_get_model.return_value = mock_model
+
+                res = resolve_user_menu(user=None)
+                all_ids = [it["id"] for it in res["all_items"]]
+                self.assertIn("persons", all_ids)
+                self.assertIn("documents", all_ids)
+                self.assertNotIn("assets", all_ids)
+                self.assertNotIn("search", all_ids)
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner

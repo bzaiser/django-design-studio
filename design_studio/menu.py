@@ -261,6 +261,16 @@ def resolve_user_menu(user, saved_menu_config=None):
         for it in base_items
     )
 
+    domain_settings = None
+    try:
+        from django.apps import apps
+        if apps.is_installed("domain_kit"):
+            _dms_model = apps.get_model("domain_kit", "DomainModuleSettings")
+            if _dms_model and hasattr(_dms_model, "get_solo"):
+                domain_settings = _dms_model.get_solo()
+    except Exception:
+        domain_settings = None
+
     resolved = []
     for idx, item in enumerate(base_items):
         if item.get("staff_only") and not is_staff:
@@ -270,6 +280,24 @@ def resolve_user_menu(user, saved_menu_config=None):
             continue
         if item_id == "design_studio" and has_profile_hub:
             continue
+
+        if domain_settings is not None:
+            url_name = str(item.get("url_name") or "")
+            if url_name.startswith("domain_kit:"):
+                mod_part = url_name.split(":", 1)[1]
+                target_mod = {
+                    "persons": "persons",
+                    "person_photo": "persons",
+                    "assets": "assets",
+                    "documents": "documents",
+                    "document_view": "documents",
+                    "document_preview": "documents",
+                    "document_download": "documents",
+                    "search": "global_search",
+                    "settings": "master_data",
+                }.get(mod_part)
+                if target_mod and not domain_settings.is_module_enabled(target_mod):
+                    continue
         ov = saved_map.get(item_id, {})
         custom_label = (ov.get("label") or "").strip()
         icon = (ov.get("icon") or "").strip()
