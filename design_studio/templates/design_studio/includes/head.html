@@ -55,50 +55,55 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 17px;
-        height: 17px;
-        padding: 0 4px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 4.5px;
         border-radius: 999px;
-        font-size: 0.65rem;
+        font-size: 0.66rem;
         font-weight: 700;
         line-height: 1;
-        color: #ffffff;
-        background: var(--theme-state-8, #dc3545);
-        box-shadow: 0 0 0 2px var(--bs-body-bg, #ffffff);
+        color: #ffffff !important;
+        background: #dc3545 !important;
+        border: 1.5px solid #ffffff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
         pointer-events: none;
-        z-index: 2;
+        z-index: 3;
     }
     .ds-nav-badge[data-level="warning"] {
-        background: var(--theme-state-6, #fd7e14);
-    }
-    .ds-nav-badge[data-level="primary"],
-    .ds-nav-badge[data-level="info"] {
-        background: var(--theme-state-5, var(--app-primary, #0d6efd));
+        background: #f59e0b !important;
     }
     .ds-nav-dot {
         display: inline-block;
-        width: 9px;
-        height: 9px;
+        width: 10px;
+        height: 10px;
         border-radius: 999px;
-        background: var(--theme-state-6, #fd7e14);
-        box-shadow: 0 0 0 2px var(--bs-body-bg, #ffffff);
+        background: #f59e0b !important;
+        border: 1.5px solid #ffffff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         pointer-events: none;
-        z-index: 2;
+        z-index: 3;
     }
     .ds-nav-dot[data-level="danger"] {
-        background: var(--theme-state-8, #dc3545);
+        background: #dc3545 !important;
     }
     .app-nav-icon-only .ds-nav-badge,
     body.sidebar-collapsed[data-menu-layout="sidebar"] .app-navbar .nav-link .ds-nav-badge {
         position: absolute;
-        top: 2px;
-        right: 2px;
+        top: 0px;
+        right: 0px;
+        margin-left: 0;
     }
     .app-nav-icon-only .ds-nav-dot,
     body.sidebar-collapsed[data-menu-layout="sidebar"] .app-navbar .nav-link .ds-nav-dot {
         position: absolute;
-        top: 5px;
-        right: 5px;
+        top: 3px;
+        right: 3px;
+        margin-left: 0;
+    }
+    body[data-menu-layout="sidebar"]:not(.sidebar-collapsed) .app-navbar .nav-link .ds-nav-badge,
+    body[data-menu-layout="sidebar"]:not(.sidebar-collapsed) .app-navbar .nav-link .ds-nav-dot {
+        position: static !important;
+        margin-left: auto !important;
     }
     .app-navbar .nav-link:not(.app-nav-icon-only) .ds-nav-badge,
     .app-navbar .nav-link:not(.app-nav-icon-only) .ds-nav-dot {
