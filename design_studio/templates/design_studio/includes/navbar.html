@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n %}{% url 'notify_kit:inbox' as notify_inbox_url %}
 <nav class="navbar navbar-expand-lg app-navbar mb-4">
     <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between w-100 w-lg-auto">
@@ -33,6 +33,8 @@
                         {% if item.display != 'text_only' or theme_studio.menu_layout == 'sidebar' %}
                             {% if item.id == 'night_mode' %}
                                 {% if theme_palette and theme_palette.is_dark %}<i class="bi bi-sun"></i>{% else %}<i class="bi {{ item.icon }}"></i>{% endif %}
+                            {% elif item.id == 'notifications' and notify_unread_count and item.icon == 'bi-bell' %}
+                                <i class="bi bi-bell-fill"></i>
                             {% else %}
                                 <i class="bi {{ item.icon }}"></i>
                             {% endif %}
@@ -42,7 +44,7 @@
                         {% else %}
                             <span class="nav-label">{{ item.label }}</span>
                         {% endif %}
-                        {% if item.badge_count %}<span class="ds-nav-badge" data-level="{{ item.badge_level|default:'danger' }}">{% if item.badge_count > 9 %}9+{% else %}{{ item.badge_count }}{% endif %}</span>{% elif item.badge_dot %}<span class="ds-nav-dot" data-level="{{ item.badge_level|default:'warning' }}" aria-hidden="true"></span>{% endif %}
+                        {% if item.badge_count %}<span class="ds-nav-badge" data-level="{{ item.badge_level|default:'danger' }}">{% if item.badge_count > 9 %}9+{% else %}{{ item.badge_count }}{% endif %}</span>{% elif item.id == 'notifications' and notify_unread_count %}<span class="ds-nav-badge" data-level="danger">{% if notify_unread_count > 9 %}9+{% else %}{{ notify_unread_count }}{% endif %}</span>{% elif item.badge_dot %}<span class="ds-nav-dot" data-level="{{ item.badge_level|default:'warning' }}" aria-hidden="true"></span>{% endif %}
                     </a>
                 </li>
                 {% endfor %}
@@ -58,6 +60,8 @@
                         {% if item.display != 'text_only' or theme_studio.menu_layout == 'sidebar' %}
                             {% if item.id == 'night_mode' %}
                                 {% if theme_palette and theme_palette.is_dark %}<i class="bi bi-sun fs-5"></i>{% else %}<i class="bi {{ item.icon }} fs-5"></i>{% endif %}
+                            {% elif item.id == 'notifications' and notify_unread_count and item.icon == 'bi-bell' %}
+                                <i class="bi bi-bell-fill fs-5"></i>
                             {% else %}
                                 <i class="bi {{ item.icon }} fs-5"></i>
                             {% endif %}
@@ -67,7 +71,7 @@
                         {% else %}
                             <span class="nav-label">{{ item.label }}</span>
                         {% endif %}
-                        {% if item.badge_count %}<span class="ds-nav-badge" data-level="{{ item.badge_level|default:'danger' }}">{% if item.badge_count > 9 %}9+{% else %}{{ item.badge_count }}{% endif %}</span>{% elif item.badge_dot %}<span class="ds-nav-dot" data-level="{{ item.badge_level|default:'warning' }}" aria-hidden="true"></span>{% endif %}
+                        {% if item.badge_count %}<span class="ds-nav-badge" data-level="{{ item.badge_level|default:'danger' }}">{% if item.badge_count > 9 %}9+{% else %}{{ item.badge_count }}{% endif %}</span>{% elif item.id == 'notifications' and notify_unread_count %}<span class="ds-nav-badge" data-level="danger">{% if notify_unread_count > 9 %}9+{% else %}{{ notify_unread_count }}{% endif %}</span>{% elif item.badge_dot %}<span class="ds-nav-dot" data-level="{{ item.badge_level|default:'warning' }}" aria-hidden="true"></span>{% endif %}
                     </a>
                 </li>
                 {% endfor %}
