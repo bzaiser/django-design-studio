@@ -1629,3 +1629,57 @@ body[data-genre="scifi"] main .card {
 body[data-genre="welt"] { --ds-genre-accent: #2563EB; }
 body[data-genre="urlaub"] { --ds-genre-accent: #EA580C; }
 body[data-genre="meer"] { --ds-genre-accent: #0284C7; }
+
+/* === Navbar / Sidebar Notification Badges & Update Dots === */
+.ds-nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4.5px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    line-height: 1;
+    border-radius: 999px;
+    color: #ffffff !important;
+    background: var(--theme-state-6, #dc3545);
+    box-shadow: 0 0 0 2px var(--app-card-bg, #ffffff);
+    margin-left: 4px;
+    pointer-events: none;
+}
+.ds-nav-badge[data-level="warning"] {
+    background: var(--theme-state-5, #f59e0b);
+}
+.ds-nav-badge[data-level="primary"] {
+    background: var(--theme-state-6, #ef4444);
+}
+.ds-nav-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--theme-state-5, #f59e0b);
+    box-shadow: 0 0 0 2px var(--app-card-bg, #ffffff);
+    margin-left: 4px;
+    pointer-events: none;
+}
+.ds-nav-dot[data-level="danger"] {
+    background: var(--theme-state-6, #dc3545);
+}
+@media (min-width: 992px) {
+    .app-nav-icon-only .ds-nav-badge,
+    body.sidebar-collapsed .app-navbar .nav-link .ds-nav-badge {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        margin-left: 0;
+    }
+    .app-nav-icon-only .ds-nav-dot,
+    body.sidebar-collapsed .app-navbar .nav-link .ds-nav-dot {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        margin-left: 0;
+    }
+}

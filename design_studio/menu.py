@@ -262,14 +262,63 @@ def resolve_user_menu(user, saved_menu_config=None):
     )
 
     domain_settings = None
+    notify_badge = {"count": 0, "level": "danger", "latest_title": ""}
+    ops_has_updates = False
+    is_auth = bool(user and getattr(user, "is_authenticated", False))
     try:
         from django.apps import apps
         if apps.is_installed("domain_kit"):
             _dms_model = apps.get_model("domain_kit", "DomainModuleSettings")
             if _dms_model and hasattr(_dms_model, "get_solo"):
                 domain_settings = _dms_model.get_solo()
+        if apps.is_installed("notify_kit"):
+            has_notify_item = any(
+                isinstance(it, dict) and (it.get("id") == "notifications" or str(it.get("url_name") or "").startswith("notify_kit:"))
+                for it in base_items
+            )
+            if not has_notify_item:
+                base_items.append({
+                    "id": "notifications",
+                    "url_name": "notify_kit:inbox",
+                    "match_urls": ["inbox"],
+                    "default_label": _("Meldungen"),
+                    "icon": "bi-bell",
+                    "zone": "utility",
+                    "display": "icon_only",
+                    "visible": True,
+                    "order": 1,
+                })
+            if is_auth:
+                _notif_model = apps.get_model("notify_kit", "Notification")
+                if _notif_model:
+                    unread_rows = list(
+                        _notif_model.objects.filter(user=user, is_read=False)
+                        .order_by("-created_at")
+                        .values_list("title", "level")[:15]
+                    )
+                    if unread_rows:
+                        notify_badge["count"] = (
+                            len(unread_rows)
+                            if len(unread_rows) < 15
+                            else _notif_model.objects.filter(user=user, is_read=False).count()
+                        )
+                        notify_badge["latest_title"] = str(unread_rows[0][0] or "").strip()
+                        levels = {str(r[1] or "").lower() for r in unread_rows}
+                        if "danger" in levels or "error" in levels:
+                            notify_badge["level"] = "danger"
+                        elif "warning" in levels:
+                            notify_badge["level"] = "warning"
+                        else:
+                            notify_badge["level"] = "primary"
+        if is_auth and is_staff and apps.is_installed("ops_kit"):
+            _upd_model = apps.get_model("ops_kit", "UpdateSettings")
+            if _upd_model and hasattr(_upd_model, "get_solo"):
+                ucfg = _upd_model.get_solo()
+                res_json = getattr(ucfg, "last_result_json", None) or {}
+                if isinstance(res_json, dict) and res_json.get("has_updates"):
+                    ops_has_updates = True
     except Exception:
-        domain_settings = None
+        pass
 
     if domain_settings is not None:
         existing_domain_urls = {
@@ -397,13 +446,37 @@ def resolve_user_menu(user, saved_menu_config=None):
             except Exception:
                 url = item.get("url", "#")
 
+        label_text = custom_label or str(item.get("default_label", item_id))
+        badge_count = int(item.get("badge_count") or 0)
+        badge_dot = bool(item.get("badge_dot", False))
+        badge_level = str(item.get("badge_level") or "danger")
+        badge_tooltip = ""
+
+        url_name_str = str(item.get("url_name") or "")
+        if item_id == "notifications" or url_name_str.startswith("notify_kit:"):
+            if notify_badge["count"] > 0:
+                badge_count = notify_badge["count"]
+                badge_level = notify_badge["level"]
+                if icon == "bi-bell":
+                    icon = "bi-bell-fill"
+                latest = notify_badge["latest_title"]
+                badge_tooltip = (
+                    f"{label_text} ({badge_count} ungelesen – {latest})"
+                    if latest
+                    else f"{label_text} ({badge_count} ungelesen)"
+                )
+        elif ops_has_updates and item_id in ("profile", "settings", "design_studio", "ops_updates"):
+            badge_dot = True
+            badge_level = "warning"
+            badge_tooltip = f"{label_text} (Neue Updates verfügbar)"
+
         resolved.append({
             "id": item_id,
             "url": url,
             "match_urls": list(item.get("match_urls") or []),
             "default_label": str(item.get("default_label", item_id)),
             "custom_label": custom_label,
-            "label": custom_label or str(item.get("default_label", item_id)),
+            "label": label_text,
             "icon": icon,
             "zone": zone,
             "display": display,
@@ -411,6 +484,10 @@ def resolve_user_menu(user, saved_menu_config=None):
             "order": order,
             "locked": locked,
             "genre": genre,
+            "badge_count": badge_count,
+            "badge_dot": badge_dot,
+            "badge_level": badge_level,
+            "badge_tooltip": badge_tooltip,
         })
 
     zone_rank = {"main": 0, "utility": 1, "system": 2}
@@ -420,6 +497,8 @@ def resolve_user_menu(user, saved_menu_config=None):
         "main_items": [x for x in resolved if x["visible"] and x["zone"] == "main"],
         "utility_items": [x for x in resolved if x["visible"] and x["zone"] == "utility"],
         "system_items": [x for x in resolved if x["visible"] and x["zone"] == "system"],
+        "has_updates": ops_has_updates,
+        "unread_notifications_count": notify_badge["count"],
         "icon_choices": [(ic, str(lbl)) for ic, lbl in MENU_ICON_CHOICES],
         "genre_choices": [(gk, str(gl)) for gk, gl in GENRE_CHOICES],
     }

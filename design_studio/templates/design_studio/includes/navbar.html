@@ -27,9 +27,9 @@
                 <li class="nav-sliding-pill" aria-hidden="true"></li>
                 {% for item in nav_main_items %}
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name in item.match_urls or request.path == item.url %}active{% endif %} {% if item.display == 'icon_only' %}app-nav-icon-only{% endif %}"
+                    <a class="nav-link position-relative {% if request.resolver_match.url_name in item.match_urls or request.path == item.url %}active{% endif %} {% if item.display == 'icon_only' %}app-nav-icon-only{% endif %}"
                        href="{{ item.url }}"
-                       title="{% if item.id == 'night_mode' %}{% if theme_palette and theme_palette.is_dark %}{% trans 'Tagmodus aktivieren' %}{% else %}{% trans 'Nachtmodus aktivieren' %}{% endif %}{% else %}{{ item.label }}{% endif %}">
+                       title="{% if item.id == 'night_mode' %}{% if theme_palette and theme_palette.is_dark %}{% trans 'Tagmodus aktivieren' %}{% else %}{% trans 'Nachtmodus aktivieren' %}{% endif %}{% elif item.badge_tooltip %}{{ item.badge_tooltip }}{% else %}{{ item.label }}{% endif %}">
                         {% if item.display != 'text_only' or theme_studio.menu_layout == 'sidebar' %}
                             {% if item.id == 'night_mode' %}
                                 {% if theme_palette and theme_palette.is_dark %}<i class="bi bi-sun"></i>{% else %}<i class="bi {{ item.icon }}"></i>{% endif %}
@@ -42,6 +42,7 @@
                         {% else %}
                             <span class="nav-label">{{ item.label }}</span>
                         {% endif %}
+                        {% if item.badge_count %}<span class="ds-nav-badge" data-level="{{ item.badge_level|default:'danger' }}">{% if item.badge_count > 9 %}9+{% else %}{{ item.badge_count }}{% endif %}</span>{% elif item.badge_dot %}<span class="ds-nav-dot" data-level="{{ item.badge_level|default:'warning' }}" aria-hidden="true"></span>{% endif %}
                     </a>
                 </li>
                 {% endfor %}
@@ -50,10 +51,10 @@
                 <li class="nav-sliding-pill" aria-hidden="true"></li>
                 {% for item in nav_utility_items %}
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name in item.match_urls or request.path == item.url %}active{% endif %} {% if item.display == 'icon_only' %}app-nav-icon-only{% endif %}"
+                    <a class="nav-link position-relative {% if request.resolver_match.url_name in item.match_urls or request.path == item.url %}active{% endif %} {% if item.display == 'icon_only' %}app-nav-icon-only{% endif %}"
                        href="{{ item.url }}"
-                       title="{% if item.id == 'night_mode' %}{% if theme_palette and theme_palette.is_dark %}{% trans 'Tagmodus aktivieren' %}{% else %}{% trans 'Nachtmodus aktivieren' %}{% endif %}{% else %}{{ item.label }}{% endif %}"
-                       aria-label="{{ item.label }}">
+                       title="{% if item.id == 'night_mode' %}{% if theme_palette and theme_palette.is_dark %}{% trans 'Tagmodus aktivieren' %}{% else %}{% trans 'Nachtmodus aktivieren' %}{% endif %}{% elif item.badge_tooltip %}{{ item.badge_tooltip }}{% else %}{{ item.label }}{% endif %}"
+                       aria-label="{{ item.badge_tooltip|default:item.label }}">
                         {% if item.display != 'text_only' or theme_studio.menu_layout == 'sidebar' %}
                             {% if item.id == 'night_mode' %}
                                 {% if theme_palette and theme_palette.is_dark %}<i class="bi bi-sun fs-5"></i>{% else %}<i class="bi {{ item.icon }} fs-5"></i>{% endif %}
@@ -66,17 +67,19 @@
                         {% else %}
                             <span class="nav-label">{{ item.label }}</span>
                         {% endif %}
+                        {% if item.badge_count %}<span class="ds-nav-badge" data-level="{{ item.badge_level|default:'danger' }}">{% if item.badge_count > 9 %}9+{% else %}{{ item.badge_count }}{% endif %}</span>{% elif item.badge_dot %}<span class="ds-nav-dot" data-level="{{ item.badge_level|default:'warning' }}" aria-hidden="true"></span>{% endif %}
                     </a>
                 </li>
                 {% endfor %}
                 {% if nav_system_items %}
                 <li class="nav-item">
-                    <a class="nav-link {% if nav_system_active %}active{% endif %} app-nav-icon-only"
+                    <a class="nav-link position-relative {% if nav_system_active %}active{% endif %} app-nav-icon-only"
                        href="{{ nav_system_entry_url }}"
-                       title="{% trans 'Einstellungen & System' %}"
+                       title="{% if nav_system_has_updates %}{% trans 'Einstellungen & System (Neue Updates verfügbar)' %}{% else %}{% trans 'Einstellungen & System' %}{% endif %}"
                        aria-label="{% trans 'Einstellungen & System' %}">
                         <i class="bi bi-gear fs-5"></i>
                         <span class="d-lg-none nav-label">{% trans "Einstellungen" %}</span>
+                        {% if nav_system_has_updates %}<span class="ds-nav-dot" data-level="warning" aria-hidden="true"></span>{% endif %}
                     </a>
                 </li>
                 {% endif %}

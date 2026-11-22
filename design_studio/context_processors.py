@@ -53,6 +53,7 @@ def theme_context(request):
         "nav_system_items": system_items,
         "nav_system_active": system_active,
         "nav_system_entry_url": system_entry_url,
+        "nav_system_has_updates": bool(user_menu.get("has_updates")),
         "menu_studio_items": user_menu["all_items"],
         "menu_icon_choices": user_menu["icon_choices"],
         "genre_choices": [(gk, str(gl)) for gk, gl in GENRE_CHOICES],

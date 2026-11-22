@@ -500,6 +500,64 @@ class DesignStudioPackageTests(TestCase):
                 self.assertTrue(r_del.json()["removed"])
                 self.assertEqual(self.client.get("/design-studio/genre-bg/natur/").status_code, 404)
 
+    def test_notify_kit_unread_badge_and_ops_kit_update_dot(self):
+        from unittest.mock import MagicMock, patch
+        from django.template.loader import render_to_string
+        from django.test import RequestFactory
+        from design_studio.menu import resolve_user_menu
+
+        self.user.is_staff = True
+        self.user.save()
+
+        mock_notif_qs = MagicMock()
+        mock_notif_qs.order_by.return_value.values_list.return_value = [
+            ("Backup fehlgeschlagen", "danger")
+        ] + [(f"Info {i}", "info") for i in range(11)]
+
+        mock_notif_model = MagicMock()
+        mock_notif_model.objects.filter.return_value = mock_notif_qs
+
+        mock_update_settings = MagicMock()
+        mock_update_settings.last_result_json = {"has_updates": True}
+        mock_update_model = MagicMock()
+        mock_update_model.get_solo.return_value = mock_update_settings
+
+        def fake_is_installed(app_name):
+            return app_name in ("notify_kit", "ops_kit")
+
+        def fake_get_model(app_label, model_name):
+            if app_label == "notify_kit" and model_name == "Notification":
+                return mock_notif_model
+            if app_label == "ops_kit" and model_name == "UpdateSettings":
+                return mock_update_model
+            raise LookupError(f"{app_label}.{model_name}")
+
+        with patch("django.apps.apps.is_installed", side_effect=fake_is_installed), \
+             patch("django.apps.apps.get_model", side_effect=fake_get_model):
+            res = resolve_user_menu(user=self.user)
+            self.assertTrue(res["has_updates"])
+            notif_items = [it for it in res["all_items"] if it["id"] == "notifications"]
+            self.assertEqual(len(notif_items), 1)
+            notif_item = notif_items[0]
+            self.assertEqual(notif_item["badge_count"], 12)
+            self.assertEqual(notif_item["badge_level"], "danger")
+            self.assertEqual(notif_item["icon"], "bi-bell-fill")
+            self.assertIn("12 ungelesen", notif_item["badge_tooltip"])
+            self.assertIn("Backup fehlgeschlagen", notif_item["badge_tooltip"])
+
+            studio_items = [it for it in res["all_items"] if it["id"] == "design_studio"]
+            self.assertTrue(studio_items[0]["badge_dot"])
+
+            rf = RequestFactory()
+            req = rf.get("/design-studio/")
+            req.user = self.user
+            html = render_to_string("design_studio/layouts/base.html", {}, request=req)
+            self.assertIn("ds-nav-badge", html)
+            self.assertIn("9+", html)
+            self.assertIn("bi-bell-fill", html)
+            self.assertIn("ds-nav-dot", html)
+            self.assertIn("Neue Updates verfügbar", html)
+
     def test_no_missing_migrations(self):
         call_command("makemigrations", "design_studio", "--check", "--dry-run", verbosity=0)
 
