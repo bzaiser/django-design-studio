@@ -168,6 +168,11 @@
     } else {
         syncNotifyBadge();
     }
+    setInterval(function () {
+        if (document.visibilityState === 'visible') {
+            syncNotifyBadge();
+        }
+    }, 60000);
 })();
 </script>
 {% endif %}
