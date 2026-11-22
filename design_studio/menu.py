@@ -267,58 +267,71 @@ def resolve_user_menu(user, saved_menu_config=None):
     is_auth = bool(user and getattr(user, "is_authenticated", False))
     try:
         from django.apps import apps
-        if apps.is_installed("domain_kit"):
-            _dms_model = apps.get_model("domain_kit", "DomainModuleSettings")
-            if _dms_model and hasattr(_dms_model, "get_solo"):
-                domain_settings = _dms_model.get_solo()
-        if apps.is_installed("notify_kit"):
-            has_notify_item = any(
-                isinstance(it, dict) and (it.get("id") == "notifications" or str(it.get("url_name") or "").startswith("notify_kit:"))
-                for it in base_items
-            )
-            if not has_notify_item:
-                base_items.append({
-                    "id": "notifications",
-                    "url_name": "notify_kit:inbox",
-                    "match_urls": ["inbox"],
-                    "default_label": _("Meldungen"),
-                    "icon": "bi-bell",
-                    "zone": "utility",
-                    "display": "icon_only",
-                    "visible": True,
-                    "order": 1,
-                })
-            if is_auth:
-                _notif_model = apps.get_model("notify_kit", "Notification")
-                if _notif_model:
-                    unread_rows = list(
-                        _notif_model.objects.filter(user=user, is_read=False)
-                        .order_by("-created_at")
-                        .values_list("title", "level")[:15]
-                    )
-                    if unread_rows:
-                        notify_badge["count"] = (
-                            len(unread_rows)
-                            if len(unread_rows) < 15
-                            else _notif_model.objects.filter(user=user, is_read=False).count()
-                        )
-                        notify_badge["latest_title"] = str(unread_rows[0][0] or "").strip()
-                        levels = {str(r[1] or "").lower() for r in unread_rows}
-                        if "danger" in levels or "error" in levels:
-                            notify_badge["level"] = "danger"
-                        elif "warning" in levels:
-                            notify_badge["level"] = "warning"
-                        else:
-                            notify_badge["level"] = "primary"
-        if is_auth and is_staff and apps.is_installed("ops_kit"):
-            _upd_model = apps.get_model("ops_kit", "UpdateSettings")
-            if _upd_model and hasattr(_upd_model, "get_solo"):
-                ucfg = _upd_model.get_solo()
-                res_json = getattr(ucfg, "last_result_json", None) or {}
-                if isinstance(res_json, dict) and res_json.get("has_updates"):
-                    ops_has_updates = True
     except Exception:
-        pass
+        apps = None
+
+    if apps is not None:
+        try:
+            if apps.is_installed("domain_kit"):
+                _dms_model = apps.get_model("domain_kit", "DomainModuleSettings")
+                if _dms_model and hasattr(_dms_model, "get_solo"):
+                    domain_settings = _dms_model.get_solo()
+        except Exception:
+            domain_settings = None
+
+        try:
+            if apps.is_installed("notify_kit"):
+                has_notify_item = any(
+                    isinstance(it, dict) and (it.get("id") == "notifications" or str(it.get("url_name") or "").startswith("notify_kit:"))
+                    for it in base_items
+                )
+                if not has_notify_item:
+                    base_items.append({
+                        "id": "notifications",
+                        "url_name": "notify_kit:inbox",
+                        "match_urls": ["inbox"],
+                        "default_label": _("Meldungen"),
+                        "icon": "bi-bell",
+                        "zone": "utility",
+                        "display": "icon_only",
+                        "visible": True,
+                        "order": 1,
+                    })
+                if is_auth:
+                    _notif_model = apps.get_model("notify_kit", "Notification")
+                    if _notif_model:
+                        unread_rows = list(
+                            _notif_model.objects.filter(user=user, is_read=False)
+                            .order_by("-created_at")
+                            .values_list("title", "level")[:15]
+                        )
+                        if unread_rows:
+                            notify_badge["count"] = (
+                                len(unread_rows)
+                                if len(unread_rows) < 15
+                                else _notif_model.objects.filter(user=user, is_read=False).count()
+                            )
+                            notify_badge["latest_title"] = str(unread_rows[0][0] or "").strip()
+                            levels = {str(r[1] or "").lower() for r in unread_rows}
+                            if "danger" in levels or "error" in levels:
+                                notify_badge["level"] = "danger"
+                            elif "warning" in levels:
+                                notify_badge["level"] = "warning"
+                            else:
+                                notify_badge["level"] = "primary"
+        except Exception:
+            pass
+
+        try:
+            if is_auth and is_staff and apps.is_installed("ops_kit"):
+                _upd_model = apps.get_model("ops_kit", "UpdateSettings")
+                if _upd_model and hasattr(_upd_model, "get_solo"):
+                    ucfg = _upd_model.get_solo()
+                    res_json = getattr(ucfg, "last_result_json", None) or {}
+                    if isinstance(res_json, dict) and res_json.get("has_updates"):
+                        ops_has_updates = True
+        except Exception:
+            pass
 
     if domain_settings is not None:
         existing_domain_urls = {
@@ -492,12 +505,17 @@ def resolve_user_menu(user, saved_menu_config=None):
 
     zone_rank = {"main": 0, "utility": 1, "system": 2}
     resolved.sort(key=lambda x: (zone_rank.get(x["zone"], 1), x["order"]))
+    has_visible_notify = any(
+        x["visible"] and (x["id"] == "notifications" or "inbox" in (x.get("match_urls") or []))
+        for x in resolved
+    )
     return {
         "all_items": resolved,
         "main_items": [x for x in resolved if x["visible"] and x["zone"] == "main"],
         "utility_items": [x for x in resolved if x["visible"] and x["zone"] == "utility"],
         "system_items": [x for x in resolved if x["visible"] and x["zone"] == "system"],
         "has_updates": ops_has_updates,
+        "has_notify_item": has_visible_notify,
         "unread_notifications_count": notify_badge["count"],
         "icon_choices": [(ic, str(lbl)) for ic, lbl in MENU_ICON_CHOICES],
         "genre_choices": [(gk, str(gl)) for gk, gl in GENRE_CHOICES],

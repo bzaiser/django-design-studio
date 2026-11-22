@@ -54,6 +54,8 @@ def theme_context(request):
         "nav_system_active": system_active,
         "nav_system_entry_url": system_entry_url,
         "nav_system_has_updates": bool(user_menu.get("has_updates")),
+        "nav_has_notify_item": bool(user_menu.get("has_notify_item")),
+        "ds_unread_notifications_count": int(user_menu.get("unread_notifications_count") or 0),
         "menu_studio_items": user_menu["all_items"],
         "menu_icon_choices": user_menu["icon_choices"],
         "genre_choices": [(gk, str(gl)) for gk, gl in GENRE_CHOICES],
