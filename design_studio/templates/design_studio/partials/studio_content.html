@@ -1,4 +1,4 @@
-{% load i18n static %}
+{% load i18n static %}{% url 'design_studio:upload_genre_bg' as ds_upload_genre_bg_url %}{% url 'design_studio:delete_genre_bg' as ds_delete_genre_bg_url %}
     <div class="py-1">
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
             <div class="card-header border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -297,7 +297,7 @@
                         var fd = new FormData();
                         fd.append('genre_key', key);
                         fd.append('image', pendingFile);
-                        fetch('{% url "design_studio:upload_genre_bg" %}', {
+                        fetch('{{ ds_upload_genre_bg_url|default:"/design-studio/genre-bg/upload/" }}', {
                             method: 'POST',
                             headers: { 'X-CSRFToken': bgCsrf, 'X-Requested-With': 'XMLHttpRequest' },
                             body: fd
@@ -325,7 +325,7 @@
                         if (!key) return;
                         var fd = new FormData();
                         fd.append('genre_key', key);
-                        fetch('{% url "design_studio:delete_genre_bg" %}', {
+                        fetch('{{ ds_delete_genre_bg_url|default:"/design-studio/genre-bg/delete/" }}', {
                             method: 'POST',
                             headers: { 'X-CSRFToken': bgCsrf, 'X-Requested-With': 'XMLHttpRequest' },
                             body: fd
