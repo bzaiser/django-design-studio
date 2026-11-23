@@ -1,4 +1,4 @@
-{% load i18n %}{% if request.user.is_authenticated or user.is_authenticated %}{% url 'notify_kit:inbox' as notify_inbox_url %}{% url 'notify_kit:unread_json' as notify_unread_json_url %}{% url 'app_home' as app_home_url %}
+{% load i18n %}{% if request.user.is_authenticated or user.is_authenticated %}{% url 'notify_kit:inbox' as notify_inbox_url %}{% url 'notify_kit:unread_json' as notify_unread_json_url %}{% url 'app_home' as app_home_url %}{% url 'auth_kit:profile' as ds_profile_url %}{% url 'auth_kit:logout' as ds_logout_url %}{% url 'domain_kit:self_service' as ds_me_url %}{% url 'site_kit:home' as ds_public_home_url %}
 <nav class="navbar navbar-expand-lg app-navbar mb-4">
     <div class="container-fluid">
         <div class="app-navbar-header d-flex align-items-center justify-content-between w-100 w-lg-auto">
@@ -103,6 +103,29 @@
                     </a>
                 </li>
                 {% endif %}
+                <li class="nav-item dropdown ms-lg-1">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="{{ request.user.get_full_name|default:request.user.username }}">
+                        <i class="bi bi-person-circle fs-5"></i>
+                        <span class="nav-label small fw-semibold">{{ request.user.get_full_name|default:request.user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li class="dropdown-header small text-muted">
+                            {{ request.user.username }}{% if request.user.is_staff %} · Admin{% endif %}
+                        </li>
+                        {% if ds_profile_url %}<li><a class="dropdown-item small" href="{{ ds_profile_url }}"><i class="bi bi-person-gear me-2"></i>{% trans "Profil & Passwort" %}</a></li>{% endif %}
+                        {% if ds_me_url %}<li><a class="dropdown-item small" href="{{ ds_me_url }}"><i class="bi bi-person-badge me-2"></i>{% trans "Meine Daten" %}</a></li>{% endif %}
+                        {% if ds_public_home_url %}<li><a class="dropdown-item small" href="{{ ds_public_home_url }}"><i class="bi bi-globe2 me-2"></i>{% trans "Öffentliche Webseite" %}</a></li>{% endif %}
+                        {% if ds_logout_url %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{{ ds_logout_url }}" class="px-2 py-1">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100 rounded-pill"><i class="bi bi-box-arrow-right me-1"></i>{% trans "Abmelden" %}</button>
+                            </form>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>
