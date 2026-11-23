@@ -12,11 +12,18 @@ from .storage import get_storage_adapter
 def theme_context(request):
     user = getattr(request, "user", None)
     is_auth = bool(user and getattr(user, "is_authenticated", False))
+    adapter = get_storage_adapter()
     if is_auth:
-        adapter = get_storage_adapter()
         ts = adapter.get_settings(user)
     else:
         ts = normalize_settings(DEFAULT_SETTINGS)
+        try:
+            from django.contrib.auth import get_user_model
+            site_user = get_user_model().objects.filter(is_staff=True, is_active=True).order_by("id").first()
+            if site_user is not None:
+                ts = adapter.get_settings(site_user)
+        except Exception:
+            pass
 
     palette = compute_theme_palette(
         c1=ts["c1"],
