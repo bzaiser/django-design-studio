@@ -1,8 +1,8 @@
-{% load i18n %}{% if request.user.is_authenticated or user.is_authenticated %}{% url 'notify_kit:inbox' as notify_inbox_url %}{% url 'notify_kit:unread_json' as notify_unread_json_url %}
+{% load i18n %}{% if request.user.is_authenticated or user.is_authenticated %}{% url 'notify_kit:inbox' as notify_inbox_url %}{% url 'notify_kit:unread_json' as notify_unread_json_url %}{% url 'app_home' as app_home_url %}
 <nav class="navbar navbar-expand-lg app-navbar mb-4">
     <div class="container-fluid">
         <div class="app-navbar-header d-flex align-items-center justify-content-between w-100 w-lg-auto">
-            <a class="navbar-brand d-flex align-items-center gap-2 min-w-0" href="/">
+            <a class="navbar-brand d-flex align-items-center gap-2 min-w-0" href="{{ app_home_url|default:'/' }}">
                 {% if design_studio_app_icon != "none" %}
                 <i class="bi {{ design_studio_app_icon|default:'bi-speedometer2' }} flex-shrink-0"></i>
                 {% endif %}
