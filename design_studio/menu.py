@@ -458,18 +458,32 @@ def resolve_user_menu(user, saved_menu_config=None):
             pass
         try:
             if apps.is_installed("site_kit"):
-                optional_kit_items.append({
-                    "id": "site_manage",
-                    "url_name": "site_kit:manage",
-                    "match_urls": ["manage", "page_create", "page_edit"],
-                    "default_label": _("Webseite"),
-                    "icon": "bi-globe2",
-                    "zone": "main",
-                    "display": "icon_text",
-                    "visible": True,
-                    "order": 28,
-                    "editorial_or_staff": True,
-                })
+                optional_kit_items.extend([
+                    {
+                        "id": "site_cockpit",
+                        "url_name": "site_kit:cockpit",
+                        "match_urls": ["cockpit"],
+                        "default_label": _("Redaktion"),
+                        "icon": "bi-pencil-square",
+                        "zone": "main",
+                        "display": "icon_text",
+                        "visible": True,
+                        "order": 27,
+                        "editorial_or_staff": True,
+                    },
+                    {
+                        "id": "site_manage",
+                        "url_name": "site_kit:manage",
+                        "match_urls": ["manage", "page_create", "page_edit"],
+                        "default_label": _("Webseite"),
+                        "icon": "bi-globe2",
+                        "zone": "main",
+                        "display": "icon_text",
+                        "visible": True,
+                        "order": 28,
+                        "editorial_or_staff": True,
+                    },
+                ])
         except Exception:
             pass
         for opt_item in optional_kit_items:
