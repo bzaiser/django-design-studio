@@ -17,6 +17,7 @@ KIT_REPOS = {
     "auth_kit": "https://github.com/bzaiser/auth-django-kit/archive/refs/heads/main.zip",
     "notify_kit": "https://github.com/bzaiser/notify-django-kit/archive/refs/heads/main.zip",
     "cal_kit": "https://github.com/bzaiser/cal-django-kit/archive/refs/heads/main.zip",
+    "list_kit": "https://github.com/bzaiser/list-django-kit/archive/refs/heads/main.zip",
     "grid_kit": "https://github.com/bzaiser/grid-django-kit/archive/refs/heads/main.zip",
     "seed_kit": "https://github.com/bzaiser/seed-django-kit/archive/refs/heads/main.zip",
     "ops_kit": "https://github.com/bzaiser/ops-django-kit/archive/refs/heads/main.zip",
