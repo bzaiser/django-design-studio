@@ -11,7 +11,8 @@ from .storage import get_storage_adapter
 
 def theme_context(request):
     user = getattr(request, "user", None)
-    if user and getattr(user, "is_authenticated", False):
+    is_auth = bool(user and getattr(user, "is_authenticated", False))
+    if is_auth:
         adapter = get_storage_adapter()
         ts = adapter.get_settings(user)
     else:
@@ -29,7 +30,7 @@ def theme_context(request):
     user_menu = resolve_user_menu(user, saved_menu_config=ts.get("menu_config"))
     system_items, system_active, system_entry_url = compute_system_hub_state(request, user_menu["system_items"])
     active_genre = resolve_request_genre(request, user_menu["all_items"], default_genre=ts.get("default_genre", ""))
-    custom_genre_bgs = get_user_genre_bg_map(user) if (user and getattr(user, "is_authenticated", False)) else {}
+    custom_genre_bgs = get_user_genre_bg_map(user) if is_auth else {}
     if active_genre and active_genre.get("key") in custom_genre_bgs:
         active_genre = {**active_genre, "custom_photo_url": custom_genre_bgs[active_genre["key"]]}
 
@@ -48,14 +49,14 @@ def theme_context(request):
         "design_studio_presets": [
             {"key": k, **v} for k, v in APP_PRESETS.items()
         ],
-        "nav_main_items": user_menu["main_items"],
-        "nav_utility_items": user_menu["utility_items"],
-        "nav_system_items": system_items,
-        "nav_system_active": system_active,
-        "nav_system_entry_url": system_entry_url,
-        "nav_system_has_updates": bool(user_menu.get("has_updates")),
-        "nav_has_notify_item": bool(user_menu.get("has_notify_item")),
-        "ds_unread_notifications_count": int(user_menu.get("unread_notifications_count") or 0),
+        "nav_main_items": user_menu["main_items"] if is_auth else [],
+        "nav_utility_items": user_menu["utility_items"] if is_auth else [],
+        "nav_system_items": system_items if is_auth else [],
+        "nav_system_active": system_active if is_auth else False,
+        "nav_system_entry_url": system_entry_url if is_auth else "",
+        "nav_system_has_updates": bool(user_menu.get("has_updates")) if is_auth else False,
+        "nav_has_notify_item": bool(user_menu.get("has_notify_item")) if is_auth else False,
+        "ds_unread_notifications_count": int(user_menu.get("unread_notifications_count") or 0) if is_auth else 0,
         "menu_studio_items": user_menu["all_items"],
         "menu_icon_choices": user_menu["icon_choices"],
         "genre_choices": [(gk, str(gl)) for gk, gl in GENRE_CHOICES],

@@ -10,9 +10,11 @@
 </head>
 <body {% include "design_studio/includes/body_attrs.html" %}>
     {% include "design_studio/includes/bg_layer.html" %}
+    {% if request.user.is_authenticated or user.is_authenticated %}
     {% block navbar %}
         {% include "design_studio/includes/navbar.html" %}
     {% endblock %}
+    {% endif %}
 
     <main class="container-fluid pt-3 pt-md-4 pb-5">
         {% if messages %}

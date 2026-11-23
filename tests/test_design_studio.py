@@ -565,6 +565,32 @@ class DesignStudioPackageTests(TestCase):
             self.assertIn("ds-nav-dot", html)
             self.assertIn("Neue Updates verfügbar", html)
 
+    def test_anonymous_user_hides_navbar_and_menus(self):
+        from django.contrib.auth.models import AnonymousUser
+        from django.template.loader import render_to_string
+        from django.test import RequestFactory
+        from design_studio.context_processors import theme_context
+
+        rf = RequestFactory()
+        req = rf.get("/accounts/login/")
+        req.user = AnonymousUser()
+
+        ctx = theme_context(req)
+        self.assertEqual(ctx["nav_main_items"], [])
+        self.assertEqual(ctx["nav_utility_items"], [])
+        self.assertEqual(ctx["nav_system_items"], [])
+        self.assertFalse(ctx["nav_system_active"])
+        self.assertFalse(ctx["nav_has_notify_item"])
+        self.assertEqual(ctx["ds_unread_notifications_count"], 0)
+
+        base_html = render_to_string("design_studio/layouts/base.html", {}, request=req)
+        self.assertNotIn("<nav class=\"navbar", base_html)
+        self.assertNotIn("navMainList", base_html)
+        self.assertNotIn("navUtilityList", base_html)
+
+        nav_html = render_to_string("design_studio/includes/navbar.html", {}, request=req)
+        self.assertEqual(nav_html.strip(), "")
+
     def test_no_missing_migrations(self):
         call_command("makemigrations", "design_studio", "--check", "--dry-run", verbosity=0)
 
