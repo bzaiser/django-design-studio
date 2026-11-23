@@ -9,6 +9,26 @@ from .menu import compute_system_hub_state, resolve_user_menu
 from .storage import get_storage_adapter
 
 
+def _resolve_site_admin_theme(adapter, default_norm):
+    try:
+        from django.contrib.auth import get_user_model
+
+        staff_users = list(
+            get_user_model()
+            .objects.filter(is_staff=True, is_active=True)
+            .order_by("-is_superuser", "-last_login", "id")[:10]
+        )
+        for su in staff_users:
+            su_ts = adapter.get_settings(su)
+            if su_ts != default_norm:
+                return su, su_ts
+        if staff_users:
+            return staff_users[0], adapter.get_settings(staff_users[0])
+    except Exception:
+        pass
+    return None, default_norm
+
+
 def theme_context(request):
     user = getattr(request, "user", None)
     is_auth = bool(user and getattr(user, "is_authenticated", False))
@@ -17,13 +37,28 @@ def theme_context(request):
     if is_auth:
         ts = adapter.get_settings(user)
     else:
-        ts = default_norm
-    if ts == default_norm and not getattr(user, "is_staff", False):
+        ts = dict(default_norm)
+
+    site_user = None
+    site_ts = default_norm
+    if not getattr(user, "is_staff", False):
+        site_user, site_ts = _resolve_site_admin_theme(adapter, default_norm)
+        if ts == default_norm:
+            ts = dict(site_ts)
+        else:
+            ts = dict(ts)
+            for shared_key in ("brand_title", "brand_icon", "default_genre", "menu_config"):
+                if not ts.get(shared_key) and site_ts.get(shared_key):
+                    ts[shared_key] = site_ts[shared_key]
+
+    if not ts.get("brand_title"):
         try:
-            from django.contrib.auth import get_user_model
-            site_user = get_user_model().objects.filter(is_staff=True, is_active=True).order_by("id").first()
-            if site_user is not None and site_user != user:
-                ts = adapter.get_settings(site_user)
+            from django.apps import apps
+            if apps.is_installed("site_kit"):
+                from site_kit.models import SiteConfig
+                sname = (SiteConfig.get_solo().site_name or "").strip()
+                if sname and sname != "Mein Verein":
+                    ts = {**ts, "brand_title": sname}
         except Exception:
             pass
 
@@ -40,6 +75,8 @@ def theme_context(request):
     system_items, system_active, system_entry_url = compute_system_hub_state(request, user_menu["system_items"])
     active_genre = resolve_request_genre(request, user_menu["all_items"], default_genre=ts.get("default_genre", ""))
     custom_genre_bgs = get_user_genre_bg_map(user) if is_auth else {}
+    if not custom_genre_bgs and site_user is not None:
+        custom_genre_bgs = get_user_genre_bg_map(site_user)
     if active_genre and active_genre.get("key") in custom_genre_bgs:
         active_genre = {**active_genre, "custom_photo_url": custom_genre_bgs[active_genre["key"]]}
 
