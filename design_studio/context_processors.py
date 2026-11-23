@@ -13,14 +13,16 @@ def theme_context(request):
     user = getattr(request, "user", None)
     is_auth = bool(user and getattr(user, "is_authenticated", False))
     adapter = get_storage_adapter()
+    default_norm = normalize_settings(DEFAULT_SETTINGS)
     if is_auth:
         ts = adapter.get_settings(user)
     else:
-        ts = normalize_settings(DEFAULT_SETTINGS)
+        ts = default_norm
+    if ts == default_norm and not getattr(user, "is_staff", False):
         try:
             from django.contrib.auth import get_user_model
             site_user = get_user_model().objects.filter(is_staff=True, is_active=True).order_by("id").first()
-            if site_user is not None:
+            if site_user is not None and site_user != user:
                 ts = adapter.get_settings(site_user)
         except Exception:
             pass

@@ -468,7 +468,7 @@ def resolve_user_menu(user, saved_menu_config=None):
                     "display": "icon_text",
                     "visible": True,
                     "order": 28,
-                    "staff_only": True,
+                    "editorial_or_staff": True,
                 })
         except Exception:
             pass
@@ -478,9 +478,28 @@ def resolve_user_menu(user, saved_menu_config=None):
                 existing_ids.add(opt_item["id"])
                 existing_urls.add(opt_item["url_name"])
 
+    is_editorial = is_staff
+    if not is_editorial and user and getattr(user, "is_authenticated", False):
+        try:
+            is_editorial = user.groups.filter(
+                name__in=("Redakteur", "Redaktion", "Leitung / Vorstand", "Vorstand")
+            ).exists()
+        except Exception:
+            is_editorial = False
+
+    get_mod_access = None
+    if domain_settings is not None and user and getattr(user, "is_authenticated", False):
+        try:
+            from domain_kit.services import get_module_access
+            get_mod_access = get_module_access
+        except Exception:
+            get_mod_access = None
+
     resolved = []
     for idx, item in enumerate(base_items):
         if item.get("staff_only") and not is_staff:
+            continue
+        if item.get("editorial_or_staff") and not is_editorial:
             continue
         item_id = item.get("id")
         if not item_id:
@@ -504,6 +523,8 @@ def resolve_user_menu(user, saved_menu_config=None):
                     "settings": "master_data",
                 }.get(mod_part)
                 if target_mod and not domain_settings.is_module_enabled(target_mod):
+                    continue
+                if target_mod and get_mod_access is not None and get_mod_access(user, target_mod) == "none":
                     continue
         ov = saved_map.get(item_id, {})
         custom_label = (ov.get("label") or "").strip()
