@@ -404,6 +404,80 @@ def resolve_user_menu(user, saved_menu_config=None):
                 if domain_settings.is_module_enabled(c_item["module_key"]):
                     base_items.append(c_item)
 
+    if apps is not None:
+        existing_ids = {
+            item.get("id") for item in base_items if isinstance(item, dict) and item.get("id")
+        }
+        existing_urls = {
+            item.get("url_name") for item in base_items if isinstance(item, dict) and item.get("url_name")
+        }
+        optional_kit_items = []
+        try:
+            if apps.is_installed("cal_kit"):
+                optional_kit_items.append({
+                    "id": "calendar",
+                    "url_name": "cal_kit:calendar",
+                    "match_urls": ["calendar"],
+                    "default_label": _("Kalender"),
+                    "icon": "bi-calendar3",
+                    "zone": "main",
+                    "display": "icon_text",
+                    "visible": True,
+                    "order": 25,
+                })
+        except Exception:
+            pass
+        try:
+            if apps.is_installed("list_kit"):
+                optional_kit_items.extend([
+                    {
+                        "id": "lists",
+                        "url_name": "list_kit:collection_list",
+                        "match_urls": ["collection_list", "collection_detail"],
+                        "default_label": _("Listen"),
+                        "icon": "bi-list-check",
+                        "zone": "main",
+                        "display": "icon_text",
+                        "visible": True,
+                        "order": 26,
+                    },
+                    {
+                        "id": "list_builder",
+                        "url_name": "list_kit:builder_list",
+                        "match_urls": ["builder_list", "builder_edit", "builder_create"],
+                        "default_label": _("Listen-Builder"),
+                        "icon": "bi-ui-checks-grid",
+                        "zone": "main",
+                        "display": "icon_text",
+                        "visible": True,
+                        "order": 27,
+                        "staff_only": True,
+                    },
+                ])
+        except Exception:
+            pass
+        try:
+            if apps.is_installed("site_kit"):
+                optional_kit_items.append({
+                    "id": "site_manage",
+                    "url_name": "site_kit:manage",
+                    "match_urls": ["manage", "page_create", "page_edit"],
+                    "default_label": _("Webseite"),
+                    "icon": "bi-globe2",
+                    "zone": "main",
+                    "display": "icon_text",
+                    "visible": True,
+                    "order": 28,
+                    "staff_only": True,
+                })
+        except Exception:
+            pass
+        for opt_item in optional_kit_items:
+            if opt_item["id"] not in existing_ids and opt_item["url_name"] not in existing_urls:
+                base_items.append(opt_item)
+                existing_ids.add(opt_item["id"])
+                existing_urls.add(opt_item["url_name"])
+
     resolved = []
     for idx, item in enumerate(base_items):
         if item.get("staff_only") and not is_staff:

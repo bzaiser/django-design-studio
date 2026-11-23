@@ -591,6 +591,35 @@ class DesignStudioPackageTests(TestCase):
         nav_html = render_to_string("design_studio/includes/navbar.html", {}, request=req)
         self.assertEqual(nav_html.strip(), "")
 
+    def test_optional_kits_auto_discovered_in_menu_with_staff_filter(self):
+        from unittest.mock import patch
+        from design_studio.menu import resolve_user_menu
+
+        def fake_is_installed(app_name):
+            return app_name in ("cal_kit", "list_kit", "site_kit")
+
+        with self.settings(DESIGN_STUDIO_MENU_ITEMS=[]):
+            with patch("django.apps.apps.is_installed", side_effect=fake_is_installed):
+                # Regular user sees calendar + lists, not staff-only builder / site_manage
+                self.user.is_staff = False
+                self.user.save()
+                res_user = resolve_user_menu(user=self.user)
+                user_ids = [it["id"] for it in res_user["all_items"]]
+                self.assertIn("calendar", user_ids)
+                self.assertIn("lists", user_ids)
+                self.assertNotIn("list_builder", user_ids)
+                self.assertNotIn("site_manage", user_ids)
+
+                # Staff user sees all auto-discovered kit menu items
+                self.user.is_staff = True
+                self.user.save()
+                res_staff = resolve_user_menu(user=self.user)
+                staff_ids = [it["id"] for it in res_staff["all_items"]]
+                self.assertIn("calendar", staff_ids)
+                self.assertIn("lists", staff_ids)
+                self.assertIn("list_builder", staff_ids)
+                self.assertIn("site_manage", staff_ids)
+
     def test_no_missing_migrations(self):
         call_command("makemigrations", "design_studio", "--check", "--dry-run", verbosity=0)
 
