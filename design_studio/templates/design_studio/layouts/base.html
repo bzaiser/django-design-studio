@@ -8,7 +8,7 @@
     {% include "design_studio/includes/head.html" %}
     {% block head_extra %}{% endblock %}
 </head>
-<body {% include "design_studio/includes/body_attrs.html" %}>
+<body {% block body_attrs %}{% include "design_studio/includes/body_attrs.html" %}{% endblock %}>
     {% include "design_studio/includes/bg_layer.html" %}
     {% block navbar %}
         {% if request.user.is_authenticated or user.is_authenticated %}
