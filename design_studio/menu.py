@@ -414,11 +414,17 @@ def resolve_user_menu(user, saved_menu_config=None):
         optional_kit_items = []
         try:
             if apps.is_installed("cal_kit"):
+                cal_label = _("Kalender")
+                try:
+                    from cal_kit.services import get_cal_profile_labels
+                    cal_label = get_cal_profile_labels().get("menu_label") or cal_label
+                except Exception:
+                    pass
                 optional_kit_items.append({
                     "id": "calendar",
                     "url_name": "cal_kit:calendar",
-                    "match_urls": ["calendar"],
-                    "default_label": _("Kalender"),
+                    "match_urls": ["calendar", "offering_list", "billing_overview", "event_billing"],
+                    "default_label": cal_label,
                     "icon": "bi-calendar3",
                     "zone": "main",
                     "display": "icon_text",
