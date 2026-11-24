@@ -623,6 +623,38 @@ class DesignStudioPackageTests(TestCase):
     def test_no_missing_migrations(self):
         call_command("makemigrations", "design_studio", "--check", "--dry-run", verbosity=0)
 
+    def test_menu_designer_persists_system_hub_zone_and_moves_back_to_main(self):
+        import json
+        from django.contrib.auth import get_user_model
+        from design_studio.menu import resolve_user_menu
+        from design_studio.storage import get_storage_adapter
+
+        staff = get_user_model().objects.create_user(username="menu_adm", password="pw", is_staff=True)
+        self.client.force_login(staff)
+
+        payload = json.dumps([
+            {"id": "home", "label": "Start", "icon": "bi-house", "display": "icon_text", "zone": "main", "visible": True, "order": 1},
+            {"id": "design_studio", "label": "Studio", "icon": "bi-palette", "display": "icon_text", "zone": "system", "visible": True, "order": 2},
+        ])
+        r = self.client.post("/design-studio/save/", {"menu_config_json": payload})
+        self.assertEqual(r.status_code, 302)
+
+        menu = resolve_user_menu(staff, saved_menu_config=get_storage_adapter().get_settings(staff).get("menu_config"))
+        sys_ids = [x["id"] for x in menu["system_items"]]
+        main_ids = [x["id"] for x in menu["main_items"]]
+        self.assertIn("design_studio", sys_ids)
+        self.assertNotIn("design_studio", main_ids)
+
+        # Move back to main
+        payload2 = json.dumps([
+            {"id": "home", "label": "Start", "icon": "bi-house", "display": "icon_text", "zone": "main", "visible": True, "order": 1},
+            {"id": "design_studio", "label": "Studio", "icon": "bi-palette", "display": "icon_text", "zone": "main", "visible": True, "order": 2},
+        ])
+        self.client.post("/design-studio/save/", {"menu_config_json": payload2})
+        menu2 = resolve_user_menu(staff, saved_menu_config=get_storage_adapter().get_settings(staff).get("menu_config"))
+        self.assertIn("design_studio", [x["id"] for x in menu2["main_items"]])
+        self.assertNotIn("design_studio", [x["id"] for x in menu2["system_items"]])
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner

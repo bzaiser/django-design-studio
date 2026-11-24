@@ -144,7 +144,7 @@ def save_studio_view(request):
                             if not is_valid_bi_icon(ic):
                                 ic = ""
                             disp = m_item.get("display") if m_item.get("display") in ("icon_text", "icon_only", "text_only") else "icon_text"
-                            zn = m_item.get("zone") if m_item.get("zone") in ("main", "utility") else "main"
+                            zn = m_item.get("zone") if m_item.get("zone") in ("main", "utility", "system") else "main"
                             from .genres import is_valid_genre
                             gr = str(m_item.get("genre") or "").strip()
                             if not is_valid_genre(gr):
