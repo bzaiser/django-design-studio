@@ -404,6 +404,11 @@ body:not([data-card-surface="brutal"]) .ds-tabs-seamless .nav-link {
     -webkit-backdrop-filter: blur(8px);
     border-color: rgba(255, 255, 255, 0.18) !important;
 }
+body:not([data-card-surface="brutal"]) .ds-tabs-seamless .nav-link:not(.active) {
+    height: calc(var(--ds-tab-h, 44px) - 5px);
+    border-radius: 12px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
+}
 body:not([data-card-surface="brutal"]) .nav-tabs.ds-tabs-seamless .nav-link.active,
 body:not([data-card-surface="brutal"]) .folder-tabs-bar.ds-tabs-seamless .nav-link.active {
     background: transparent !important;
@@ -867,15 +872,22 @@ body[data-card-surface="liquid"] .metric-card::before {
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(
-        var(--shine-angle, 125deg),
-        rgba(255, 255, 255, 0) calc(var(--shine-pos, 30%) - 28%),
-        rgba(255, 255, 255, 0.28) var(--shine-pos, 30%),
-        rgba(255, 255, 255, 0) calc(var(--shine-pos, 30%) + 28%)
-    );
+    background:
+        radial-gradient(360px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), rgba(255, 255, 255, 0.26), transparent 65%),
+        linear-gradient(
+            var(--shine-angle, 125deg),
+            rgba(255, 255, 255, 0) calc(var(--shine-pos, 30%) - 28%),
+            rgba(255, 255, 255, 0.28) var(--shine-pos, 30%),
+            rgba(255, 255, 255, 0) calc(var(--shine-pos, 30%) + 28%)
+        );
     pointer-events: none;
     z-index: 0;
     mix-blend-mode: overlay;
+}
+body[data-card-surface="glass"] .card,
+body[data-card-surface="glass"] .ds-tab-panel,
+body[data-card-surface="liquid"] .ds-tab-panel {
+    background-image: radial-gradient(380px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), rgba(255, 255, 255, 0.2), transparent 65%);
 }
 body[data-card-surface="liquid"] .card:not(.metric-card)::after,
 body[data-card-surface="liquid"] .metric-card::after {

@@ -225,7 +225,7 @@
 
     document.addEventListener('pointermove', function (e) {
         if (!document.body || document.body.dataset.kpiSpotlight === 'false') return;
-        var card = e.target && e.target.closest ? e.target.closest('.metric-card') : null;
+        var card = e.target && e.target.closest ? e.target.closest('.metric-card, .card, .ds-tab-panel') : null;
         if (!card) return;
         var rect = card.getBoundingClientRect();
         card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
