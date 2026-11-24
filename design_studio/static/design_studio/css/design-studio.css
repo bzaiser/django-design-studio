@@ -394,6 +394,7 @@ body:not([data-card-surface="brutal"]) .ds-tabs-seamless {
 body:not([data-card-surface="brutal"]) .ds-tabs-seamless .nav-link {
     border-radius: 14px 14px 0 0 !important;
     border-bottom: none !important;
+    margin-bottom: 0 !important;
     height: var(--ds-tab-h, 44px);
     display: inline-flex;
     align-items: center;

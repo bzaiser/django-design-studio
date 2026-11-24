@@ -343,11 +343,14 @@
             if (oldSvg) oldSvg.style.display = 'none';
             return;
         }
-        var tabH = Math.round(tabBar.offsetHeight) || Math.round(activeLink.offsetHeight) || 44;
+        var tabH = Math.max(Math.ceil(tabBar.offsetHeight), Math.ceil(activeLink.offsetHeight), 44);
         tabBar.style.setProperty('--ds-tab-h', tabH + 'px');
         panel.style.setProperty('--ds-tab-h', tabH + 'px');
         tabBar.classList.add('ds-tabs-seamless');
         panel.classList.add('ds-plate-ready');
+        tabH = Math.max(tabH, Math.ceil(tabBar.offsetHeight), Math.ceil(activeLink.offsetHeight));
+        tabBar.style.setProperty('--ds-tab-h', tabH + 'px');
+        panel.style.setProperty('--ds-tab-h', tabH + 'px');
 
         var pRect = panel.getBoundingClientRect();
         var aRect = activeLink.getBoundingClientRect();
