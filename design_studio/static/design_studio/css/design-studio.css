@@ -241,6 +241,9 @@ small,
     padding: 0 0.5rem;
     margin-bottom: 0 !important;
 }
+.nav-tabs.ds-tabs.ds-system-hub-tabs {
+    margin-bottom: 1.15rem !important;
+}
 .nav-tabs .nav-link,
 .nav-tabs.ds-tabs .nav-link {
     color: var(--app-card-color, #1e293b) !important;
