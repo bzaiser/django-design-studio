@@ -515,11 +515,22 @@ def resolve_user_menu(user, saved_menu_config=None):
         except Exception:
             get_mod_access = None
 
+    is_superuser = bool(getattr(user, "is_superuser", False))
+    user_group_names = set()
+    if user and getattr(user, "is_authenticated", False):
+        try:
+            user_group_names = set(user.groups.values_list("name", flat=True))
+        except Exception:
+            user_group_names = set()
+
     resolved = []
     for idx, item in enumerate(base_items):
         if item.get("staff_only") and not is_staff:
             continue
         if item.get("editorial_or_staff") and not is_editorial:
+            continue
+        allowed_groups = item.get("allowed_groups")
+        if allowed_groups and not is_superuser and not (user_group_names & set(allowed_groups)):
             continue
         item_id = item.get("id")
         if not item_id:
@@ -529,7 +540,8 @@ def resolve_user_menu(user, saved_menu_config=None):
 
         if domain_settings is not None:
             url_name = str(item.get("url_name") or "")
-            if url_name.startswith("domain_kit:"):
+            target_mod = item.get("module_key")
+            if not target_mod and url_name.startswith("domain_kit:"):
                 mod_part = url_name.split(":", 1)[1]
                 target_mod = {
                     "persons": "persons",
@@ -542,10 +554,10 @@ def resolve_user_menu(user, saved_menu_config=None):
                     "search": "global_search",
                     "settings": "master_data",
                 }.get(mod_part)
-                if target_mod and not domain_settings.is_module_enabled(target_mod):
-                    continue
-                if target_mod and get_mod_access is not None and get_mod_access(user, target_mod) == "none":
-                    continue
+            if target_mod and not domain_settings.is_module_enabled(target_mod):
+                continue
+            if target_mod and get_mod_access is not None and get_mod_access(user, target_mod) == "none":
+                continue
         ov = saved_map.get(item_id, {})
         custom_label = (ov.get("label") or "").strip()
         icon = (ov.get("icon") or "").strip()
