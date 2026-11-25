@@ -103,8 +103,8 @@ body[data-font-family="rounded"] {
     --app-font-heading: 'Plus Jakarta Sans', 'Avenir Next', 'Nunito', 'Segoe UI', system-ui, sans-serif;
 }
 body[data-font-family="serif"] {
-    --app-font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --app-font-heading: Georgia, 'Playfair Display', 'Times New Roman', serif;
+    --app-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --app-font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
 }
 body[data-font-family="tech"] {
     --app-font-body: 'Space Grotesk', 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;

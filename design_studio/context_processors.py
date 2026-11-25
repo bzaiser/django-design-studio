@@ -114,7 +114,11 @@ def theme_context(request):
                 "secondary": v["secondary"],
                 "bg_light": v["bg_light"],
                 "svg": v["svg"],
-                "photo_url": v["photo_url"],
+                "photo_url": (
+                    __import__("django.templatetags.static", fromlist=["static"]).static(v["photo_url"])
+                    if v.get("photo_url") and not v["photo_url"].startswith(("http://", "https://", "/"))
+                    else v.get("photo_url", "")
+                ),
                 "custom_photo_url": custom_genre_bgs.get(k, ""),
             }
             for k, v in GENRE_DEFINITIONS.items()

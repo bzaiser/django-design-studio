@@ -7,9 +7,9 @@ GENRE_DEFINITIONS = {
         "primary": "#9D5C63",
         "secondary": "#C49A6C",
         "bg_light": "#F5EFE6",
-        "font_head": "'Georgia', 'Palatino', serif",
+        "font_head": "'Playfair Display', Georgia, 'Palatino', serif",
         "font_body": "'Georgia', serif",
-        "photo_url": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=1200&q=80",
+        "photo_url": "design_studio/img/genres/poesie.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<defs><pattern id="dsGenreLace" width="80" height="80" patternUnits="userSpaceOnUse">'
@@ -25,9 +25,9 @@ GENRE_DEFINITIONS = {
         "primary": "#3D7A5A",
         "secondary": "#8C9A6E",
         "bg_light": "#E8EFEA",
-        "font_head": "'Georgia', serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'Playfair Display', Georgia, serif",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/natur.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<g fill="none" stroke="#3D7A5A" stroke-width="1.5" opacity="0.28">'
@@ -44,8 +44,8 @@ GENRE_DEFINITIONS = {
         "secondary": "#2B6CB0",
         "bg_light": "#ECEFF3",
         "font_head": "system-ui, sans-serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/sport.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<g stroke="#E05A2B" stroke-width="2" opacity="0.24">'
@@ -61,9 +61,9 @@ GENRE_DEFINITIONS = {
         "primary": "#B86B35",
         "secondary": "#6E7F52",
         "bg_light": "#F2ECE4",
-        "font_head": "'Georgia', serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'Playfair Display', Georgia, serif",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/tiere.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<defs><pattern id="dsGenrePaws" width="120" height="120" patternUnits="userSpaceOnUse">'
@@ -80,9 +80,9 @@ GENRE_DEFINITIONS = {
         "primary": "#2563EB",
         "secondary": "#0D9488",
         "bg_light": "#E6ECF2",
-        "font_head": "ui-monospace, 'SF Mono', monospace",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'JetBrains Mono', ui-monospace, 'SF Mono', monospace",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/technik.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<defs><pattern id="dsGenreTech" width="60" height="60" patternUnits="userSpaceOnUse">'
@@ -97,9 +97,9 @@ GENRE_DEFINITIONS = {
         "primary": "#E11D48",
         "secondary": "#2563EB",
         "bg_light": "#FEFCE8",
-        "font_head": "'Comic Sans MS', 'Chalkboard SE', sans-serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', sans-serif",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/comic.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<defs><pattern id="dsGenreHalftone" width="24" height="24" patternUnits="userSpaceOnUse">'
@@ -113,9 +113,9 @@ GENRE_DEFINITIONS = {
         "primary": "#7C3AED",
         "secondary": "#D97706",
         "bg_light": "#EFEBF7",
-        "font_head": "'Georgia', serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'Playfair Display', Georgia, serif",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/esoterik.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<g fill="none" stroke="#7C3AED" stroke-width="1.2" opacity="0.25">'
@@ -130,9 +130,9 @@ GENRE_DEFINITIONS = {
         "primary": "#6D28D9",
         "secondary": "#DB2777",
         "bg_light": "#EFEBF5",
-        "font_head": "'Georgia', serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'Playfair Display', Georgia, serif",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/musik.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<g fill="none" stroke="#6D28D9" stroke-width="1.2" opacity="0.24">'
@@ -147,9 +147,9 @@ GENRE_DEFINITIONS = {
         "primary": "#F59E0B",
         "secondary": "#10B981",
         "bg_light": "#FFFBEB",
-        "font_head": "'Comic Sans MS', 'Chalkboard SE', sans-serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', sans-serif",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/kinder.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<circle cx="150" cy="180" r="24" fill="#F59E0B" opacity="0.25"/>'
@@ -164,9 +164,9 @@ GENRE_DEFINITIONS = {
         "primary": "#EC4899",
         "secondary": "#8B5CF6",
         "bg_light": "#FAF8F5",
-        "font_head": "'Comic Sans MS', cursive, sans-serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', sans-serif",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/malbuch.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<g fill="none" stroke="#EC4899" stroke-width="1.8" stroke-dasharray="6,6" opacity="0.28">'
@@ -180,9 +180,9 @@ GENRE_DEFINITIONS = {
         "primary": "#10B981",
         "secondary": "#8B5CF6",
         "bg_light": "#E8F0EC",
-        "font_head": "ui-monospace, 'SF Mono', monospace",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'JetBrains Mono', ui-monospace, 'SF Mono', monospace",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/game.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<defs><pattern id="dsGenrePixels" width="40" height="40" patternUnits="userSpaceOnUse">'
@@ -197,9 +197,9 @@ GENRE_DEFINITIONS = {
         "primary": "#06B6D4",
         "secondary": "#6366F1",
         "bg_light": "#E6F0F5",
-        "font_head": "ui-monospace, 'SF Mono', monospace",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'JetBrains Mono', ui-monospace, 'SF Mono', monospace",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/scifi.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<g fill="none" stroke="#06B6D4" stroke-width="1.2" opacity="0.28">'
@@ -214,9 +214,9 @@ GENRE_DEFINITIONS = {
         "primary": "#2563EB",
         "secondary": "#D97706",
         "bg_light": "#EAEFF5",
-        "font_head": "'Georgia', serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'Playfair Display', Georgia, serif",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/welt.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<g fill="none" stroke="#2563EB" stroke-width="1" opacity="0.24">'
@@ -232,8 +232,8 @@ GENRE_DEFINITIONS = {
         "secondary": "#0284C7",
         "bg_light": "#F5EFEA",
         "font_head": "system-ui, sans-serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/urlaub.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<path d="M80,680 Q320,240 720,180" fill="none" stroke="#EA580C" stroke-width="2" stroke-dasharray="8,8" opacity="0.32"/>'
@@ -247,9 +247,9 @@ GENRE_DEFINITIONS = {
         "primary": "#0284C7",
         "secondary": "#0D9488",
         "bg_light": "#E6F1F5",
-        "font_head": "'Georgia', serif",
-        "font_body": "system-ui, sans-serif",
-        "photo_url": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=1200&q=80",
+        "font_head": "'Playfair Display', Georgia, serif",
+        "font_body": "'Inter', system-ui, sans-serif",
+        "photo_url": "design_studio/img/genres/meer.jpg",
         "svg": (
             '<svg viewBox="0 0 800 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
             '<g fill="none" stroke="#0284C7" stroke-width="1.8" opacity="0.26">'
@@ -275,6 +275,10 @@ def get_genre_definition(key: str, user=None):
     if not key or key not in GENRE_DEFINITIONS:
         return None
     data = {"key": key, **GENRE_DEFINITIONS[key]}
+    photo = data.get("photo_url") or ""
+    if photo and not photo.startswith(("http://", "https://", "/")):
+        from django.templatetags.static import static
+        data["photo_url"] = static(photo)
     if user and getattr(user, "is_authenticated", False):
         try:
             from .bg_media import get_user_genre_bg_url
