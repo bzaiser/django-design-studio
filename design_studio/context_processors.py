@@ -41,7 +41,7 @@ def theme_context(request):
 
     site_user = None
     site_ts = default_norm
-    if not getattr(user, "is_staff", False):
+    if not getattr(user, "is_superuser", False):
         site_user, site_ts = _resolve_site_admin_theme(adapter, default_norm)
         if ts == default_norm:
             ts = dict(site_ts)
