@@ -193,10 +193,35 @@ small,
     border-color: var(--app-primary, #0d6efd) !important;
     color: #ffffff !important;
 }
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-dark,
+.btn-outline-success,
+.btn-outline-warning,
+.btn-outline-danger,
+.btn-outline-info {
+    background-color: color-mix(in srgb, var(--bs-body-bg, #ffffff) 86%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
 .btn-outline-primary {
     color: var(--app-primary, #0d6efd) !important;
     border-color: var(--app-primary, #0d6efd) !important;
-    background-color: transparent;
+}
+.btn-outline-secondary {
+    color: var(--bs-body-color, #212529);
+    border-color: color-mix(in srgb, var(--bs-body-color, #212529) 28%, transparent);
+}
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background-color: color-mix(in srgb, var(--bs-body-color, #212529) 12%, var(--bs-body-bg, #ffffff));
+    color: var(--bs-body-color, #212529);
+    border-color: color-mix(in srgb, var(--bs-body-color, #212529) 42%, transparent);
+}
+.btn:disabled,
+.btn.disabled {
+    background-color: color-mix(in srgb, var(--bs-body-bg, #ffffff) 75%, transparent);
+    opacity: 0.65;
 }
 .btn-outline-primary:hover,
 .btn-outline-primary:focus,
