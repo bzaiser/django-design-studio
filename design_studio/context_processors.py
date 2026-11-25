@@ -80,7 +80,18 @@ def theme_context(request):
     if active_genre and active_genre.get("key") in custom_genre_bgs:
         active_genre = {**active_genre, "custom_photo_url": custom_genre_bgs[active_genre["key"]]}
 
+    web_menu_ctx = {}
+    if is_auth:
+        try:
+            from django.apps import apps
+            if apps.is_installed("site_kit"):
+                from site_kit.views import get_web_menu_studio_context
+                web_menu_ctx = get_web_menu_studio_context()
+        except Exception:
+            web_menu_ctx = {}
+
     return {
+        **web_menu_ctx,
         "theme_studio": ts,
         "theme_palette": palette,
         "theme_state_overrides_json": json.dumps(ts.get("state_overrides", {})),

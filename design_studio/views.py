@@ -162,6 +162,16 @@ def save_studio_view(request):
                         merged["menu_config"] = clean_menu
                 except Exception:
                     pass
+        if "web_menu_config_json" in request.POST:
+            raw_wm = (request.POST.get("web_menu_config_json") or "").strip()
+            if raw_wm:
+                try:
+                    from django.apps import apps
+                    if apps.is_installed("site_kit"):
+                        from site_kit.views import save_web_menu_config
+                        save_web_menu_config(json.loads(raw_wm))
+                except Exception:
+                    pass
 
     norm = normalize_settings(merged)
     palette = compute_theme_palette(
