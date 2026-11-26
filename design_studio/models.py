@@ -33,6 +33,7 @@ class BrandingProfile(models.Model):
     tax_id = models.CharField(max_length=80, blank=True, default="")
     iban = models.CharField(max_length=60, blank=True, default="")
     bic = models.CharField(max_length=30, blank=True, default="")
+    press_person_ref = models.CharField(max_length=64, blank=True, default="")
     press_contact = models.TextField(blank=True, default="")
     about_short = models.TextField(blank=True, default="")
     email_signature = models.TextField(blank=True, default="")

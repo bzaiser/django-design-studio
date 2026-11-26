@@ -108,6 +108,25 @@ def get_branding_context(channel: str = "pdf") -> dict:
     c1, c2 = _resolve_global_colors()
     ch_flags = channels.get(channel, channels["pdf"])
 
+    press_text = (getattr(bp, "press_contact", "") or "").strip()
+    press_ref = (getattr(bp, "press_person_ref", "") or "").strip()
+    if press_ref.startswith("person:") and apps.is_installed("domain_kit"):
+        try:
+            pid = int(press_ref.split(":", 1)[1])
+            Person = apps.get_model("domain_kit", "Person")
+            p_obj = Person.objects.filter(pk=pid).first()
+            if p_obj:
+                parts = [p_obj.full_name]
+                if p_obj.email:
+                    parts.append(p_obj.email)
+                tel = p_obj.phone or p_obj.mobile
+                if tel:
+                    parts.append(tel)
+                person_line = " · ".join(parts)
+                press_text = f"{person_line}\n{press_text}".strip() if press_text else person_line
+        except Exception:
+            pass
+
     return {
         "org_name": org_name,
         "tagline": tagline,
@@ -123,7 +142,8 @@ def get_branding_context(channel: str = "pdf") -> dict:
         "tax_id": (getattr(bp, "tax_id", "") or "").strip(),
         "iban": (getattr(bp, "iban", "") or "").strip(),
         "bic": (getattr(bp, "bic", "") or "").strip(),
-        "press_contact": (getattr(bp, "press_contact", "") or "").strip(),
+        "press_person_ref": press_ref,
+        "press_contact": press_text,
         "about_short": (getattr(bp, "about_short", "") or "").strip(),
         "email_signature": (getattr(bp, "email_signature", "") or "").strip(),
         "footer_text": (getattr(bp, "footer_text", "") or "").strip(),

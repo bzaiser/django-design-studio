@@ -703,6 +703,7 @@ def branding_view(request):
         bp.tax_id = (request.POST.get("tax_id") or "").strip()[:80]
         bp.iban = (request.POST.get("iban") or "").strip()[:60]
         bp.bic = (request.POST.get("bic") or "").strip()[:30]
+        bp.press_person_ref = (request.POST.get("press_person_ref") or "").strip()[:64]
         bp.press_contact = (request.POST.get("press_contact") or "").strip()
         bp.about_short = (request.POST.get("about_short") or "").strip()
         bp.email_signature = (request.POST.get("email_signature") or "").strip()
@@ -720,9 +721,24 @@ def branding_view(request):
         messages.success(request, "Branding & Kanal-Einstellungen gespeichert.")
         return redirect("design_studio:branding")
 
+    person_options = []
+    try:
+        from django.apps import apps
+        if apps.is_installed("domain_kit"):
+            Person = apps.get_model("domain_kit", "Person")
+            for p in Person.objects.prefetch_related("roles").order_by("last_name", "first_name"):
+                role_names = ", ".join(r.name for r in p.roles.all())
+                person_options.append({
+                    "ref": f"person:{p.id}",
+                    "label": f"{p.full_name} ({role_names})" if role_names else p.full_name,
+                })
+    except Exception:
+        pass
+
     channels = merge_channels_config(bp.channels_config_json)
     return render(request, "design_studio/branding.html", {
         "bp": bp,
         "channels": channels,
+        "person_options": person_options,
         "branding_preview": get_branding_context("pdf"),
     })

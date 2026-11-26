@@ -30,7 +30,8 @@
                 </div>
                 <div class="col-12">
                     <label class="form-label small fw-semibold mb-1">{% trans "Zentrales Logo (für PDFs, Druck & E-Mails)" %}</label>
-                    <input type="file" name="logo" accept="image/*" class="form-control form-control-sm">
+                    <input type="file" name="logo" accept="image/png,image/jpeg" class="form-control form-control-sm">
+                    <div class="form-text small">{% trans "Empfohlen: PNG (transparent) oder JPG, 300–600 px breit, max. 300 KB (kein SVG für PDF/E-Mail)." %}</div>
                     {% if bp.logo %}
                     <div class="d-flex align-items-center gap-3 mt-2">
                         <img src="{{ bp.logo.url }}" alt="{{ bp.org_name }}" class="rounded border p-1 bg-white" style="max-height: 48px;">
@@ -38,6 +39,11 @@
                             <input type="checkbox" name="remove_logo" value="1" id="remBrandingLogo" class="form-check-input">
                             <label class="form-check-label small text-danger" for="remBrandingLogo">{% trans "Logo entfernen" %}</label>
                         </div>
+                    </div>
+                    {% elif branding_preview.logo_url %}
+                    <div class="d-flex align-items-center gap-2 mt-2">
+                        <img src="{{ branding_preview.logo_url }}" alt="{{ branding_preview.org_name }}" class="rounded border p-1 bg-white" style="max-height: 42px;">
+                        <span class="small text-muted">{% trans "Aktuell wird automatisch das Webseiten-Logo übernommen." %}</span>
                     </div>
                     {% endif %}
                 </div>
@@ -72,7 +78,15 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label small fw-semibold mb-1">{% trans "Pressekontakt" %}</label>
-                    <textarea name="press_contact" rows="2" class="form-control form-control-sm" placeholder="Name, E-Mail, Telefon">{{ bp.press_contact }}</textarea>
+                    {% if person_options %}
+                    <select name="press_person_ref" class="form-select form-select-sm mb-1">
+                        <option value="">— {% trans "Freitext / Keine Person verknüpft" %} —</option>
+                        {% for po in person_options %}
+                        <option value="{{ po.ref }}" {% if bp.press_person_ref == po.ref %}selected{% endif %}>{{ po.label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    <textarea name="press_contact" rows="2" class="form-control form-control-sm" placeholder="Optionaler Zusatz oder Freitext (Name, E-Mail, Telefon)">{{ bp.press_contact }}</textarea>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label small fw-semibold mb-1">{% trans "Kurztext „Über uns“ (Presse & Broschüre)" %}</label>
