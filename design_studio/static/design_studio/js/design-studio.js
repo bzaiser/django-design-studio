@@ -545,4 +545,44 @@
     document.addEventListener('DOMContentLoaded', initNavOverflowMore);
     window.addEventListener('load', initNavOverflowMore);
     window.addEventListener('resize', initNavOverflowMore, { passive: true });
+
+    function initMultiSelectDropdowns() {
+        document.querySelectorAll('.ds-multiselect').forEach(function (wrap) {
+            if (wrap.dataset.dsMultiInit === '1') return;
+            wrap.dataset.dsMultiInit = '1';
+            var labelEl = wrap.querySelector('.ds-multiselect-label');
+            var placeholder = wrap.getAttribute('data-placeholder') || '— Auswählen —';
+            var searchEl = wrap.querySelector('.ds-multiselect-search');
+
+            function updateLabel() {
+                if (!labelEl) return;
+                var checked = Array.from(wrap.querySelectorAll('input[type="checkbox"]:checked')).map(function (cb) {
+                    return cb.getAttribute('data-label') || cb.value;
+                });
+                if (!checked.length) {
+                    labelEl.textContent = placeholder;
+                    labelEl.classList.add('text-muted');
+                } else {
+                    labelEl.classList.remove('text-muted');
+                    labelEl.textContent = checked.length + ' ausgewählt: ' + checked.join(', ');
+                }
+            }
+
+            wrap.addEventListener('change', function (e) {
+                if (e.target && e.target.type === 'checkbox') updateLabel();
+            });
+            if (searchEl) {
+                searchEl.addEventListener('input', function () {
+                    var q = (searchEl.value || '').trim().toLowerCase();
+                    wrap.querySelectorAll('.ds-multiselect-item').forEach(function (row) {
+                        var txt = (row.getAttribute('data-search') || row.textContent || '').toLowerCase();
+                        row.classList.toggle('d-none', Boolean(q && txt.indexOf(q) === -1));
+                    });
+                });
+            }
+            updateLabel();
+        });
+    }
+    document.addEventListener('DOMContentLoaded', initMultiSelectDropdowns);
+    document.addEventListener('shown.bs.modal', initMultiSelectDropdowns);
 })();
