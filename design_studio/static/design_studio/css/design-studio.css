@@ -1790,4 +1790,7 @@ body[data-genre="meer"] { --ds-genre-accent: #0284C7; }
         white-space: nowrap;
     }
 }
+.ds-tabs:not(:has(+ .ds-tab-panel)) {
+    margin-bottom: 1rem !important;
+}
 
