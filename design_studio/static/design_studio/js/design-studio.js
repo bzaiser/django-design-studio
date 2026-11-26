@@ -470,4 +470,79 @@
     window.addEventListener('resize', initSeamlessTabPlates, { passive: true });
     document.addEventListener('shown.bs.tab', initSeamlessTabPlates);
     document.body.addEventListener('htmx:afterSettle', initSeamlessTabPlates);
+
+    function initNavOverflowMore() {
+        document.querySelectorAll('ul.navbar-nav[data-ds-overflow="auto_more"]').forEach(function (nav) {
+            if (document.body.getAttribute('data-menu-layout') === 'sidebar' && nav.id === 'navMainList') return;
+            var collapse = nav.closest('.navbar-collapse');
+            if (!collapse) return;
+
+            var moreLi = nav.querySelector(':scope > .ds-nav-more-item');
+            if (!moreLi) {
+                moreLi = document.createElement('li');
+                moreLi.className = 'nav-item dropdown ds-nav-more-item d-none';
+                moreLi.innerHTML = '<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Mehr</a><ul class="dropdown-menu dropdown-menu-end"></ul>';
+                nav.appendChild(moreLi);
+            }
+            var moreMenu = moreLi.querySelector('.dropdown-menu');
+
+            Array.from(moreMenu.querySelectorAll(':scope > li[data-ds-moved="1"]')).forEach(function (moved) {
+                var a = moved.querySelector(':scope > a');
+                if (a) {
+                    a.classList.remove('dropdown-item');
+                    a.classList.add('nav-link');
+                }
+                moved.className = moved.dataset.dsOrigClass || 'nav-item';
+                delete moved.dataset.dsMoved;
+                nav.insertBefore(moved, moreLi);
+            });
+            moreLi.classList.add('d-none');
+
+            if (window.innerWidth < 992) return;
+
+            var siblingWidth = 0;
+            Array.from(collapse.children).forEach(function (child) {
+                if (child !== nav) siblingWidth += child.getBoundingClientRect().width + 16;
+            });
+            var maxNavWidth = collapse.clientWidth - siblingWidth - 16;
+            if (maxNavWidth <= 120) return;
+
+            var items = Array.from(nav.children).filter(function (el) {
+                return el.classList.contains('nav-item') && !el.classList.contains('ds-nav-more-item');
+            });
+            if (!items.length) return;
+
+            var used = 0;
+            var moreReserve = 95;
+            var overflowStart = -1;
+            for (var i = 0; i < items.length; i++) {
+                var w = items[i].getBoundingClientRect().width + 4;
+                var limit = (i < items.length - 1) ? (maxNavWidth - moreReserve) : maxNavWidth;
+                if (used + w > limit && i > 0) {
+                    overflowStart = i;
+                    break;
+                }
+                used += w;
+            }
+            if (overflowStart === -1) return;
+
+            moreLi.classList.remove('d-none');
+            for (var j = overflowStart; j < items.length; j++) {
+                var li = items[j];
+                li.dataset.dsOrigClass = li.className;
+                li.dataset.dsMoved = '1';
+                li.className = '';
+                var link = li.querySelector(':scope > a');
+                if (link) {
+                    link.classList.remove('nav-link', 'dropdown-toggle');
+                    link.classList.add('dropdown-item');
+                }
+                moreMenu.appendChild(li);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initNavOverflowMore);
+    window.addEventListener('load', initNavOverflowMore);
+    window.addEventListener('resize', initNavOverflowMore, { passive: true });
 })();

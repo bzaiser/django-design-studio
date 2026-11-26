@@ -1780,4 +1780,14 @@ body[data-genre="meer"] { --ds-genre-accent: #0284C7; }
     border-radius: .5rem;
     padding: .4rem .65rem;
 }
+@media (min-width: 992px) {
+    .app-navbar .navbar-nav.ds-nav-wrap {
+        flex-wrap: wrap !important;
+        row-gap: 0.25rem;
+    }
+    .app-navbar .navbar-nav.ds-nav-wrap > .nav-item > .nav-link,
+    .app-navbar .navbar-nav[data-ds-overflow="auto_more"] > .nav-item > .nav-link {
+        white-space: nowrap;
+    }
+}
 

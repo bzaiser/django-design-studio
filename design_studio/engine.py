@@ -188,6 +188,7 @@ DEFAULT_SETTINGS = {
     "kpi_click_navigation": True,
     "menu_layout": "top",
     "menu_style": "auto",
+    "menu_overflow_mode": "wrap",
     "font_family": "auto",
     "font_scale": "normal",
     "ui_zoom": 100,
@@ -318,6 +319,8 @@ def normalize_settings(raw):
     data["bg_strength_css"] = f"{data['bg_strength'] / 100:.2f}"
     if not isinstance(data["menu_config"], list):
         data["menu_config"] = []
+    if data.get("menu_overflow_mode") not in ("wrap", "auto_more", "single"):
+        data["menu_overflow_mode"] = "wrap"
     data["brand_title"] = str(data.get("brand_title") or "").strip()[:60]
     raw_brand_icon = str(data.get("brand_icon") or "").strip()
     if raw_brand_icon == "none":

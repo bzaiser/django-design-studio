@@ -23,9 +23,26 @@
             </div>
         </div>
         <div class="collapse navbar-collapse" id="navbarContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 nav-pill-track" id="navMainList">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 nav-pill-track {% if theme_studio.menu_layout != 'sidebar' and theme_studio.menu_overflow_mode != 'single' and theme_studio.menu_overflow_mode != 'auto_more' %}ds-nav-wrap{% endif %}" id="navMainList"{% if theme_studio.menu_layout != 'sidebar' and theme_studio.menu_overflow_mode == 'auto_more' %} data-ds-overflow="auto_more"{% endif %}>
                 <li class="nav-sliding-pill" aria-hidden="true"></li>
                 {% for item in nav_main_items %}
+                {% if item.children %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle position-relative {% if request.resolver_match.url_name in item.match_urls or request.path == item.url or request.resolver_match.url_name in item.child_match_urls or request.path in item.child_urls %}active{% endif %} {% if item.display == 'icon_only' %}app-nav-icon-only{% endif %}"
+                       href="{{ item.url }}" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                       title="{{ item.label }}">
+                        {% if item.display != 'text_only' or theme_studio.menu_layout == 'sidebar' %}<i class="bi {{ item.icon }}"></i>{% endif %}
+                        {% if item.display == 'icon_only' %}<span class="d-lg-none nav-label">{{ item.label }}</span>{% else %}<span class="nav-label">{{ item.label }}</span>{% endif %}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name in item.match_urls or request.path == item.url %}active{% endif %}" href="{{ item.url }}"><i class="bi {{ item.icon }} me-2"></i>{{ item.label }}</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        {% for child in item.children %}
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name in child.match_urls or request.path == child.url %}active{% endif %}" href="{{ child.url }}"><i class="bi {{ child.icon }} me-2"></i>{{ child.label }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% else %}
                 <li class="nav-item">
                     <a class="nav-link position-relative {% if request.resolver_match.url_name in item.match_urls or request.path == item.url %}active{% endif %} {% if item.display == 'icon_only' %}app-nav-icon-only{% endif %}"
                        href="{{ item.url }}"
@@ -48,6 +65,7 @@
                         {% if item.badge_count %}<span class="ds-nav-badge" data-level="{{ item.badge_level|default:'danger' }}">{% if item.badge_count > 9 %}9+{% else %}{{ item.badge_count }}{% endif %}</span>{% elif item.id == 'notifications' or notify_inbox_url and item.url == notify_inbox_url %}{% if ds_unread_notifications_count %}<span class="ds-nav-badge" data-level="danger">{% if ds_unread_notifications_count > 9 %}9+{% else %}{{ ds_unread_notifications_count }}{% endif %}</span>{% elif notify_unread_count %}<span class="ds-nav-badge" data-level="danger">{% if notify_unread_count > 9 %}9+{% else %}{{ notify_unread_count }}{% endif %}</span>{% elif unread_count %}<span class="ds-nav-badge" data-level="danger">{% if unread_count > 9 %}9+{% else %}{{ unread_count }}{% endif %}</span>{% endif %}{% elif item.badge_dot %}<span class="ds-nav-dot" data-level="{{ item.badge_level|default:'warning' }}" aria-hidden="true"></span>{% endif %}
                     </a>
                 </li>
+                {% endif %}
                 {% endfor %}
             </ul>
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center flex-column flex-lg-row gap-lg-1 gap-1 pt-2 pt-lg-0 nav-pill-track" id="navUtilityList">

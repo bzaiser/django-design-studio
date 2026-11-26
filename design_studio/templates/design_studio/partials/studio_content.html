@@ -674,19 +674,27 @@
                                 <div id="dsCollapseMenu" class="accordion-collapse collapse" data-bs-parent="#dsMenuAccordion">
                                     <div class="accordion-body">
                                         <div class="row g-2 mb-3">
-                                            <div class="col-12 col-sm-6">
+                                            <div class="col-12 col-sm-4">
                                                 <label class="form-label small fw-bold">{% trans "Menü-Position" %}</label>
                                                 <select id="dsMenuLayout" name="theme_menu_layout" class="form-select form-select-sm">
                                                     <option value="top" {% if theme_studio.menu_layout == 'top' or not theme_studio.menu_layout %}selected{% endif %}>{% trans "Top-Navigationsleiste (Oben)" %}</option>
                                                     <option value="sidebar" {% if theme_studio.menu_layout == 'sidebar' %}selected{% endif %}>{% trans "Seitenpanel (Links am Desktop, einklappbar)" %}</option>
                                                 </select>
                                             </div>
-                                            <div class="col-12 col-sm-6">
+                                            <div class="col-12 col-sm-4">
                                                 <label class="form-label small fw-bold">{% trans "Menü-Design" %}</label>
                                                 <select id="dsMenuStyle" name="theme_menu_style" class="form-select form-select-sm">
                                                     <option value="auto" {% if theme_studio.menu_style == 'auto' or not theme_studio.menu_style %}selected{% endif %}>{% trans "Auto (passend zum Karten-Stil)" %}</option>
                                                     <option value="glass" {% if theme_studio.menu_style == 'glass' %}selected{% endif %}>{% trans "Edles Milchglas (Translucent)" %}</option>
                                                     <option value="gradient" {% if theme_studio.menu_style == 'gradient' %}selected{% endif %}>{% trans "Markanter Farbverlauf (Gradient)" %}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12 col-sm-4">
+                                                <label class="form-label small fw-bold">{% trans "Überlauf-Verhalten" %}</label>
+                                                <select id="dsMenuOverflowMode" name="theme_menu_overflow_mode" class="form-select form-select-sm">
+                                                    <option value="wrap" {% if theme_studio.menu_overflow_mode == 'wrap' or not theme_studio.menu_overflow_mode %}selected{% endif %}>{% trans "Umbrechen (mehrzeilig)" %}</option>
+                                                    <option value="auto_more" {% if theme_studio.menu_overflow_mode == 'auto_more' %}selected{% endif %}>{% trans "Auto-Dropdown („Mehr“)" %}</option>
+                                                    <option value="single" {% if theme_studio.menu_overflow_mode == 'single' %}selected{% endif %}>{% trans "Einzeilig (ohne Umbruch)" %}</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -734,7 +742,8 @@
                                                         <th style="width: 145px;">{% trans "Menü-Text" %}</th>
                                                         <th style="width: 108px;">{% trans "Darstellung" %}</th>
                                                         <th style="width: 100px;">{% trans "Bereich" %}</th>
-                                                        <th style="min-width: 200px; width: 215px;">{% trans "Genre" %}</th>
+                                                        <th style="width: 135px;">{% trans "Unterpunkt von" %}</th>
+                                                        <th style="min-width: 180px; width: 200px;">{% trans "Genre" %}</th>
                                                         <th style="width: 48px;" class="text-center">{% trans "An" %}</th>
                                                     </tr>
                                                 </thead>
@@ -771,6 +780,16 @@
                                                             </select>
                                                         </td>
                                                         <td>
+                                                            <select class="form-select form-select-sm ds-menu-parent py-0 px-1" style="font-size: var(--app-fs-xs);" {% if mitem.zone != 'main' %}disabled{% endif %}>
+                                                                <option value="">— {% trans "Hauptpunkt" %} —</option>
+                                                                {% for pitem in menu_studio_items %}
+                                                                    {% if pitem.zone == 'main' and pitem.id != mitem.id %}
+                                                                    <option value="{{ pitem.id }}" {% if mitem.parent_id == pitem.id %}selected{% endif %}>{{ pitem.label }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </select>
+                                                        </td>
+                                                        <td>
                                                             <select class="form-select form-select-sm ds-menu-genre py-0 px-1" style="font-size: var(--app-fs-xs);">
                                                                 {% for gkey, glabel in genre_choices %}
                                                                 <option value="{{ gkey }}" {% if mitem.genre == gkey %}selected{% endif %}>{{ glabel }}</option>
@@ -801,7 +820,7 @@
                                     <div class="accordion-body">
                                         <input type="hidden" name="web_menu_config_json" id="dsWebMenuConfigInput" value="">
                                         <div class="row g-2 mb-3">
-                                            <div class="col-12 col-sm-4">
+                                            <div class="col-12 col-sm-3">
                                                 <label class="form-label small fw-bold">{% trans "Webmenü-Stil" %}</label>
                                                 <select id="dsWebMenuStyle" class="form-select form-select-sm">
                                                     <option value="inherit" {% if web_menu_studio_cfg.style == 'inherit' or not web_menu_studio_cfg.style %}selected{% endif %}>{% trans "Wie App-Menü" %}</option>
@@ -811,7 +830,7 @@
                                                     <option value="flat" {% if web_menu_studio_cfg.style == 'flat' %}selected{% endif %}>{% trans "Flat / Transparent" %}</option>
                                                 </select>
                                             </div>
-                                            <div class="col-12 col-sm-4">
+                                            <div class="col-12 col-sm-3">
                                                 <label class="form-label small fw-bold">{% trans "Ausrichtung" %}</label>
                                                 <select id="dsWebMenuAlign" class="form-select form-select-sm">
                                                     <option value="left" {% if web_menu_studio_cfg.align == 'left' or not web_menu_studio_cfg.align %}selected{% endif %}>{% trans "Links" %}</option>
@@ -819,12 +838,20 @@
                                                     <option value="right" {% if web_menu_studio_cfg.align == 'right' %}selected{% endif %}>{% trans "Rechts" %}</option>
                                                 </select>
                                             </div>
-                                            <div class="col-12 col-sm-4">
+                                            <div class="col-12 col-sm-3">
                                                 <label class="form-label small fw-bold">{% trans "Aktiver Punkt" %}</label>
                                                 <select id="dsWebMenuActiveStyle" class="form-select form-select-sm">
                                                     <option value="pill" {% if web_menu_studio_cfg.active_style == 'pill' or not web_menu_studio_cfg.active_style %}selected{% endif %}>{% trans "Akzent-Pill" %}</option>
                                                     <option value="underline" {% if web_menu_studio_cfg.active_style == 'underline' %}selected{% endif %}>{% trans "Unterstrichen" %}</option>
                                                     <option value="bold" {% if web_menu_studio_cfg.active_style == 'bold' %}selected{% endif %}>{% trans "Fett / Farbig" %}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12 col-sm-3">
+                                                <label class="form-label small fw-bold">{% trans "Überlauf-Verhalten" %}</label>
+                                                <select id="dsWebMenuOverflowMode" class="form-select form-select-sm">
+                                                    <option value="wrap" {% if web_menu_studio_cfg.overflow_mode == 'wrap' or not web_menu_studio_cfg.overflow_mode %}selected{% endif %}>{% trans "Umbrechen (mehrzeilig)" %}</option>
+                                                    <option value="auto_more" {% if web_menu_studio_cfg.overflow_mode == 'auto_more' %}selected{% endif %}>{% trans "Auto-Dropdown („Mehr“)" %}</option>
+                                                    <option value="single" {% if web_menu_studio_cfg.overflow_mode == 'single' %}selected{% endif %}>{% trans "Einzeilig" %}</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -844,6 +871,7 @@
                                                         <th style="width: 125px;">{% trans "Icon" %}</th>
                                                         <th>{% trans "Menü-Text" %}</th>
                                                         <th style="width: 130px;">{% trans "Darstellung" %}</th>
+                                                        <th style="width: 150px;">{% trans "Unterpunkt von" %}</th>
                                                         <th style="width: 48px;" class="text-center">{% trans "An" %}</th>
                                                     </tr>
                                                 </thead>
@@ -869,6 +897,16 @@
                                                                 <option value="text_only" {% if witem.display == 'text_only' %}selected{% endif %}>{% trans "Nur Text" %}</option>
                                                                 <option value="icon_text" {% if witem.display == 'icon_text' %}selected{% endif %}>{% trans "Icon + Text" %}</option>
                                                                 <option value="icon_only" {% if witem.display == 'icon_only' %}selected{% endif %}>{% trans "Nur Icon" %}</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-select form-select-sm ds-webmenu-parent">
+                                                                <option value="">— {% trans "Hauptpunkt" %} —</option>
+                                                                {% for pw in web_menu_studio_items %}
+                                                                    {% if pw.key != witem.key %}
+                                                                    <option value="{{ pw.key }}" {% if witem.parent_key == pw.key %}selected{% endif %}>{{ pw.label }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
                                                             </select>
                                                         </td>
                                                         <td class="text-center">
@@ -962,6 +1000,7 @@
                     label: tr.querySelector('.ds-menu-label').value,
                     display: tr.querySelector('.ds-menu-display').value,
                     zone: tr.querySelector('.ds-menu-zone').value,
+                    parent_id: tr.querySelector('.ds-menu-parent') ? tr.querySelector('.ds-menu-parent').value : '',
                     genre: tr.querySelector('.ds-menu-genre') ? tr.querySelector('.ds-menu-genre').value : '',
                     visible: tr.querySelector('.ds-menu-visible').checked,
                     order: idx + 1
@@ -993,6 +1032,7 @@
             var webStyle = document.getElementById('dsWebMenuStyle');
             var webAlign = document.getElementById('dsWebMenuAlign');
             var webActiveStyle = document.getElementById('dsWebMenuActiveStyle');
+            var webOverflowMode = document.getElementById('dsWebMenuOverflowMode');
             function serializeWebMenu() {
                 if (!webTbody || !webInput) return;
                 var items = {};
@@ -1001,6 +1041,7 @@
                         icon: tr.querySelector('.ds-webmenu-icon').value,
                         label: tr.querySelector('.ds-webmenu-label').value,
                         display: tr.querySelector('.ds-webmenu-display').value,
+                        parent_key: tr.querySelector('.ds-webmenu-parent') ? tr.querySelector('.ds-webmenu-parent').value : '',
                         visible: tr.querySelector('.ds-webmenu-visible').checked,
                         order: (idx + 1) * 10
                     };
@@ -1009,6 +1050,7 @@
                     style: webStyle ? webStyle.value : 'inherit',
                     align: webAlign ? webAlign.value : 'left',
                     active_style: webActiveStyle ? webActiveStyle.value : 'pill',
+                    overflow_mode: webOverflowMode ? webOverflowMode.value : 'wrap',
                     items: items
                 });
             }
@@ -1016,7 +1058,7 @@
                 if (typeof Sortable !== 'undefined') {
                     new Sortable(webTbody, { handle: '.ds-webmenu-drag', animation: 150, onEnd: serializeWebMenu });
                 }
-                [webTbody, webStyle, webAlign, webActiveStyle].forEach(function (el) {
+                [webTbody, webStyle, webAlign, webActiveStyle, webOverflowMode].forEach(function (el) {
                     if (el) {
                         el.addEventListener('change', serializeWebMenu);
                         el.addEventListener('input', serializeWebMenu);

@@ -119,6 +119,7 @@ def save_studio_view(request):
             "glass_blur": request.POST.get("theme_glass_blur", prev.get("glass_blur", 14)),
             "bg_strength": request.POST.get("theme_bg_strength", prev.get("bg_strength", 65)),
             "menu_config": prev.get("menu_config", []),
+            "menu_overflow_mode": request.POST.get("theme_menu_overflow_mode", prev.get("menu_overflow_mode", "wrap")),
             "brand_title": request.POST.get("brand_title", prev.get("brand_title", "")),
             "brand_icon": request.POST.get("brand_icon", prev.get("brand_icon", "")),
             "default_genre": request.POST.get("theme_default_genre", prev.get("default_genre", "")),
@@ -149,6 +150,9 @@ def save_studio_view(request):
                             gr = str(m_item.get("genre") or "").strip()
                             if not is_valid_genre(gr):
                                 gr = ""
+                            parent_id = str(m_item.get("parent_id") or "").strip()[:40]
+                            if parent_id == mid:
+                                parent_id = ""
                             clean_menu.append({
                                 "id": mid,
                                 "label": str(m_item.get("label") or "").strip()[:40],
@@ -158,6 +162,7 @@ def save_studio_view(request):
                                 "visible": bool(m_item.get("visible", True)),
                                 "order": int(m_item.get("order", idx + 1)),
                                 "genre": gr,
+                                "parent_id": parent_id,
                             })
                         merged["menu_config"] = clean_menu
                 except Exception:

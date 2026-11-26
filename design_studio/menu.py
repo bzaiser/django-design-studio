@@ -574,6 +574,8 @@ def resolve_user_menu(user, saved_menu_config=None):
         visible = True if locked else bool(ov.get("visible", item.get("visible", True)))
         raw_genre = ov.get("genre") if is_valid_genre(ov.get("genre")) else item.get("genre", "")
         genre = raw_genre if is_valid_genre(raw_genre) else ""
+        raw_parent = str(ov.get("parent_id") or "").strip()[:40]
+        parent_id = raw_parent if (zone == "main" and raw_parent and raw_parent != item_id) else ""
         try:
             order = int(ov.get("order", item.get("order", idx + 1)))
         except (TypeError, ValueError):
@@ -624,6 +626,7 @@ def resolve_user_menu(user, saved_menu_config=None):
             "order": order,
             "locked": locked,
             "genre": genre,
+            "parent_id": parent_id,
             "badge_count": badge_count,
             "badge_dot": badge_dot,
             "badge_level": badge_level,
@@ -636,9 +639,25 @@ def resolve_user_menu(user, saved_menu_config=None):
         x["visible"] and (x["id"] == "notifications" or "inbox" in (x.get("match_urls") or []))
         for x in resolved
     )
+    visible_main = [x for x in resolved if x["visible"] and x["zone"] == "main"]
+    main_by_id = {x["id"]: x for x in visible_main}
+    for x in visible_main:
+        x["children"] = []
+        x["child_match_urls"] = []
+        x["child_urls"] = []
+    top_main = []
+    for x in visible_main:
+        pid = x.get("parent_id") or ""
+        parent = main_by_id.get(pid) if pid and pid != x["id"] else None
+        if parent and not parent.get("parent_id"):
+            parent["children"].append(x)
+            parent["child_match_urls"].extend(x.get("match_urls") or [])
+            parent["child_urls"].append(x.get("url") or "")
+        else:
+            top_main.append(x)
     return {
         "all_items": resolved,
-        "main_items": [x for x in resolved if x["visible"] and x["zone"] == "main"],
+        "main_items": top_main,
         "utility_items": [x for x in resolved if x["visible"] and x["zone"] == "utility"],
         "system_items": [x for x in resolved if x["visible"] and x["zone"] == "system"],
         "has_updates": ops_has_updates,
