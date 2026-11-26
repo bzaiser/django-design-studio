@@ -490,6 +490,19 @@ def resolve_user_menu(user, saved_menu_config=None):
                         "editorial_or_staff": True,
                     },
                 ])
+            if apps.is_installed("ops_kit"):
+                optional_kit_items.append({
+                    "id": "ops_backups",
+                    "url_name": "ops_kit:backups",
+                    "match_urls": ["backups"],
+                    "default_label": _("Datensicherung"),
+                    "icon": "bi-shield-check",
+                    "zone": "system",
+                    "display": "icon_text",
+                    "visible": True,
+                    "order": 42,
+                    "staff_only": True,
+                })
         except Exception:
             pass
         for opt_item in optional_kit_items:
