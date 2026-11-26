@@ -992,6 +992,11 @@ body[data-card-surface="brutal"] .card:not(.metric-card) {
     --bs-table-bg: transparent !important;
     --bs-table-color: var(--app-table-body-text) !important;
 }
+.card:not(.metric-card) .list-group-item:not(.active) {
+    background-color: transparent !important;
+    color: inherit;
+    border-color: var(--app-table-border-color, rgba(128, 128, 128, 0.16));
+}
 body[data-card-surface="solid"] .card:not(.metric-card) .table tbody {
     --bs-table-bg: var(--app-table-body-bg) !important;
 }
@@ -1375,6 +1380,15 @@ body[data-card-surface="brutal"] .metric-card {
 .app-navbar .nav-link.app-nav-icon-only {
     padding: 0.42rem 0.58rem !important;
 }
+@media (min-width: 992px) {
+    .app-navbar .nav-link.app-nav-icon-only {
+        width: 2.15rem;
+        height: 2.15rem;
+        padding: 0 !important;
+        justify-content: center;
+        line-height: 1;
+    }
+}
 body[data-menu-style="gradient"] .app-navbar {
     background: var(--app-gradient) !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14);
@@ -1667,7 +1681,7 @@ body[data-genre]:not([data-genre=""]) main {
     height: 100%;
     display: block;
 }
-body[data-genre]:not([data-genre=""]) .app-navbar .nav-link.active,
+body[data-genre]:not([data-genre=""]) .app-navbar .nav-link.active:not(.app-nav-icon-only),
 body[data-genre]:not([data-genre=""]) #sidebarNav .nav-link.active {
     box-shadow: inset 0 -2px 0 var(--ds-genre-accent, var(--app-primary));
 }
