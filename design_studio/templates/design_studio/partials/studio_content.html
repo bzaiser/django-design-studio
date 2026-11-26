@@ -5,15 +5,15 @@
                 <span class="fw-bold"><i class="bi bi-magic me-2 opacity-75"></i>{% trans "Design Studio" %}</span>
                 <div class="d-flex flex-wrap gap-2">
                     {% if request.user.is_staff or request.user.is_superuser %}
-                    <a href="{% url 'design_studio:branding' %}" class="btn btn-sm bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3">
-                        <i class="bi bi-award me-1"></i>{% trans "Branding & Kanäle" %}
+                    <a href="{% url 'design_studio:branding' %}" class="btn btn-sm ds-glass-btn rounded-pill px-3 fw-semibold">
+                        <i class="bi bi-award me-1 text-primary"></i>{% trans "Branding & Kanäle" %}
                     </a>
-                    <a href="{% url 'design_studio:export' %}" class="btn btn-sm bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3">
-                        <i class="bi bi-download me-1"></i>{% trans "Theme exportieren (.json)" %}
+                    <a href="{% url 'design_studio:export' %}" class="btn btn-sm ds-glass-btn rounded-pill px-3 fw-semibold">
+                        <i class="bi bi-download me-1 text-primary"></i>{% trans "Theme exportieren (.json)" %}
                     </a>
                     {% endif %}
-                    <a href="{% url 'design_studio:toggle_night' %}{% if ds_studio_next %}?next={{ ds_studio_next|urlencode }}{% endif %}" class="btn btn-sm bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3">
-                        {% if theme_palette.is_dark %}<i class="bi bi-sun me-1"></i>{% trans "Tag" %}{% else %}<i class="bi bi-moon-stars me-1"></i>{% trans "Nacht" %}{% endif %}
+                    <a href="{% url 'design_studio:toggle_night' %}{% if ds_studio_next %}?next={{ ds_studio_next|urlencode }}{% endif %}" class="btn btn-sm ds-glass-btn rounded-pill px-3 fw-semibold">
+                        {% if theme_palette.is_dark %}<i class="bi bi-sun me-1 text-warning"></i>{% trans "Tag" %}{% else %}<i class="bi bi-moon-stars me-1 text-primary"></i>{% trans "Nacht" %}{% endif %}
                     </a>
                 </div>
             </div>

@@ -1793,4 +1793,31 @@ body[data-genre="meer"] { --ds-genre-accent: #0284C7; }
 .ds-tabs:not(:has(+ .ds-tab-panel)) {
     margin-bottom: 1rem !important;
 }
+.ds-glass-btn {
+    position: relative;
+    overflow: hidden;
+    color: var(--app-card-color, var(--bs-body-color)) !important;
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 12%, var(--app-card-bg, rgba(255, 255, 255, 0.45))) !important;
+    border: 1px solid color-mix(in srgb, var(--app-primary, #0d6efd) 32%, transparent) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ds-glass-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(90px circle at var(--ds-mx, 50%) var(--ds-my, 50%), color-mix(in srgb, var(--app-primary, #0d6efd) 28%, rgba(255, 255, 255, 0.5)), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+.ds-glass-btn:hover {
+    border-color: var(--app-primary, #0d6efd) !important;
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--app-primary, #0d6efd) 20%, transparent);
+    transform: translateY(-1px);
+}
+.ds-glass-btn:hover::before {
+    opacity: 1;
+}
 

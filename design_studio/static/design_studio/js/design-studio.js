@@ -585,4 +585,12 @@
     }
     document.addEventListener('DOMContentLoaded', initMultiSelectDropdowns);
     document.addEventListener('shown.bs.modal', initMultiSelectDropdowns);
+
+    document.addEventListener('pointermove', function (e) {
+        var btn = e.target && e.target.closest ? e.target.closest('.ds-glass-btn') : null;
+        if (!btn) return;
+        var rect = btn.getBoundingClientRect();
+        btn.style.setProperty('--ds-mx', (e.clientX - rect.left) + 'px');
+        btn.style.setProperty('--ds-my', (e.clientY - rect.top) + 'px');
+    }, { passive: true });
 })();
