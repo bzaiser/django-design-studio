@@ -1,0 +1,17 @@
+{% if ds_branding.channel.show_header %}
+<div class="d-none d-print-flex justify-content-between align-items-center pb-2 mb-3 border-bottom" style="border-color: {{ ds_branding.primary_color }} !important;">
+    <div class="d-flex align-items-center gap-2">
+        {% if ds_branding.logo_url %}
+        <img src="{{ ds_branding.logo_url }}" alt="{{ ds_branding.org_name }}" style="max-height: 36px; width: auto;">
+        {% endif %}
+        <div>
+            <div class="fw-bold" style="color: {{ ds_branding.primary_color }};">{{ ds_branding.org_name }}</div>
+            {% if ds_branding.tagline %}<div class="small text-muted">{{ ds_branding.tagline }}</div>{% endif %}
+        </div>
+    </div>
+    <div class="text-end small text-muted">
+        {% if ds_branding.website %}<div>{{ ds_branding.website }}</div>{% endif %}
+        {% if ds_branding.email or ds_branding.phone %}<div>{{ ds_branding.email }}{% if ds_branding.email and ds_branding.phone %} · {% endif %}{{ ds_branding.phone }}</div>{% endif %}
+    </div>
+</div>
+{% endif %}

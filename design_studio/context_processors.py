@@ -90,9 +90,12 @@ def theme_context(request):
         except Exception:
             web_menu_ctx = {}
 
+    from .branding import get_branding_context
+
     return {
         **web_menu_ctx,
         "theme_studio": ts,
+        "ds_branding": get_branding_context("print"),
         "theme_palette": palette,
         "theme_state_overrides_json": json.dumps(ts.get("state_overrides", {})),
         "theme_palette_json": json.dumps({

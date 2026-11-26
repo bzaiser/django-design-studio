@@ -621,3 +621,49 @@ def serve_genre_bg_view(request, genre_key: str):
     resp = HttpResponse(path.read_bytes(), content_type=content_type)
     resp["Cache-Control"] = "private, max-age=86400"
     return resp
+
+
+@login_required
+def branding_view(request):
+    from django.contrib import messages
+    from .branding import DEFAULT_CHANNELS, get_branding_context, merge_channels_config
+    from .models import BrandingProfile
+
+    if not (getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False)):
+        return HttpResponse("Kein Zugriff.", status=403)
+
+    bp = BrandingProfile.get_solo()
+    if request.method == "POST":
+        bp.org_name = (request.POST.get("org_name") or "").strip()[:140]
+        bp.tagline = (request.POST.get("tagline") or "").strip()[:200]
+        bp.address = (request.POST.get("address") or "").strip()
+        bp.phone = (request.POST.get("phone") or "").strip()[:60]
+        bp.email = (request.POST.get("email") or "").strip()[:140]
+        bp.reply_to_email = (request.POST.get("reply_to_email") or "").strip()[:140]
+        bp.website = (request.POST.get("website") or "").strip()[:200]
+        bp.tax_id = (request.POST.get("tax_id") or "").strip()[:80]
+        bp.iban = (request.POST.get("iban") or "").strip()[:60]
+        bp.bic = (request.POST.get("bic") or "").strip()[:30]
+        bp.press_contact = (request.POST.get("press_contact") or "").strip()
+        bp.about_short = (request.POST.get("about_short") or "").strip()
+        bp.email_signature = (request.POST.get("email_signature") or "").strip()
+        bp.footer_text = (request.POST.get("footer_text") or "").strip()[:240]
+        if request.FILES.get("logo"):
+            bp.logo = request.FILES["logo"]
+        elif request.POST.get("remove_logo") == "1":
+            bp.logo = None
+
+        ch_cfg = {}
+        for ch, opts in DEFAULT_CHANNELS.items():
+            ch_cfg[ch] = {k: bool(request.POST.get(f"ch_{ch}_{k}")) for k in opts}
+        bp.channels_config_json = ch_cfg
+        bp.save()
+        messages.success(request, "Branding & Kanal-Einstellungen gespeichert.")
+        return redirect("design_studio:branding")
+
+    channels = merge_channels_config(bp.channels_config_json)
+    return render(request, "design_studio/branding.html", {
+        "bp": bp,
+        "channels": channels,
+        "branding_preview": get_branding_context("pdf"),
+    })
