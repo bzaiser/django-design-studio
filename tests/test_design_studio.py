@@ -59,7 +59,7 @@ urlpatterns = [
 class DesignStudioPackageTests(TestCase):
     def setUp(self):
         User = get_user_model()
-        self.user = User.objects.create_user(username="ds_user", password="pw")
+        self.user = User.objects.create_user(username="ds_user", password="pw", is_staff=True)
         self.client = Client()
         self.client.force_login(self.user)
 
@@ -654,6 +654,63 @@ class DesignStudioPackageTests(TestCase):
         menu2 = resolve_user_menu(staff, saved_menu_config=get_storage_adapter().get_settings(staff).get("menu_config"))
         self.assertIn("design_studio", [x["id"] for x in menu2["main_items"]])
         self.assertNotIn("design_studio", [x["id"] for x in menu2["system_items"]])
+
+    def test_existing_non_staff_inherits_admin_theme_and_allow_user_design_toggle(self):
+        from django.test import RequestFactory
+        from design_studio.context_processors import theme_context
+        from design_studio.storage import get_storage_adapter
+
+        User = get_user_model()
+        admin = User.objects.create_user(username="site_admin_theme", password="pw", is_staff=True, is_superuser=True)
+        demo = User.objects.create_user(username="demo_presse_existing", password="pw", is_staff=False)
+        adapter = get_storage_adapter()
+
+        # Admin sets custom color + allow_user_design=False
+        self.client.force_login(admin)
+        self.client.post("/design-studio/save/", {
+            "kpi_ext_present": "1",
+            "gradient_start": "#123456",
+            "gradient_end": "#654321",
+        })
+        # Simulate demo_presse already having an old blue UserThemePreference row
+        old_blue = adapter.get_settings(demo)
+        old_blue["c1"] = "#6610f2"
+        old_blue["menu_layout"] = "sidebar"
+        adapter.save_settings(demo, old_blue)
+
+        # When allow_user_design=False, demo_presse MUST still inherit #123456 from admin
+        req = RequestFactory().get("/")
+        req.user = demo
+        ctx = theme_context(req)
+        self.assertEqual(ctx["theme_studio"]["c1"], "#123456")
+
+        # Non-staff cannot open or save /design-studio/ while allow_user_design=False
+        self.client.force_login(demo)
+        self.assertEqual(self.client.get("/design-studio/").status_code, 403)
+        self.assertEqual(self.client.post("/design-studio/save/", {"app_preset": "finanz_serioes"}).status_code, 403)
+
+        # Admin enables allow_user_design=True
+        self.client.force_login(admin)
+        self.client.post("/design-studio/save/", {
+            "kpi_ext_present": "1",
+            "gradient_start": "#123456",
+            "gradient_end": "#654321",
+            "theme_allow_user_design": "1",
+        })
+        self.client.force_login(demo)
+        r_page = self.client.get("/design-studio/")
+        self.assertEqual(r_page.status_code, 200)
+        html = r_page.content.decode("utf-8")
+        self.assertIn("App-Vorlage (1-Klick-Start)", html)
+        self.assertNotIn("Menü-Studio", html)
+
+        # Demo user applies finanz_serioes preset + genre
+        self.client.post("/design-studio/save/", {"app_preset": "finanz_serioes"})
+        self.client.post("/design-studio/save/", {"theme_default_genre": "technik", "theme_genre_photos_enabled": "1"})
+        ctx2 = theme_context(req)
+        self.assertEqual(ctx2["theme_studio"]["default_genre"], "technik")
+        self.assertTrue(ctx2["theme_studio"]["genre_photos_enabled"])
+        self.assertNotEqual(ctx2["theme_studio"]["c1"], "#123456")
 
 
 if __name__ == "__main__":

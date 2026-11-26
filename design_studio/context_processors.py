@@ -41,7 +41,24 @@ def theme_context(request):
 
     site_user = None
     site_ts = default_norm
-    if not getattr(user, "is_superuser", False):
+    is_admin_user = bool(getattr(user, "is_superuser", False) or getattr(user, "is_staff", False))
+    if not is_admin_user:
+        site_user, site_ts = _resolve_site_admin_theme(adapter, default_norm)
+        allow_user_design = bool(site_ts.get("allow_user_design", False))
+        if not allow_user_design or not ts.get("user_custom_design", False):
+            merged_ts = dict(site_ts)
+            if ts.get("user_menu_layout") in ("top", "sidebar"):
+                merged_ts["menu_layout"] = ts["user_menu_layout"]
+            if ts.get("user_night_bg") in ("auto", "light", "dark", "custom"):
+                merged_ts["bg_mode"] = ts["user_night_bg"]
+            ts = merged_ts
+        else:
+            ts = dict(ts)
+            ts["allow_user_design"] = True
+            for shared_key in ("brand_title", "brand_icon", "menu_config", "menu_overflow_mode", "menu_style"):
+                if site_ts.get(shared_key):
+                    ts[shared_key] = site_ts[shared_key]
+    elif not getattr(user, "is_superuser", False):
         site_user, site_ts = _resolve_site_admin_theme(adapter, default_norm)
         if ts == default_norm:
             ts = dict(site_ts)

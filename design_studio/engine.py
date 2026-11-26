@@ -201,6 +201,8 @@ DEFAULT_SETTINGS = {
     "default_genre": "",
     "genre_photos_enabled": False,
     "table_header_color": "",
+    "allow_user_design": False,
+    "user_custom_design": False,
 }
 
 
@@ -329,6 +331,9 @@ def normalize_settings(raw):
         data["brand_icon"] = raw_brand_icon[:60]
     else:
         data["brand_icon"] = ""
+    data["table_header_color"] = str(data.get("table_header_color") or "").strip()[:16]
+    data["allow_user_design"] = bool(data.get("allow_user_design", False))
+    data["user_custom_design"] = bool(data.get("user_custom_design", False))
     if not isinstance(data["state_overrides"], dict):
         data["state_overrides"] = {}
 

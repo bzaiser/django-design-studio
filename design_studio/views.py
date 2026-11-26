@@ -27,10 +27,19 @@ from .storage import get_storage_adapter
 
 @login_required
 def studio_view(request):
+    from .context_processors import _resolve_site_admin_theme
+
     adapter = get_storage_adapter()
-    ts = adapter.get_settings(request.user)
     if request.method == "POST":
         return save_studio_view(request)
+    default_norm = normalize_settings(DEFAULT_SETTINGS)
+    is_admin = bool(getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False))
+    _su, site_ts = _resolve_site_admin_theme(adapter, default_norm)
+    if not is_admin and not site_ts.get("allow_user_design", False):
+        return HttpResponse("Kein Zugriff.", status=403)
+    ts = adapter.get_settings(request.user)
+    if not is_admin and not ts.get("user_custom_design", False):
+        ts = dict(site_ts)
     palette = compute_theme_palette(
         c1=ts["c1"],
         c2=ts["c2"],
@@ -59,11 +68,42 @@ def studio_view(request):
 @login_required
 @require_POST
 def save_studio_view(request):
+    from .context_processors import _resolve_site_admin_theme
+
     adapter = get_storage_adapter()
+    default_norm = normalize_settings(DEFAULT_SETTINGS)
+    is_admin = bool(getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False))
+    _su, site_ts = _resolve_site_admin_theme(adapter, default_norm)
+    if not is_admin and not site_ts.get("allow_user_design", False):
+        return HttpResponse("Kein Zugriff.", status=403)
+
     prev = adapter.get_settings(request.user)
+    if not is_admin and not prev.get("user_custom_design", False):
+        prev = dict(site_ts)
 
     preset_key = request.POST.get("app_preset", "").strip()
-    if preset_key in APP_PRESETS:
+    if not is_admin:
+        if preset_key in APP_PRESETS:
+            p = APP_PRESETS[preset_key]
+            merged = {
+                **prev,
+                "c1": p["c1"],
+                "c2": p["c2"],
+                "mood": p["mood"],
+                "bg_mode": p["bg_mode"],
+                "day_bg_mode": p["bg_mode"] if p["bg_mode"] != "dark" else prev.get("day_bg_mode", "light"),
+                "card_surface": p["card_surface"],
+                "bg_svg_mode": p["bg_svg_mode"],
+                "user_custom_design": True,
+            }
+        else:
+            merged = {
+                **prev,
+                "default_genre": request.POST.get("theme_default_genre", prev.get("default_genre", "")),
+                "genre_photos_enabled": request.POST.get("theme_genre_photos_enabled") == "1",
+                "user_custom_design": True,
+            }
+    elif preset_key in APP_PRESETS:
         p = APP_PRESETS[preset_key]
         merged = {
             **prev,
@@ -125,6 +165,7 @@ def save_studio_view(request):
             "default_genre": request.POST.get("theme_default_genre", prev.get("default_genre", "")),
             "genre_photos_enabled": request.POST.get("theme_genre_photos_enabled") == "1",
             "table_header_color": request.POST.get("theme_table_header_color", prev.get("table_header_color", "")),
+            "allow_user_design": (request.POST.get("theme_allow_user_design") == "1") if has_kpi else prev.get("allow_user_design", False),
         }
         if "menu_config_json" in request.POST:
             raw_menu = request.POST.get("menu_config_json", "").strip()
@@ -196,8 +237,16 @@ def save_studio_view(request):
 
 @login_required
 def toggle_night_mode_view(request):
+    from .context_processors import _resolve_site_admin_theme
+
     adapter = get_storage_adapter()
+    is_admin = bool(getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False))
     ts = adapter.get_settings(request.user)
+    if not is_admin and not ts.get("user_custom_design", False):
+        _su, site_ts = _resolve_site_admin_theme(adapter, normalize_settings(DEFAULT_SETTINGS))
+        ts = {**site_ts, **{k: ts[k] for k in ("user_menu_layout", "user_night_bg") if k in ts}}
+        if ts.get("user_night_bg") in ("auto", "light", "dark", "custom"):
+            ts["bg_mode"] = ts["user_night_bg"]
     palette = compute_theme_palette(
         c1=ts["c1"],
         c2=ts["c2"],
@@ -224,6 +273,7 @@ def toggle_night_mode_view(request):
         cur_bg = ts.get("bg_mode", "auto")
         ts["day_bg_mode"] = cur_bg if cur_bg in ("auto", "light", "custom") else "light"
         ts["bg_mode"] = "dark"
+    ts["user_night_bg"] = ts["bg_mode"]
 
     new_palette = compute_theme_palette(
         c1=ts["c1"],
@@ -243,9 +293,18 @@ def toggle_night_mode_view(request):
 
 @login_required
 def toggle_menu_layout_view(request):
+    from .context_processors import _resolve_site_admin_theme
+
     adapter = get_storage_adapter()
+    is_admin = bool(getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False))
     ts = adapter.get_settings(request.user)
+    if not is_admin and not ts.get("user_custom_design", False):
+        _su, site_ts = _resolve_site_admin_theme(adapter, normalize_settings(DEFAULT_SETTINGS))
+        ts = {**site_ts, **{k: ts[k] for k in ("user_menu_layout", "user_night_bg") if k in ts}}
+        if ts.get("user_menu_layout") in ("top", "sidebar"):
+            ts["menu_layout"] = ts["user_menu_layout"]
     ts["menu_layout"] = "top" if ts.get("menu_layout") == "sidebar" else "sidebar"
+    ts["user_menu_layout"] = ts["menu_layout"]
     palette = compute_theme_palette(
         c1=ts["c1"],
         c2=ts["c2"],
