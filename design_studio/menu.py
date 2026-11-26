@@ -490,7 +490,7 @@ def resolve_user_menu(user, saved_menu_config=None):
                         "editorial_or_staff": True,
                     },
                 ])
-            if apps.is_installed("ops_kit"):
+            if apps.is_installed("ops_kit") and not apps.is_installed("auth_kit"):
                 optional_kit_items.append({
                     "id": "ops_backups",
                     "url_name": "ops_kit:backups",
