@@ -1,6 +1,21 @@
+import hashlib
 import json
+from pathlib import Path
 
 from django.conf import settings as django_settings
+
+
+def _compute_asset_version() -> str:
+    base = Path(__file__).resolve().parent / "static" / "design_studio"
+    h = hashlib.sha256()
+    for rel in ("css/design-studio.css", "js/design-studio.js"):
+        fp = base / rel
+        if fp.is_file():
+            h.update(fp.read_bytes())
+    return h.hexdigest()[:10]
+
+
+_DS_ASSET_VERSION = _compute_asset_version()
 
 from .bg_media import get_user_genre_bg_map
 from .engine import APP_PRESETS, DEFAULT_SETTINGS, compute_theme_palette, normalize_settings
@@ -157,4 +172,5 @@ def theme_context(request):
         "design_studio_app_name": ts.get("brand_title") or getattr(django_settings, "DESIGN_STUDIO_APP_NAME", "App"),
         "design_studio_app_icon": ts.get("brand_icon") or getattr(django_settings, "DESIGN_STUDIO_APP_ICON", "bi-speedometer2"),
         "design_studio_pwa_enabled": bool(getattr(django_settings, "DESIGN_STUDIO_PWA_ENABLED", True)),
+        "ds_asset_v": _DS_ASSET_VERSION,
     }

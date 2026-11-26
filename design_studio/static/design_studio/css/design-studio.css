@@ -1756,7 +1756,6 @@ body[data-genre]:not([data-genre=""]) main {
     height: 100%;
     display: block;
 }
-body[data-genre]:not([data-genre=""]):not([data-menu-style="gradient"]) .app-navbar .nav-link.active:not(.app-nav-icon-only),
 body[data-genre]:not([data-genre=""]) #sidebarNav .nav-link.active {
     box-shadow: inset 0 -2px 0 var(--ds-genre-accent, var(--app-primary));
 }
