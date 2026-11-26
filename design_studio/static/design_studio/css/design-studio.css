@@ -1530,6 +1530,10 @@ body[data-menu-style="brutal"] .app-navbar .navbar-toggler-icon {
 /* Sliding Hover Pill */
 .app-navbar .nav-pill-track { position: relative; }
 .app-navbar .nav-pill-track .nav-item { position: relative; z-index: 1; }
+.app-navbar .nav-pill-track .nav-item.dropdown:has(> .dropdown-menu.show),
+.app-navbar .nav-pill-track .nav-item.dropdown:focus-within {
+    z-index: 1060 !important;
+}
 .nav-sliding-pill {
     position: absolute;
     top: 0;
@@ -1742,7 +1746,7 @@ body[data-genre]:not([data-genre=""]) main {
     height: 100%;
     display: block;
 }
-body[data-genre]:not([data-genre=""]) .app-navbar .nav-link.active:not(.app-nav-icon-only),
+body[data-genre]:not([data-genre=""]):not([data-menu-style="gradient"]) .app-navbar .nav-link.active:not(.app-nav-icon-only),
 body[data-genre]:not([data-genre=""]) #sidebarNav .nav-link.active {
     box-shadow: inset 0 -2px 0 var(--ds-genre-accent, var(--app-primary));
 }
