@@ -1765,3 +1765,19 @@ body[data-genre="meer"] { --ds-genre-accent: #0284C7; }
         margin-left: auto !important;
     }
 }
+
+/* Risk & visibility field markers */
+.ds-risk-security {
+    border: 1px solid rgba(220, 53, 69, 0.45) !important;
+    border-left: 4px solid #dc3545 !important;
+    background: rgba(220, 53, 69, 0.04) !important;
+    border-radius: .5rem;
+}
+.ds-risk-public {
+    border: 1px solid rgba(255, 193, 7, 0.55) !important;
+    border-left: 4px solid #e0a800 !important;
+    background: rgba(255, 193, 7, 0.08) !important;
+    border-radius: .5rem;
+    padding: .4rem .65rem;
+}
+
