@@ -49,13 +49,28 @@ def studio_view(request):
         state_overrides=ts.get("state_overrides"),
         table_header_color=ts.get("table_header_color", ""),
     )
+    from django.utils.http import url_has_allowed_host_and_scheme
+
     referer = request.META.get("HTTP_REFERER", "")
     next_param = request.GET.get("next", "").strip()
+    if next_param and not url_has_allowed_host_and_scheme(
+        next_param, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        next_param = ""
+    if referer and not url_has_allowed_host_and_scheme(
+        referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        referer = ""
     if next_param:
         request.session["ds_return_url"] = next_param
     elif referer and "/design-studio" not in referer:
         request.session["ds_return_url"] = referer
-    back_url = next_param or request.session.get("ds_return_url") or "/"
+    sess_ret = request.session.get("ds_return_url") or ""
+    if sess_ret and not url_has_allowed_host_and_scheme(
+        sess_ret, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        sess_ret = ""
+    back_url = next_param or sess_ret or "/"
     return render(request, "design_studio/studio_page.html", {
         "theme_studio": ts,
         "theme_palette": palette,
@@ -334,6 +349,11 @@ def export_theme_json_view(request):
 @login_required
 @require_POST
 def import_theme_json_view(request):
+    from django.utils.http import url_has_allowed_host_and_scheme
+
+    is_admin = bool(getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False))
+    if not is_admin:
+        return HttpResponseForbidden(_("Nur Administratoren dürfen Themes importieren."))
     adapter = get_storage_adapter()
     raw_text = ""
     if request.FILES.get("theme_file"):
@@ -343,6 +363,12 @@ def import_theme_json_view(request):
     elif request.body:
         raw_text = request.body.decode("utf-8", errors="replace")
 
+    next_target = (request.POST.get("next") or request.META.get("HTTP_REFERER") or "").strip()
+    if not next_target or not url_has_allowed_host_and_scheme(
+        next_target, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        next_target = "design_studio:studio"
+
     try:
         parsed = json.loads(raw_text)
         imported = parse_import_payload(parsed)
@@ -350,7 +376,7 @@ def import_theme_json_view(request):
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
             return JsonResponse({"status": "error", "message": str(exc)}, status=400)
         messages.error(request, _("Ungültige Theme-JSON-Datei."))
-        return redirect(request.POST.get("next") or request.META.get("HTTP_REFERER") or "design_studio:studio")
+        return redirect(next_target)
 
     palette = compute_theme_palette(
         c1=imported["c1"],
@@ -365,7 +391,7 @@ def import_theme_json_view(request):
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         return JsonResponse({"status": "success", "theme_studio": imported})
     messages.success(request, _("Theme-Vorlage erfolgreich importiert."))
-    return redirect(request.POST.get("next") or request.META.get("HTTP_REFERER") or "design_studio:studio")
+    return redirect(next_target)
 
 
 def _pwa_theme_context(request):
@@ -636,6 +662,13 @@ a.button,
 @require_POST
 def upload_genre_bg_view(request):
     from .bg_media import save_user_genre_bg
+    from .context_processors import _resolve_site_admin_theme
+
+    is_admin = bool(getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False))
+    if not is_admin:
+        site_ts, _site_user = _resolve_site_admin_theme(request.user, normalize_settings(DEFAULT_SETTINGS))
+        if not bool(site_ts.get("allow_user_design", False)):
+            return JsonResponse({"ok": False, "error": "Design-Änderung ist nur für Administratoren freigegeben."}, status=403)
 
     genre_key = (request.POST.get("genre_key") or "").strip()
     uploaded = request.FILES.get("image")
@@ -661,24 +694,39 @@ def upload_genre_bg_view(request):
 @require_POST
 def delete_genre_bg_view(request):
     from .bg_media import delete_user_genre_bg
+    from .context_processors import _resolve_site_admin_theme
+
+    is_admin = bool(getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False))
+    if not is_admin:
+        site_ts, _site_user = _resolve_site_admin_theme(request.user, normalize_settings(DEFAULT_SETTINGS))
+        if not bool(site_ts.get("allow_user_design", False)):
+            return JsonResponse({"ok": False, "error": "Design-Änderung ist nur für Administratoren freigegeben."}, status=403)
 
     genre_key = (request.POST.get("genre_key") or "").strip()
     removed = delete_user_genre_bg(request.user, genre_key)
     return JsonResponse({"ok": True, "removed": removed, "genre_key": genre_key})
 
 
-@login_required
 def serve_genre_bg_view(request, genre_key: str):
     from django.http import Http404
     from .bg_media import CONTENT_TYPE_BY_EXT, get_user_genre_bg_path
+    from .context_processors import _resolve_site_admin_theme
 
-    path = get_user_genre_bg_path(request.user, (genre_key or "").strip())
+    clean_key = (genre_key or "").strip()
+    path = None
+    if getattr(request.user, "is_authenticated", False):
+        path = get_user_genre_bg_path(request.user, clean_key)
+    if not path or not path.is_file():
+        _site_ts, site_user = _resolve_site_admin_theme(getattr(request, "user", None), normalize_settings(DEFAULT_SETTINGS))
+        if site_user is not None:
+            path = get_user_genre_bg_path(site_user, clean_key)
     if not path or not path.is_file():
         raise Http404("Kein eigenes Hintergrundbild vorhanden.")
     ext = path.suffix.lstrip(".").lower()
     content_type = CONTENT_TYPE_BY_EXT.get(ext, "application/octet-stream")
     resp = HttpResponse(path.read_bytes(), content_type=content_type)
     resp["Cache-Control"] = "private, max-age=86400"
+    resp["X-Content-Type-Options"] = "nosniff"
     return resp
 
 
