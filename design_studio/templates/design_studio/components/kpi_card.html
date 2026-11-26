@@ -3,7 +3,7 @@
          {% if target_url %}data-target-url="{{ target_url }}"{% endif %}
          {% if target_tab %}data-target-tab="{{ target_tab }}"{% endif %}
          {% if target_url %}onclick="navigateDesignStudioKpiCard(event, '{{ target_url|escapejs }}');"{% endif %}
-         {% if accent or text_color %}style="{% if accent %}--card-accent: {{ accent }};{% endif %}{% if text_color %} --card-text: {{ text_color }};{% endif %}"{% endif %}>
+         {% if accent or state or text_color %}style="{% if accent %}--card-accent: {{ accent }};{% elif state %}--card-accent: var(--theme-state-{{ state }}, var(--app-primary));{% endif %}{% if text_color %} --card-text: {{ text_color }};{% endif %}"{% endif %}>
         <div class="kpi-decor-clip">
             <div class="kpi-spotlight"></div>
             {% if icon %}<i class="bi {{ icon }} kpi-watermark-icon"></i>{% endif %}

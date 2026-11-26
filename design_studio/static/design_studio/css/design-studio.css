@@ -715,10 +715,16 @@ body[data-card-surface="liquid"] .ds-tab-panel.ds-plate-ready::after {
     .nav-tabs.ds-tabs .nav-link,
     .folder-tabs-bar .nav-link {
         padding: 0.55rem 0.9rem !important;
-        font-size: 0 !important;
-        line-height: 1 !important;
+        font-size: var(--app-fs-xs, 0.78rem) !important;
+        line-height: 1.15 !important;
         white-space: nowrap;
         flex-shrink: 0;
+    }
+    .nav-tabs .nav-link:has(i.bi),
+    .nav-tabs.ds-tabs .nav-link:has(i.bi),
+    .folder-tabs-bar .nav-link:has(i.bi) {
+        font-size: 0 !important;
+        line-height: 1 !important;
     }
     .nav-tabs.ds-tabs .nav-link i.bi,
     .folder-tabs-bar .nav-link i.bi {
@@ -1021,6 +1027,10 @@ body[data-card-surface="brutal"] .card:not(.metric-card) {
     background: color-mix(in srgb, var(--app-primary, #0d6efd) 8%, transparent) !important;
     color: var(--app-card-color) !important;
     border-bottom: 1px solid var(--app-table-border-color) !important;
+}
+body:not([data-card-surface="liquid"]) .card:not(.metric-card) > .card-header:not(.bg-white):not(.bg-light) .text-primary,
+body:not([data-card-surface="liquid"]) .card:not(.metric-card) > .card-header:not(.bg-white):not(.bg-light) .text-muted {
+    color: rgba(255, 255, 255, 0.9) !important;
 }
 .card:not(.metric-card) > .card-footer,
 .modal-footer.bg-light {
