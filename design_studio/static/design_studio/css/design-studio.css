@@ -275,6 +275,42 @@ small,
     border-color: var(--app-primary, var(--bs-primary)) !important;
     color: var(--ds-primary-contrast, #ffffff) !important;
 }
+.text-primary,
+.link-primary,
+.page-link {
+    color: var(--app-primary, var(--bs-primary)) !important;
+}
+.bg-primary {
+    background-color: var(--app-primary, var(--bs-primary)) !important;
+}
+.border-primary {
+    border-color: var(--app-primary, var(--bs-primary)) !important;
+}
+.list-group-item.active {
+    --bs-list-group-active-bg: var(--app-primary, var(--bs-primary));
+    --bs-list-group-active-border-color: var(--app-primary, var(--bs-primary));
+    --bs-list-group-active-color: var(--ds-primary-contrast, #ffffff);
+    background-color: var(--app-primary, var(--bs-primary)) !important;
+    border-color: var(--app-primary, var(--bs-primary)) !important;
+    color: var(--ds-primary-contrast, #ffffff) !important;
+}
+.accordion-button:not(.collapsed) {
+    background-color: color-mix(in srgb, var(--app-primary, var(--bs-primary)) 12%, transparent) !important;
+    color: var(--app-primary, var(--bs-primary)) !important;
+    box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--app-primary, var(--bs-primary)) 22%, transparent) !important;
+}
+.accordion-button:focus,
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--app-primary, var(--bs-primary)) !important;
+    box-shadow: 0 0 0 0.22rem color-mix(in srgb, var(--app-primary, var(--bs-primary)) 25%, transparent) !important;
+}
+.form-range::-webkit-slider-thumb {
+    background-color: var(--app-primary, var(--bs-primary)) !important;
+}
+.form-range::-moz-range-thumb {
+    background-color: var(--app-primary, var(--bs-primary)) !important;
+}
 .form-check-input:checked {
     background-color: var(--app-primary, #0d6efd) !important;
     border-color: var(--app-primary, #0d6efd) !important;
@@ -828,6 +864,8 @@ nav,
 }
 .dropdown-menu,
 .navbar .dropdown-menu {
+    --bs-dropdown-link-active-bg: var(--app-primary, var(--bs-primary));
+    --bs-dropdown-link-active-color: var(--ds-primary-contrast, #ffffff);
     z-index: 1055 !important;
     background-color: var(--app-card-bg, #ffffff) !important;
     color: var(--app-card-color, #212529) !important;
@@ -841,6 +879,11 @@ nav,
 .dropdown-item:focus {
     background-color: color-mix(in srgb, var(--app-primary, #0d6efd) 14%, transparent) !important;
     color: var(--app-card-color, #212529) !important;
+}
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: var(--app-primary, var(--bs-primary)) !important;
+    color: var(--ds-primary-contrast, #ffffff) !important;
 }
 [data-bs-theme="dark"] .dropdown-item:hover,
 [data-bs-theme="dark"] .dropdown-item:focus {
