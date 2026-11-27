@@ -51,11 +51,16 @@
 </div>
 {% endif %}
 {% endif %}
+{% if ds_bg_photo_url %}
+<div id="ds-genre-photo-layer" class="ds-genre-photo-layer" style="background-image: url('{{ ds_bg_photo_url }}');" aria-hidden="true"></div>
+{% endif %}
 {% if active_genre %}
+{% if not ds_bg_photo_url %}
 {% if active_genre.custom_photo_url %}
 <div id="ds-genre-photo-layer" class="ds-genre-photo-layer" style="background-image: url('{{ active_genre.custom_photo_url }}');" aria-hidden="true"></div>
 {% elif theme_studio.genre_photos_enabled and active_genre.photo_url %}
 <div id="ds-genre-photo-layer" class="ds-genre-photo-layer" style="background-image: url('{{ active_genre.photo_url }}');" aria-hidden="true"></div>
+{% endif %}
 {% endif %}
 {% if active_genre.svg and theme_studio.bg_svg_mode == 'auto' or active_genre.svg and not theme_studio.bg_svg_mode %}
 <div id="ds-genre-svg-layer" class="ds-genre-svg-layer" aria-hidden="true">{{ active_genre.svg|safe }}</div>

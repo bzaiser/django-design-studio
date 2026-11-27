@@ -111,6 +111,10 @@ def theme_context(request):
         custom_genre_bgs = get_user_genre_bg_map(site_user)
     if active_genre and active_genre.get("key") in custom_genre_bgs:
         active_genre = {**active_genre, "custom_photo_url": custom_genre_bgs[active_genre["key"]]}
+    if active_genre:
+        ds_bg_photo_url = active_genre.get("custom_photo_url") or (active_genre.get("photo_url") if ts.get("genre_photos_enabled") else "")
+    else:
+        ds_bg_photo_url = custom_genre_bgs.get("standard", "")
 
     web_menu_ctx = {}
     if is_auth:
@@ -156,21 +160,33 @@ def theme_context(request):
         "menu_icon_choices": user_menu["icon_choices"],
         "genre_choices": [(gk, str(gl)) for gk, gl in GENRE_CHOICES],
         "active_genre": active_genre,
+        "ds_bg_photo_url": ds_bg_photo_url,
         "genre_preview_json": json.dumps({
-            k: {
-                "label": str(v["label"]),
-                "primary": v["primary"],
-                "secondary": v["secondary"],
-                "bg_light": v["bg_light"],
-                "svg": v["svg"],
-                "photo_url": (
-                    __import__("django.templatetags.static", fromlist=["static"]).static(v["photo_url"])
-                    if v.get("photo_url") and not v["photo_url"].startswith(("http://", "https://", "/"))
-                    else v.get("photo_url", "")
-                ),
-                "custom_photo_url": custom_genre_bgs.get(k, ""),
-            }
-            for k, v in GENRE_DEFINITIONS.items()
+            **{
+                k: {
+                    "label": str(v["label"]),
+                    "primary": v["primary"],
+                    "secondary": v["secondary"],
+                    "bg_light": v["bg_light"],
+                    "svg": v["svg"],
+                    "photo_url": (
+                        __import__("django.templatetags.static", fromlist=["static"]).static(v["photo_url"])
+                        if v.get("photo_url") and not v["photo_url"].startswith(("http://", "https://", "/"))
+                        else v.get("photo_url", "")
+                    ),
+                    "custom_photo_url": custom_genre_bgs.get(k, ""),
+                }
+                for k, v in GENRE_DEFINITIONS.items()
+            },
+            "standard": {
+                "label": "Standard (kein Genre)",
+                "primary": "",
+                "secondary": "",
+                "bg_light": "",
+                "svg": "",
+                "photo_url": "",
+                "custom_photo_url": custom_genre_bgs.get("standard", ""),
+            },
         }),
         "design_studio_app_name": ts.get("brand_title") or getattr(django_settings, "DESIGN_STUDIO_APP_NAME", "App"),
         "design_studio_app_icon": ts.get("brand_icon") or getattr(django_settings, "DESIGN_STUDIO_APP_ICON", "bi-speedometer2"),

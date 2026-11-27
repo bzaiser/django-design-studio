@@ -794,6 +794,20 @@ class DesignStudioPackageTests(TestCase):
         self.assertIn("ds-genre-svg-layer", bg_auto)
         self.assertNotIn("app-bg-svg-layer", bg_auto)
 
+        # 3. Standard (no genre) supports custom background upload + serving
+        import struct, tempfile
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        admin2 = get_user_model().objects.create_user(username="std_admin", password="pw", is_staff=True, is_superuser=True)
+        self.client.force_login(admin2)
+        ihdr = struct.pack(">IIBBBBB", 1280, 720, 8, 2, 0, 0, 0)
+        png_bytes = b"\x89PNG\r\n\x1a\n" + struct.pack(">I", len(ihdr)) + b"IHDR" + ihdr + b"\x00\x00\x00\x00"
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.settings(BASE_DIR=tmp):
+                up = SimpleUploadedFile("std.png", png_bytes, content_type="image/png")
+                r_up = self.client.post("/design-studio/genre-bg/upload/", {"genre_key": "standard", "image": up})
+                self.assertEqual(r_up.status_code, 200)
+                self.assertIn("/design-studio/genre-bg/standard/", r_up.json()["url"])
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner

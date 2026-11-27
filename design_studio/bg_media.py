@@ -161,15 +161,22 @@ def _get_tenant_prefix() -> str:
     return "default__"
 
 
+STANDARD_BG_KEY = "standard"
+
+
+def is_valid_bg_key(genre_key: str) -> bool:
+    return genre_key == STANDARD_BG_KEY or genre_key in GENRE_DEFINITIONS
+
+
 def _stem_for(user, genre_key: str) -> str:
     uid = getattr(user, "pk", None)
-    if not uid or genre_key not in GENRE_DEFINITIONS:
+    if not uid or not is_valid_bg_key(genre_key):
         raise ValueError("Ungültiger Benutzer oder unbekanntes Genre.")
     return f"{_get_tenant_prefix()}u{int(uid)}__{genre_key}"
 
 
 def get_user_genre_bg_path(user, genre_key: str, base_dir=None) -> Path | None:
-    if not user or not getattr(user, "is_authenticated", False) or genre_key not in GENRE_DEFINITIONS:
+    if not user or not getattr(user, "is_authenticated", False) or not is_valid_bg_key(genre_key):
         return None
     bg_dir = _get_bg_dir(base_dir)
     if not bg_dir.is_dir():
@@ -208,7 +215,7 @@ def get_user_genre_bg_map(user, base_dir=None) -> dict[str, str]:
         return {}
     prefix = f"{_get_tenant_prefix()}u{int(uid)}__"
     result: dict[str, str] = {}
-    for gkey in GENRE_DEFINITIONS:
+    for gkey in (*GENRE_DEFINITIONS.keys(), STANDARD_BG_KEY):
         for ext in ("webp", "jpg", "png"):
             cand = bg_dir / f"{prefix}{gkey}.{ext}"
             if cand.is_file():
@@ -226,7 +233,7 @@ def get_user_genre_bg_map(user, base_dir=None) -> dict[str, str]:
 
 
 def save_user_genre_bg(user, genre_key: str, uploaded_file, base_dir=None) -> dict:
-    if genre_key not in GENRE_DEFINITIONS:
+    if not is_valid_bg_key(genre_key):
         raise ValueError("Bitte zuerst ein gültiges Genre auswählen.")
     data, ext, width, height = validate_bg_image(uploaded_file)
     bg_dir = _get_bg_dir(base_dir)
@@ -252,7 +259,7 @@ def save_user_genre_bg(user, genre_key: str, uploaded_file, base_dir=None) -> di
 
 
 def delete_user_genre_bg(user, genre_key: str, base_dir=None) -> bool:
-    if genre_key not in GENRE_DEFINITIONS:
+    if not is_valid_bg_key(genre_key):
         return False
     bg_dir = _get_bg_dir(base_dir)
     if not bg_dir.is_dir():

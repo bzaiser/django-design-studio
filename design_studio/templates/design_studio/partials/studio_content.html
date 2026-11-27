@@ -130,7 +130,7 @@
                             svgEl.innerHTML = '';
                         }
                         var photoEl = document.getElementById('ds-genre-photo-layer');
-                        var customUrl = (info && info.custom_photo_url) ? info.custom_photo_url : '';
+                        var customUrl = (info && info.custom_photo_url) ? info.custom_photo_url : ((genresData['standard'] && !key) ? (genresData['standard'].custom_photo_url || '') : '');
                         var activePhotoUrl = customUrl || ((gPhotoCb && gPhotoCb.checked && info && info.photo_url) ? info.photo_url : '');
                         if (activePhotoUrl) {
                             if (!photoEl) {
@@ -153,9 +153,9 @@
                 var gBgDot = document.getElementById('dsGenreBgDot');
                 function syncGenreBgButton() {
                     if (!gBgBtn || !gSel) return;
-                    var key = gSel.value || '';
+                    var key = gSel.value || 'standard';
                     var info = genresData[key];
-                    gBgBtn.classList.toggle('d-none', !key || !info);
+                    gBgBtn.classList.toggle('d-none', !info);
                     if (gBgDot) {
                         gBgDot.classList.toggle('d-none', !(info && info.custom_photo_url));
                     }
@@ -211,7 +211,7 @@
                     if (bgPreviewBox) bgPreviewBox.classList.add('d-none');
                     if (bgChecksBox) bgChecksBox.classList.add('d-none');
                     showBgAlert('', false);
-                    var key = gSel ? (gSel.value || '') : '';
+                    var key = gSel ? (gSel.value || 'standard') : 'standard';
                     var info = genresData[key] || {};
                     if (bgLabelEl) bgLabelEl.textContent = info.label || key;
                     var hasCustom = !!info.custom_photo_url;
@@ -295,7 +295,7 @@
 
                 if (bgUploadBtn) {
                     bgUploadBtn.addEventListener('click', function () {
-                        var key = gSel ? (gSel.value || '') : '';
+                        var key = gSel ? (gSel.value || 'standard') : 'standard';
                         if (!key || !pendingFile) return;
                         bgUploadBtn.disabled = true;
                         showBgAlert('', false);
@@ -326,7 +326,7 @@
 
                 if (bgDeleteBtn) {
                     bgDeleteBtn.addEventListener('click', function () {
-                        var key = gSel ? (gSel.value || '') : '';
+                        var key = gSel ? (gSel.value || 'standard') : 'standard';
                         if (!key) return;
                         var fd = new FormData();
                         fd.append('genre_key', key);
