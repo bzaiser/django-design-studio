@@ -514,9 +514,8 @@ def resolve_user_menu(user, saved_menu_config=None):
     is_editorial = is_staff
     if not is_editorial and user and getattr(user, "is_authenticated", False):
         try:
-            is_editorial = user.groups.filter(
-                name__in=("Redakteur", "Redaktion", "Leitung / Vorstand", "Vorstand")
-            ).exists()
+            from .permissions import user_has_role
+            is_editorial = user_has_role(user, "editorial")
         except Exception:
             is_editorial = False
 

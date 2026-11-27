@@ -89,7 +89,7 @@ def theme_context(request):
             if apps.is_installed("site_kit"):
                 from site_kit.models import SiteConfig
                 sname = (SiteConfig.get_solo().site_name or "").strip()
-                if sname and sname != "Mein Verein":
+                if sname and sname not in ("Mein Verein", "Meine Organisation"):
                     ts = {**ts, "brand_title": sname}
         except Exception:
             pass
@@ -123,11 +123,14 @@ def theme_context(request):
             web_menu_ctx = {}
 
     from .branding import get_branding_context
+    from .permissions import get_business_profile, is_npo_profile
 
     return {
         **web_menu_ctx,
         "theme_studio": ts,
         "ds_branding": get_branding_context("print"),
+        "ds_business_profile": get_business_profile(),
+        "ds_is_npo_profile": is_npo_profile(),
         "theme_palette": palette,
         "theme_state_overrides_json": json.dumps(ts.get("state_overrides", {})),
         "theme_palette_json": json.dumps({
