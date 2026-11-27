@@ -743,6 +743,12 @@ class DesignStudioPackageTests(TestCase):
                 self.assertEqual(r_bg.status_code, 200)
                 self.assertIn("image/", r_bg["Content-Type"])
 
+                from django.template.loader import render_to_string
+                rendered_with_bg = render_to_string("design_studio/includes/body_attrs.html", ctx)
+                self.assertIn('data-has-bg-photo="1"', rendered_with_bg)
+                rendered_no_bg = render_to_string("design_studio/includes/body_attrs.html", {"active_genre": None, "theme_studio": ctx["theme_studio"]})
+                self.assertNotIn("data-has-bg-photo", rendered_no_bg)
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner
