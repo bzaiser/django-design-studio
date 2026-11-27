@@ -2,6 +2,17 @@
 <style>
     :root {
         --bs-primary: {{ theme_palette.primary_color|default:"#0d6efd" }};
+        {% if theme_palette and theme_palette.bootstrap_vars %}
+        {% for bv in theme_palette.bootstrap_vars %}
+        --bs-{{ bv.role }}: {{ bv.hex }};
+        --bs-{{ bv.role }}-rgb: {{ bv.rgb }};
+        --ds-{{ bv.role }}-contrast: {{ bv.contrast }};
+        {% endfor %}
+        {% endif %}
+        --bs-link-color: var(--bs-primary);
+        --bs-link-color-rgb: var(--bs-primary-rgb);
+        --bs-link-hover-color: var(--bs-primary);
+        --bs-focus-ring-color: rgba(var(--bs-primary-rgb), 0.25);
         --bs-body-bg: {{ theme_palette.background_color|default:"#ffffff" }};
         --bs-body-color: {{ theme_palette.text_color|default:"#212529" }};
         --app-primary: var(--bs-primary);

@@ -402,6 +402,18 @@ def _compute_single_state(st_h, st_side, idx, base1, base2, mood_key, m, is_dark
     }
 
 
+def _hex_to_rgb_csv(hex_color, fallback="13, 110, 253"):
+    h = str(hex_color or "").strip().lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    if len(h) != 6:
+        return fallback
+    try:
+        return f"{int(h[0:2], 16)}, {int(h[2:4], 16)}, {int(h[4:6], 16)}"
+    except ValueError:
+        return fallback
+
+
 def compute_theme_palette(c1="#6610f2", c2="#0d6efd", mood_key="modern", bg_mode="auto", bg_custom="#e2e8f0", state_overrides=None, table_header_color=""):
     if mood_key not in MOODS:
         mood_key = "modern"
@@ -479,6 +491,19 @@ def compute_theme_palette(c1="#6610f2", c2="#0d6efd", mood_key="modern", bg_mode
     table_body_text = text_color
     table_border = "#334155" if is_dark else "#dee2e6"
 
+    bootstrap_roles = [
+        ("primary", primary_hex, get_contrast_text(primary_hex)),
+        ("secondary", states_by_index[7]["hex"], states_by_index[7]["card_text"]),
+        ("success", states_by_index[1]["hex"], states_by_index[1]["card_text"]),
+        ("info", states_by_index[2]["hex"], states_by_index[2]["card_text"]),
+        ("warning", states_by_index[3]["hex"], states_by_index[3]["card_text"]),
+        ("danger", states_by_index[5]["hex"], states_by_index[5]["card_text"]),
+    ]
+    bootstrap_vars = [
+        {"role": role, "hex": hx, "rgb": _hex_to_rgb_csv(hx), "contrast": c_txt}
+        for role, hx, c_txt in bootstrap_roles
+    ]
+
     return {
         "c1": grad_start,
         "c2": grad_end,
@@ -499,6 +524,7 @@ def compute_theme_palette(c1="#6610f2", c2="#0d6efd", mood_key="modern", bg_mode
         "table_border_color": table_border,
         "states": computed_states,
         "states_by_index": states_by_index,
+        "bootstrap_vars": bootstrap_vars,
     }
 
 

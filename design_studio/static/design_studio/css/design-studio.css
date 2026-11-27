@@ -231,6 +231,50 @@ small,
     border-color: var(--app-primary, #0d6efd) !important;
     color: #ffffff !important;
 }
+/* Design-Studio Semantik-Farbharmonie für alle 6 Bootstrap-Rollen (App & Webseite) */
+.text-bg-primary { background-color: var(--bs-primary) !important; color: var(--ds-primary-contrast, #ffffff) !important; }
+.text-bg-secondary { background-color: var(--bs-secondary) !important; color: var(--ds-secondary-contrast, #ffffff) !important; }
+.text-bg-success { background-color: var(--bs-success) !important; color: var(--ds-success-contrast, #ffffff) !important; }
+.text-bg-info { background-color: var(--bs-info) !important; color: var(--ds-info-contrast, #ffffff) !important; }
+.text-bg-warning { background-color: var(--bs-warning) !important; color: var(--ds-warning-contrast, #1e293b) !important; }
+.text-bg-danger { background-color: var(--bs-danger) !important; color: var(--ds-danger-contrast, #ffffff) !important; }
+
+.bg-primary-subtle { background-color: color-mix(in srgb, var(--bs-primary) 15%, transparent) !important; }
+.bg-secondary-subtle { background-color: color-mix(in srgb, var(--bs-secondary) 15%, transparent) !important; }
+.bg-success-subtle { background-color: color-mix(in srgb, var(--bs-success) 15%, transparent) !important; }
+.bg-info-subtle { background-color: color-mix(in srgb, var(--bs-info) 15%, transparent) !important; }
+.bg-warning-subtle { background-color: color-mix(in srgb, var(--bs-warning) 18%, transparent) !important; }
+.bg-danger-subtle { background-color: color-mix(in srgb, var(--bs-danger) 15%, transparent) !important; }
+
+.text-primary-emphasis { color: var(--bs-primary) !important; }
+.text-secondary-emphasis { color: var(--bs-secondary) !important; }
+.text-success-emphasis { color: var(--bs-success) !important; }
+.text-info-emphasis { color: var(--bs-info) !important; }
+.text-warning-emphasis { color: var(--bs-warning) !important; }
+.text-danger-emphasis { color: var(--bs-danger) !important; }
+
+.btn-success { --bs-btn-bg: var(--bs-success); --bs-btn-border-color: var(--bs-success); --bs-btn-color: var(--ds-success-contrast, #fff); --bs-btn-hover-bg: var(--bs-success); --bs-btn-hover-border-color: var(--bs-success); }
+.btn-info { --bs-btn-bg: var(--bs-info); --bs-btn-border-color: var(--bs-info); --bs-btn-color: var(--ds-info-contrast, #fff); --bs-btn-hover-bg: var(--bs-info); --bs-btn-hover-border-color: var(--bs-info); }
+.btn-warning { --bs-btn-bg: var(--bs-warning); --bs-btn-border-color: var(--bs-warning); --bs-btn-color: var(--ds-warning-contrast, #1e293b); --bs-btn-hover-bg: var(--bs-warning); --bs-btn-hover-border-color: var(--bs-warning); }
+.btn-danger { --bs-btn-bg: var(--bs-danger); --bs-btn-border-color: var(--bs-danger); --bs-btn-color: var(--ds-danger-contrast, #fff); --bs-btn-hover-bg: var(--bs-danger); --bs-btn-hover-border-color: var(--bs-danger); }
+.btn-outline-success { --bs-btn-color: var(--bs-success); --bs-btn-border-color: var(--bs-success); --bs-btn-hover-bg: var(--bs-success); --bs-btn-hover-border-color: var(--bs-success); --bs-btn-hover-color: var(--ds-success-contrast, #fff); }
+.btn-outline-info { --bs-btn-color: var(--bs-info); --bs-btn-border-color: var(--bs-info); --bs-btn-hover-bg: var(--bs-info); --bs-btn-hover-border-color: var(--bs-info); --bs-btn-hover-color: var(--ds-info-contrast, #fff); }
+.btn-outline-warning { --bs-btn-color: var(--bs-warning); --bs-btn-border-color: var(--bs-warning); --bs-btn-hover-bg: var(--bs-warning); --bs-btn-hover-border-color: var(--bs-warning); --bs-btn-hover-color: var(--ds-warning-contrast, #1e293b); }
+.btn-outline-danger { --bs-btn-color: var(--bs-danger); --bs-btn-border-color: var(--bs-danger); --bs-btn-hover-bg: var(--bs-danger); --bs-btn-hover-border-color: var(--bs-danger); --bs-btn-hover-color: var(--ds-danger-contrast, #fff); }
+
+.alert-primary { --bs-alert-bg: color-mix(in srgb, var(--bs-primary) 14%, var(--bs-body-bg, #fff)); --bs-alert-border-color: color-mix(in srgb, var(--bs-primary) 32%, transparent); }
+.alert-success { --bs-alert-bg: color-mix(in srgb, var(--bs-success) 14%, var(--bs-body-bg, #fff)); --bs-alert-border-color: color-mix(in srgb, var(--bs-success) 32%, transparent); }
+.alert-info { --bs-alert-bg: color-mix(in srgb, var(--bs-info) 14%, var(--bs-body-bg, #fff)); --bs-alert-border-color: color-mix(in srgb, var(--bs-info) 32%, transparent); }
+.alert-warning { --bs-alert-bg: color-mix(in srgb, var(--bs-warning) 16%, var(--bs-body-bg, #fff)); --bs-alert-border-color: color-mix(in srgb, var(--bs-warning) 35%, transparent); }
+.alert-danger { --bs-alert-bg: color-mix(in srgb, var(--bs-danger) 14%, var(--bs-body-bg, #fff)); --bs-alert-border-color: color-mix(in srgb, var(--bs-danger) 32%, transparent); }
+
+.nav-pills .nav-link.active,
+.page-item.active .page-link,
+.progress-bar {
+    background-color: var(--app-primary, var(--bs-primary)) !important;
+    border-color: var(--app-primary, var(--bs-primary)) !important;
+    color: var(--ds-primary-contrast, #ffffff) !important;
+}
 .form-check-input:checked {
     background-color: var(--app-primary, #0d6efd) !important;
     border-color: var(--app-primary, #0d6efd) !important;
