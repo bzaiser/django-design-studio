@@ -54,7 +54,7 @@
         --ds-genre-secondary: {{ active_genre.secondary }};
         {% if not theme_palette.is_dark and active_genre.bg_light %}background-color: {{ active_genre.bg_light }} !important;{% endif %}
     }
-    {% if active_genre.font_head %}
+    {% if active_genre.font_head and theme_studio.font_family == 'auto' or active_genre.font_head and not theme_studio.font_family %}
     body[data-genre="{{ active_genre.key }}"] main h1,
     body[data-genre="{{ active_genre.key }}"] main h2,
     body[data-genre="{{ active_genre.key }}"] main h3 {

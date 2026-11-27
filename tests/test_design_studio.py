@@ -749,6 +749,51 @@ class DesignStudioPackageTests(TestCase):
                 rendered_no_bg = render_to_string("design_studio/includes/body_attrs.html", {"active_genre": None, "theme_studio": ctx["theme_studio"]})
                 self.assertNotIn("data-has-bg-photo", rendered_no_bg)
 
+    def test_explicit_font_and_bg_svg_override_active_genre(self):
+        from django.template.loader import render_to_string
+        from design_studio.genres import get_genre_definition
+
+        genre = get_genre_definition("meer")
+        self.assertIsNotNone(genre)
+        # 1. Explicit font_family='rounded' overrides genre font_head; 'auto' keeps it
+        head_rounded = render_to_string("design_studio/includes/head.html", {
+            "active_genre": genre,
+            "theme_studio": {"font_family": "rounded"},
+        })
+        self.assertNotIn("Playfair Display", head_rounded)
+        head_auto = render_to_string("design_studio/includes/head.html", {
+            "active_genre": genre,
+            "theme_studio": {"font_family": "auto"},
+        })
+        self.assertIn("Playfair Display", head_auto)
+
+        # 2. bg_svg_mode='none' disables both layers; explicit 'grid' overrides genre svg; 'auto' keeps genre svg
+        from django.contrib.auth import get_user_model
+        u = get_user_model().objects.create_user(username="svg_u", password="pw")
+        bg_none = render_to_string("design_studio/includes/bg_layer.html", {
+            "user": u,
+            "active_genre": genre,
+            "theme_studio": {"bg_svg_mode": "none", "resolved_bg_svg": "none", "genre_photos_enabled": False},
+        })
+        self.assertNotIn("ds-genre-svg-layer", bg_none)
+        self.assertNotIn("app-bg-svg-layer", bg_none)
+
+        bg_grid = render_to_string("design_studio/includes/bg_layer.html", {
+            "user": u,
+            "active_genre": genre,
+            "theme_studio": {"bg_svg_mode": "grid", "resolved_bg_svg": "grid", "genre_photos_enabled": False},
+        })
+        self.assertIn("app-bg-svg-layer", bg_grid)
+        self.assertNotIn("ds-genre-svg-layer", bg_grid)
+
+        bg_auto = render_to_string("design_studio/includes/bg_layer.html", {
+            "user": u,
+            "active_genre": genre,
+            "theme_studio": {"bg_svg_mode": "auto", "resolved_bg_svg": "grid", "genre_photos_enabled": False},
+        })
+        self.assertIn("ds-genre-svg-layer", bg_auto)
+        self.assertNotIn("app-bg-svg-layer", bg_auto)
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner

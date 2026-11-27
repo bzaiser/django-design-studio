@@ -1,4 +1,5 @@
-{% if user.is_authenticated and not active_genre and theme_studio.resolved_bg_svg and theme_studio.resolved_bg_svg != 'none' %}
+{% if user.is_authenticated and theme_studio.bg_svg_mode != 'none' and theme_studio.resolved_bg_svg and theme_studio.resolved_bg_svg != 'none' %}
+{% if not active_genre or not active_genre.svg or theme_studio.bg_svg_mode != 'auto' %}
 <div class="app-bg-svg-layer" aria-hidden="true">
     {% if theme_studio.resolved_bg_svg == 'topography' %}
     <svg viewBox="0 0 800 1000" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
@@ -49,13 +50,14 @@
     {% endif %}
 </div>
 {% endif %}
+{% endif %}
 {% if active_genre %}
 {% if active_genre.custom_photo_url %}
 <div id="ds-genre-photo-layer" class="ds-genre-photo-layer" style="background-image: url('{{ active_genre.custom_photo_url }}');" aria-hidden="true"></div>
 {% elif theme_studio.genre_photos_enabled and active_genre.photo_url %}
 <div id="ds-genre-photo-layer" class="ds-genre-photo-layer" style="background-image: url('{{ active_genre.photo_url }}');" aria-hidden="true"></div>
 {% endif %}
-{% if active_genre.svg %}
+{% if active_genre.svg and theme_studio.bg_svg_mode == 'auto' or active_genre.svg and not theme_studio.bg_svg_mode %}
 <div id="ds-genre-svg-layer" class="ds-genre-svg-layer" aria-hidden="true">{{ active_genre.svg|safe }}</div>
 {% endif %}
 {% endif %}
