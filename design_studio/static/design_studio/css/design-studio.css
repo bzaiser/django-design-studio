@@ -200,13 +200,17 @@ small,
 .btn-outline-warning,
 .btn-outline-danger,
 .btn-outline-info {
-    background-color: color-mix(in srgb, var(--bs-body-bg, #ffffff) 86%, transparent);
+    background-color: color-mix(in srgb, var(--bs-body-bg, #ffffff) 94%, transparent);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
 }
 .btn-outline-primary {
-    color: var(--app-primary, #0d6efd) !important;
-    border-color: var(--app-primary, #0d6efd) !important;
+    color: color-mix(in srgb, var(--app-primary, #0d6efd) 76%, var(--bs-body-color, #0f172a)) !important;
+    border-color: color-mix(in srgb, var(--app-primary, #0d6efd) 76%, var(--bs-body-color, #0f172a)) !important;
+}
+[data-bs-theme="dark"] .btn-outline-primary {
+    color: color-mix(in srgb, var(--app-primary, #0d6efd) 82%, #ffffff) !important;
+    border-color: color-mix(in srgb, var(--app-primary, #0d6efd) 82%, #ffffff) !important;
 }
 .btn-outline-secondary {
     color: var(--bs-body-color, #212529);
