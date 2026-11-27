@@ -1,14 +1,14 @@
 from django.utils.translation import gettext_lazy as _
 
 STATES = [
-    {"index": 1, "n": _("1. OK / Ampel Grün"), "h": 142, "t": _("✓ Stabil"), "side": 1},
-    {"index": 2, "n": _("2. Positiv / Info"), "h": 185, "t": _("ℹ Info"), "side": 1},
-    {"index": 3, "n": _("3. Mittel / Achtung"), "h": 43, "t": _("⚠ Achtung"), "side": 2},
-    {"index": 4, "n": _("4. Warnung"), "h": 26, "t": _("⚡ Warnung"), "side": 2},
-    {"index": 5, "n": _("5. Schlecht / Negativ"), "h": 4, "t": _("✕ Fehler"), "side": 2},
-    {"index": 6, "n": _("6. Gefahr / Kritisch"), "h": 338, "t": _("🛑 Gefahr"), "side": 2},
-    {"index": 7, "n": _("7. Neutral / Inaktiv"), "h": None, "t": _("• Inaktiv"), "side": 0},
-    {"index": 8, "n": _("8. Fokus / Highlight"), "h": 272, "t": _("★ Fokus"), "side": 1},
+    {"index": 1, "n": _("OK / Ampel Grün (Success)"), "h": 142, "t": _("✓ Stabil"), "side": 1},
+    {"index": 2, "n": _("Positiv / Info (Info)"), "h": 185, "t": _("ℹ Info"), "side": 1},
+    {"index": 3, "n": _("Mittel / Achtung (Warning)"), "h": 43, "t": _("⚠ Achtung"), "side": 2},
+    {"index": 4, "n": _("Warnung"), "h": 26, "t": _("⚡ Warnung"), "side": 2},
+    {"index": 5, "n": _("Schlecht / Negativ (Danger)"), "h": 4, "t": _("✕ Fehler"), "side": 2},
+    {"index": 6, "n": _("Gefahr / Kritisch"), "h": 338, "t": _("🛑 Gefahr"), "side": 2},
+    {"index": 7, "n": _("Neutral / Inaktiv (Secondary)"), "h": None, "t": _("• Inaktiv"), "side": 0},
+    {"index": 8, "n": _("Fokus / Highlight"), "h": 272, "t": _("★ Fokus"), "side": 1},
 ]
 
 MOODS = {
