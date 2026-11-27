@@ -712,6 +712,37 @@ class DesignStudioPackageTests(TestCase):
         self.assertTrue(ctx2["theme_studio"]["genre_photos_enabled"])
         self.assertNotEqual(ctx2["theme_studio"]["c1"], "#123456")
 
+    def test_anonymous_visitor_receives_site_admin_custom_genre_bg(self):
+        import struct
+        import tempfile
+        from django.contrib.auth import get_user_model
+        from django.contrib.auth.models import AnonymousUser
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.test import Client, RequestFactory
+        from design_studio.context_processors import theme_context
+
+        User = get_user_model()
+        admin = User.objects.create_user(username="bg_admin", password="pw", is_staff=True, is_superuser=True)
+        self.client.force_login(admin)
+        ihdr = struct.pack(">IIBBBBB", 1280, 720, 8, 2, 0, 0, 0)
+        png_bytes = b"\x89PNG\r\n\x1a\n" + struct.pack(">I", len(ihdr)) + b"IHDR" + ihdr + b"\x00\x00\x00\x00"
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.settings(BASE_DIR=tmp):
+                up = SimpleUploadedFile("bg.png", png_bytes, content_type="image/png")
+                r_up = self.client.post("/design-studio/genre-bg/upload/", {"genre_key": "natur", "image": up})
+                self.assertEqual(r_up.status_code, 200)
+                self.client.post("/design-studio/save/", {"theme_default_genre": "natur", "theme_genre_photos_enabled": "1"})
+
+                req = RequestFactory().get("/")
+                req.user = AnonymousUser()
+                ctx = theme_context(req)
+                self.assertTrue(ctx["active_genre"].get("custom_photo_url", "").startswith("/design-studio/genre-bg/natur/"))
+
+                anon = Client()
+                r_bg = anon.get("/design-studio/genre-bg/natur/")
+                self.assertEqual(r_bg.status_code, 200)
+                self.assertIn("image/", r_bg["Content-Type"])
+
 
 if __name__ == "__main__":
     from django.test.runner import DiscoverRunner

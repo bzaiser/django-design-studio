@@ -717,7 +717,7 @@ def serve_genre_bg_view(request, genre_key: str):
     if getattr(request.user, "is_authenticated", False):
         path = get_user_genre_bg_path(request.user, clean_key)
     if not path or not path.is_file():
-        _site_ts, site_user = _resolve_site_admin_theme(getattr(request, "user", None), normalize_settings(DEFAULT_SETTINGS))
+        site_user, _site_ts = _resolve_site_admin_theme(get_storage_adapter(), normalize_settings(DEFAULT_SETTINGS))
         if site_user is not None:
             path = get_user_genre_bg_path(site_user, clean_key)
     if not path or not path.is_file():
