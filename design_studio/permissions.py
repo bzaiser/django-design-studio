@@ -13,19 +13,28 @@ DEFAULT_ROLE_GROUPS = {
         "Leitung / Vorstand",
         "Vorstand",
         "Geschäftsführung",
-        "Redakteur",
-        "Pressewart",
         "Schriftführer",
         "Dozenten",
-        "Mitarbeiter",
     ),
     "calendar_shared": (
-        "Redakteur",
-        "Pressewart",
         "Leitung / Vorstand",
         "Vorstand",
         "Geschäftsführung",
         "Schriftführer",
+    ),
+    "calendar_offerings": (
+        "Leitung / Vorstand",
+        "Vorstand",
+        "Geschäftsführung",
+        "Dozenten",
+    ),
+    "calendar_billing": (
+        "Leitung / Vorstand",
+        "Vorstand",
+        "Geschäftsführung",
+        "Buchhaltung / Kassierer",
+        "Finanzen",
+        "Dozenten",
     ),
     "list_manage": (
         "Leitung / Vorstand",
@@ -35,6 +44,11 @@ DEFAULT_ROLE_GROUPS = {
         "Redakteur",
         "Pressewart",
         "Mitarbeiter",
+    ),
+    "form_inbox_manage": (
+        "Leitung / Vorstand",
+        "Vorstand",
+        "Geschäftsführung",
     ),
 }
 
