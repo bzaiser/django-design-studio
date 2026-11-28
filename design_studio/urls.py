@@ -10,6 +10,7 @@ urlpatterns = [
     path("save/", views.save_studio_view, name="save"),
     path("toggle-night/", views.toggle_night_mode_view, name="toggle_night"),
     path("toggle-menu-layout/", views.toggle_menu_layout_view, name="toggle_menu_layout"),
+    path("website-theme/", views.website_theme_action_view, name="website_theme_action"),
     path("export/", views.export_theme_json_view, name="export"),
     path("import/", views.import_theme_json_view, name="import"),
     path("manifest.webmanifest", views.pwa_manifest_view, name="pwa_manifest"),

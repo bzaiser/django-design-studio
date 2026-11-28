@@ -823,11 +823,40 @@
                             <div class="accordion-item bg-transparent" id="dsWebMenuAccordion">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button collapsed py-2 fw-bold bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#dsCollapseWebMenu" style="color: inherit;">
-                                        <i class="bi bi-globe2 me-2 text-primary"></i> {% trans "Webmenü (Öffentliche Navigation & Aussehen)" %}
+                                        <i class="bi bi-globe2 me-2 text-primary"></i> {% trans "Web-Studio (Öffentliche Navigation & Design)" %}
+                                        {% if ds_website_theme.locked %}
+                                        <span class="badge text-bg-success ms-2"><i class="bi bi-lock-fill me-1"></i>Festgeschrieben</span>
+                                        {% else %}
+                                        <span class="badge bg-body-secondary text-body border ms-2">Folgt App-Design</span>
+                                        {% endif %}
                                     </button>
                                 </h2>
                                 <div id="dsCollapseWebMenu" class="accordion-collapse collapse" data-bs-parent="#dsMenuAccordion">
                                     <div class="accordion-body">
+                                        <div class="border rounded-3 p-2 mb-3 bg-body-tertiary d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                            {% if ds_website_theme.locked %}
+                                            <div class="small">
+                                                <strong class="text-success"><i class="bi bi-lock-fill me-1"></i>Webseite-Design ist festgeschrieben</strong>
+                                                <div class="text-muted">App-Design-Änderungen wirken sich nicht auf die öffentliche Webseite aus.</div>
+                                            </div>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <button type="submit" formaction="{% url 'design_studio:website_theme_action' %}" name="website_theme_action" value="lock" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                                    <i class="bi bi-arrow-repeat me-1"></i>Vom Admin-Design aktualisieren
+                                                </button>
+                                                <button type="submit" formaction="{% url 'design_studio:website_theme_action' %}" name="website_theme_action" value="unlock" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                                    <i class="bi bi-unlock me-1"></i>Wieder mit App koppeln
+                                                </button>
+                                            </div>
+                                            {% else %}
+                                            <div class="small">
+                                                <strong><i class="bi bi-link-45deg me-1 text-primary"></i>Webseite folgt live dem Admin-App-Design</strong>
+                                                <div class="text-muted">Schreibe das aktuelle Design fest, wenn App und Webseite getrennt gestaltet werden sollen.</div>
+                                            </div>
+                                            <button type="submit" formaction="{% url 'design_studio:website_theme_action' %}" name="website_theme_action" value="lock" class="btn btn-sm btn-primary rounded-pill px-3">
+                                                <i class="bi bi-lock me-1"></i>Aktuelles Design für Webseite festschreiben
+                                            </button>
+                                            {% endif %}
+                                        </div>
                                         <input type="hidden" name="web_menu_config_json" id="dsWebMenuConfigInput" value="">
                                         <div class="row g-2 mb-3">
                                             <div class="col-12 col-sm-3">
@@ -863,6 +892,27 @@
                                                     <option value="auto_more" {% if web_menu_studio_cfg.overflow_mode == 'auto_more' %}selected{% endif %}>{% trans "Auto-Dropdown („Mehr“)" %}</option>
                                                     <option value="single" {% if web_menu_studio_cfg.overflow_mode == 'single' %}selected{% endif %}>{% trans "Einzeilig" %}</option>
                                                 </select>
+                                            </div>
+                                        </div>
+                                        <div class="border rounded-3 p-2 mb-3 bg-body-tertiary bg-opacity-50">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-auto">
+                                                    <div class="form-check form-switch mb-0">
+                                                        <input class="form-check-input" type="checkbox" id="dsWebShowLogo" {% if web_menu_studio_cfg.show_logo|default_if_none:True %}checked{% endif %}>
+                                                        <label class="form-check-label small fw-semibold" for="dsWebShowLogo">{% trans "Logo im Menü" %}</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <div class="form-check form-switch mb-0">
+                                                        <input class="form-check-input" type="checkbox" id="dsWebShowSiteName" {% if web_menu_studio_cfg.show_site_name|default_if_none:True %}checked{% endif %}>
+                                                        <label class="form-check-label small fw-semibold" for="dsWebShowSiteName">{% trans "Seitenname neben Logo" %}</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" id="dsWebBrandTitle" class="form-control form-control-sm"
+                                                           value="{{ web_menu_studio_cfg.brand_title|default:'' }}"
+                                                           placeholder="{% trans 'Abweichender Menü-Titel (optional)' %}" maxlength="80">
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
@@ -1046,6 +1096,9 @@
             var webAlign = document.getElementById('dsWebMenuAlign');
             var webActiveStyle = document.getElementById('dsWebMenuActiveStyle');
             var webOverflowMode = document.getElementById('dsWebMenuOverflowMode');
+            var webShowLogo = document.getElementById('dsWebShowLogo');
+            var webShowSiteName = document.getElementById('dsWebShowSiteName');
+            var webBrandTitle = document.getElementById('dsWebBrandTitle');
             function serializeWebMenu() {
                 if (!webTbody || !webInput) return;
                 var items = {};
@@ -1064,6 +1117,9 @@
                     align: webAlign ? webAlign.value : 'left',
                     active_style: webActiveStyle ? webActiveStyle.value : 'pill',
                     overflow_mode: webOverflowMode ? webOverflowMode.value : 'wrap',
+                    show_logo: webShowLogo ? webShowLogo.checked : true,
+                    show_site_name: webShowSiteName ? webShowSiteName.checked : true,
+                    brand_title: webBrandTitle ? webBrandTitle.value.trim() : '',
                     items: items
                 });
             }
@@ -1071,7 +1127,7 @@
                 if (typeof Sortable !== 'undefined') {
                     new Sortable(webTbody, { handle: '.ds-webmenu-drag', animation: 150, onEnd: serializeWebMenu });
                 }
-                [webTbody, webStyle, webAlign, webActiveStyle, webOverflowMode].forEach(function (el) {
+                [webTbody, webStyle, webAlign, webActiveStyle, webOverflowMode, webShowLogo, webShowSiteName, webBrandTitle].forEach(function (el) {
                     if (el) {
                         el.addEventListener('change', serializeWebMenu);
                         el.addEventListener('input', serializeWebMenu);

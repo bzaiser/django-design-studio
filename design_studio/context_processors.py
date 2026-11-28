@@ -94,6 +94,26 @@ def theme_context(request):
         except Exception:
             pass
 
+    ds_website_theme = {"locked": False, "summary": ""}
+    website_bg_override = ""
+    try:
+        from django.apps import apps
+        if apps.is_installed("site_kit"):
+            from site_kit.models import SiteConfig
+            sc_obj = SiteConfig.get_solo()
+            wt_locked = bool(getattr(sc_obj, "website_theme_locked", False))
+            wt_json = getattr(sc_obj, "website_theme_json", None) or {}
+            if wt_locked and isinstance(wt_json, dict) and wt_json:
+                ds_website_theme = {
+                    "locked": True,
+                    "summary": f"{wt_json.get('mood', 'modern')} · {wt_json.get('c1', '')}",
+                }
+                if getattr(request, "_ds_is_public_website", False):
+                    ts = normalize_settings(wt_json)
+                    website_bg_override = (wt_json.get("custom_bg_photo_url") or "").strip()
+    except Exception:
+        pass
+
     palette = compute_theme_palette(
         c1=ts["c1"],
         c2=ts["c2"],
@@ -111,7 +131,11 @@ def theme_context(request):
         custom_genre_bgs = get_user_genre_bg_map(site_user)
     if active_genre and active_genre.get("key") in custom_genre_bgs:
         active_genre = {**active_genre, "custom_photo_url": custom_genre_bgs[active_genre["key"]]}
-    if active_genre:
+    if website_bg_override:
+        ds_bg_photo_url = website_bg_override
+        if active_genre:
+            active_genre = {**active_genre, "custom_photo_url": website_bg_override}
+    elif active_genre:
         ds_bg_photo_url = active_genre.get("custom_photo_url") or (active_genre.get("photo_url") if ts.get("genre_photos_enabled") else "")
     else:
         ds_bg_photo_url = custom_genre_bgs.get("standard", "")
@@ -161,6 +185,7 @@ def theme_context(request):
         "genre_choices": [(gk, str(gl)) for gk, gl in GENRE_CHOICES],
         "active_genre": active_genre,
         "ds_bg_photo_url": ds_bg_photo_url,
+        "ds_website_theme": ds_website_theme,
         "genre_preview_json": json.dumps({
             **{
                 k: {

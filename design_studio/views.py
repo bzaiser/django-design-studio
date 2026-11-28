@@ -790,3 +790,42 @@ def branding_view(request):
         "person_options": person_options,
         "branding_preview": get_branding_context("pdf"),
     })
+
+
+@login_required
+@require_POST
+def website_theme_action_view(request):
+    from django.apps import apps
+    from django.contrib import messages
+    from .bg_media import get_user_genre_bg_map
+    from .context_processors import _resolve_site_admin_theme
+
+    if not (getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False)):
+        return HttpResponse("Kein Zugriff.", status=403)
+    if not apps.is_installed("site_kit"):
+        return redirect("design_studio:studio")
+
+    from site_kit.models import SiteConfig
+    sc = SiteConfig.get_solo()
+    action = (request.POST.get("website_theme_action") or "").strip()
+    if action == "unlock":
+        sc.website_theme_locked = False
+        sc.save(update_fields=["website_theme_locked"])
+        messages.info(request, "Webseite-Design ist wieder mit dem Admin-App-Design gekoppelt.")
+    else:
+        adapter = get_storage_adapter()
+        default_norm = normalize_settings(DEFAULT_SETTINGS)
+        site_user, admin_ts = _resolve_site_admin_theme(adapter, default_norm)
+        snapshot = dict(normalize_settings(admin_ts))
+        bg_map = get_user_genre_bg_map(site_user or request.user)
+        gkey = snapshot.get("default_genre") or "standard"
+        if gkey in bg_map:
+            snapshot["custom_bg_photo_url"] = bg_map[gkey]
+        sc.website_theme_json = snapshot
+        sc.website_theme_locked = True
+        sc.save(update_fields=["website_theme_json", "website_theme_locked"])
+        messages.success(request, "Aktuelles Design für die öffentliche Webseite festgeschrieben.")
+    next_url = (request.POST.get("next") or request.META.get("HTTP_REFERER") or "").strip()
+    if next_url and next_url.startswith("/"):
+        return redirect(next_url)
+    return redirect("design_studio:studio")
