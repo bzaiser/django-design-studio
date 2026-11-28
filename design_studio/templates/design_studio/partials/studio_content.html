@@ -914,6 +914,43 @@
                                                            placeholder="{% trans 'Abweichender Menü-Titel (optional)' %}" maxlength="80">
                                                 </div>
                                             </div>
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-6 col-sm-3">
+                                                    <label class="form-label small fw-semibold mb-0">{% trans "Logo-Größe" %}</label>
+                                                    <select id="dsWebLogoSize" class="form-select form-select-sm">
+                                                        <option value="sm" {% if web_menu_studio_cfg.logo_size == 'sm' or not web_menu_studio_cfg.logo_size %}selected{% endif %}>{% trans "Klein (32 px)" %}</option>
+                                                        <option value="md" {% if web_menu_studio_cfg.logo_size == 'md' %}selected{% endif %}>{% trans "Mittel (44 px)" %}</option>
+                                                        <option value="lg" {% if web_menu_studio_cfg.logo_size == 'lg' %}selected{% endif %}>{% trans "Groß (56 px)" %}</option>
+                                                        <option value="xl" {% if web_menu_studio_cfg.logo_size == 'xl' %}selected{% endif %}>{% trans "Banner (72 px)" %}</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-6 col-sm-3">
+                                                    <label class="form-label small fw-semibold mb-0">{% trans "Logo-Form" %}</label>
+                                                    <select id="dsWebLogoShape" class="form-select form-select-sm">
+                                                        <option value="rounded" {% if web_menu_studio_cfg.logo_shape == 'rounded' or not web_menu_studio_cfg.logo_shape %}selected{% endif %}>{% trans "Abgerundet" %}</option>
+                                                        <option value="square" {% if web_menu_studio_cfg.logo_shape == 'square' %}selected{% endif %}>{% trans "Eckig" %}</option>
+                                                        <option value="circle" {% if web_menu_studio_cfg.logo_shape == 'circle' %}selected{% endif %}>{% trans "Kreis / Rund" %}</option>
+                                                        <option value="pill" {% if web_menu_studio_cfg.logo_shape == 'pill' %}selected{% endif %}>{% trans "Pill" %}</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-6 col-sm-3">
+                                                    <label class="form-label small fw-semibold mb-0">{% trans "Logo-Hintergrund" %}</label>
+                                                    <select id="dsWebLogoBg" class="form-select form-select-sm">
+                                                        <option value="none" {% if web_menu_studio_cfg.logo_bg == 'none' or not web_menu_studio_cfg.logo_bg %}selected{% endif %}>{% trans "Transparent" %}</option>
+                                                        <option value="light_badge" {% if web_menu_studio_cfg.logo_bg == 'light_badge' %}selected{% endif %}>{% trans "Helles Badge" %}</option>
+                                                        <option value="glass_badge" {% if web_menu_studio_cfg.logo_bg == 'glass_badge' %}selected{% endif %}>{% trans "Milchglas-Badge" %}</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-6 col-sm-3">
+                                                    <label class="form-label small fw-semibold mb-0">{% trans "Menü-Abstand" %}</label>
+                                                    <select id="dsWebNavPadding" class="form-select form-select-sm">
+                                                        <option value="normal" {% if web_menu_studio_cfg.nav_padding == 'normal' or not web_menu_studio_cfg.nav_padding %}selected{% endif %}>{% trans "Standard" %}</option>
+                                                        <option value="compact" {% if web_menu_studio_cfg.nav_padding == 'compact' %}selected{% endif %}>{% trans "Sehr schmal" %}</option>
+                                                        <option value="flush" {% if web_menu_studio_cfg.nav_padding == 'flush' %}selected{% endif %}>{% trans "Randlos (oben/unten)" %}</option>
+                                                        <option value="flush_edge" {% if web_menu_studio_cfg.nav_padding == 'flush_edge' %}selected{% endif %}>{% trans "Komplett randlos" %}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
                                             <span class="small fw-bold">{% trans "Öffentliche Menüpunkte sortieren & anpassen:" %}</span>
@@ -1099,6 +1136,10 @@
             var webShowLogo = document.getElementById('dsWebShowLogo');
             var webShowSiteName = document.getElementById('dsWebShowSiteName');
             var webBrandTitle = document.getElementById('dsWebBrandTitle');
+            var webLogoSize = document.getElementById('dsWebLogoSize');
+            var webLogoShape = document.getElementById('dsWebLogoShape');
+            var webLogoBg = document.getElementById('dsWebLogoBg');
+            var webNavPadding = document.getElementById('dsWebNavPadding');
             function serializeWebMenu() {
                 if (!webTbody || !webInput) return;
                 var items = {};
@@ -1120,6 +1161,10 @@
                     show_logo: webShowLogo ? webShowLogo.checked : true,
                     show_site_name: webShowSiteName ? webShowSiteName.checked : true,
                     brand_title: webBrandTitle ? webBrandTitle.value.trim() : '',
+                    logo_size: webLogoSize ? webLogoSize.value : 'sm',
+                    logo_shape: webLogoShape ? webLogoShape.value : 'rounded',
+                    logo_bg: webLogoBg ? webLogoBg.value : 'none',
+                    nav_padding: webNavPadding ? webNavPadding.value : 'normal',
                     items: items
                 });
             }
@@ -1127,7 +1172,7 @@
                 if (typeof Sortable !== 'undefined') {
                     new Sortable(webTbody, { handle: '.ds-webmenu-drag', animation: 150, onEnd: serializeWebMenu });
                 }
-                [webTbody, webStyle, webAlign, webActiveStyle, webOverflowMode, webShowLogo, webShowSiteName, webBrandTitle].forEach(function (el) {
+                [webTbody, webStyle, webAlign, webActiveStyle, webOverflowMode, webShowLogo, webShowSiteName, webBrandTitle, webLogoSize, webLogoShape, webLogoBg, webNavPadding].forEach(function (el) {
                     if (el) {
                         el.addEventListener('change', serializeWebMenu);
                         el.addEventListener('input', serializeWebMenu);
