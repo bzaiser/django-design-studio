@@ -730,7 +730,13 @@ body[data-card-surface="liquid"] .ds-tab-panel.ds-plate-ready::after {
 .form-select {
     background-color: var(--app-input-bg, var(--app-card-bg)) !important;
     color: var(--app-input-color, var(--app-card-color)) !important;
-    border: 1px solid var(--app-input-border, var(--app-table-border-color, rgba(128,128,128,0.2))) !important;
+    border: 1px solid color-mix(in srgb, var(--app-card-color, #1e293b) 22%, transparent) !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.input-group-text {
+    background-color: color-mix(in srgb, var(--app-card-bg, #ffffff) 92%, var(--app-card-color, #1e293b) 8%) !important;
+    color: var(--app-card-color, #1e293b) !important;
+    border: 1px solid color-mix(in srgb, var(--app-card-color, #1e293b) 22%, transparent) !important;
 }
 .form-control:focus,
 .form-select:focus {
@@ -903,15 +909,46 @@ nav,
     z-index: 1050 !important;
 }
 .modal-content {
-    background: var(--app-card-bg, var(--bs-body-bg, #ffffff)) !important;
-    background-color: var(--app-card-bg, var(--bs-body-bg, #ffffff)) !important;
+    background: color-mix(in srgb, var(--app-card-bg, var(--bs-body-bg, #f8fafc)) 96%, var(--app-primary, #0d6efd) 4%) !important;
+    background-color: color-mix(in srgb, var(--app-card-bg, var(--bs-body-bg, #f8fafc)) 96%, var(--app-primary, #0d6efd) 4%) !important;
     color: var(--app-card-color, var(--bs-modal-color, #212529)) !important;
     opacity: 1 !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    border: 1px solid var(--app-table-border-color, rgba(128, 128, 128, 0.2)) !important;
+    border: 1px solid color-mix(in srgb, var(--app-card-color, #1e293b) 18%, transparent) !important;
     border-radius: 1rem !important;
     box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.35) !important;
+    overflow: hidden;
+}
+.modal-content .modal-header {
+    background: color-mix(in srgb, var(--app-primary, #0d6efd) 5%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--app-card-color, #1e293b) 12%, transparent);
+}
+.modal-content .modal-footer {
+    border-top: 1px solid color-mix(in srgb, var(--app-card-color, #1e293b) 12%, transparent);
+    background: color-mix(in srgb, var(--app-card-color, #1e293b) 2%, transparent);
+}
+.modal-content .form-label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+.modal-content .form-control,
+.modal-content .form-select {
+    background-color: #ffffff !important;
+    border-color: color-mix(in srgb, var(--app-card-color, #1e293b) 24%, transparent) !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+.modal-content .form-control:focus,
+.modal-content .form-select:focus {
+    background-color: #ffffff !important;
+    border-color: var(--app-primary, #0d6efd) !important;
+}
+[data-bs-theme="dark"] .modal-content .form-control,
+[data-bs-theme="dark"] .modal-content .form-select,
+[data-bs-theme="dark"] .modal-content .form-control:focus,
+[data-bs-theme="dark"] .modal-content .form-select:focus {
+    background-color: color-mix(in srgb, var(--app-card-bg, #1e293b) 80%, #000000) !important;
+    border-color: color-mix(in srgb, var(--app-card-color, #f8fafc) 24%, transparent) !important;
 }
 .modal-content .btn-primary {
     background: var(--app-gradient) !important;
